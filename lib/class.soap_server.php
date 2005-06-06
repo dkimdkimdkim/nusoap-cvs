@@ -164,15 +164,18 @@ class soap_server extends nusoap_base {
 		global $_SERVER;
 
 		$this->request = '';
+		$this->SOAPAction = '';
 		if(function_exists('getallheaders')){
-			$this->headers = getallheaders();
-			foreach($this->headers as $k=>$v){
+			$headers = getallheaders();
+			foreach($headers as $k=>$v){
+				$k = str_replace(' ', '-', ucwords(strtolower(str_replace('-', ' ', $k))));
+				$this->headers[$k] = $v;
 				$this->request .= "$k: $v\r\n";
 				$this->debug("$k: $v");
 			}
 			// get SOAPAction header
-			if(isset($this->headers['SOAPAction'])){
-				$this->SOAPAction = str_replace('"','',$this->headers['SOAPAction']);
+			if(isset($this->headers['Soapaction'])){
+				$this->SOAPAction = str_replace('"','',$this->headers['Soapaction']);
 			}
 			// get the character encoding of the incoming request
 			if(isset($this->headers['Content-Type']) && strpos($this->headers['Content-Type'],'=')){
@@ -343,7 +346,26 @@ class soap_server extends nusoap_base {
 	* @access   private
 	*/
 	function invoke_method() {
-		$this->debug('entering invoke_method methodname: ' . $this->methodname . ' methodURI: ' . $this->methodURI);
+		$this->debug('in invoke_method, methodname=' . $this->methodname . ' methodURI=' . $this->methodURI . ' SOAPAction=' . $this->SOAPAction);
+
+		if ($this->wsdl) {
+			if ($this->opData = $this->wsdl->getOperationData($this->methodname)) {
+				$this->debug('in invoke_method, found WSDL operation=' . $this->methodname);
+				$this->appendDebug('opData=' . $this->varDump($this->opData));
+			} elseif ($this->opData = $this->wsdl->getOperationDataForSoapAction($this->SOAPAction)) {
+				// Note: hopefully this case will only be used for doc/lit, since rpc services should have wrapper element
+				$this->debug('in invoke_method, found WSDL soapAction=' . $this->SOAPAction . ' for operation=' . $this->opData['name']);
+				$this->appendDebug('opData=' . $this->varDump($this->opData));
+				$this->methodname = $this->opData['name'];
+			} else {
+				$this->debug('in invoke_method, no WSDL for operation=' . $this->methodname);
+				$this->fault('Client', "Operation '$this->methodname' is not defined in the WSDL for this service");
+				return;
+			}
+		} else {
+			$this->debug('in invoke_method, no WSDL to validate method');
+		}
+
 		// if a . is present in $this->methodname, we see if there is a class in scope,
 		// which could be referred to. We will also distinguish between two deliminators,
 		// to allow methods to be called a the class or an instance
@@ -362,13 +384,13 @@ class soap_server extends nusoap_base {
 			// get the class and method name
 			$class = substr($this->methodname, 0, strpos($this->methodname, $delim));
 			$method = substr($this->methodname, strpos($this->methodname, $delim) + strlen($delim));
-			$this->debug("class: $class method: $method delim: $delim");
+			$this->debug("in invoke_method, class=$class method=$method delim=$delim");
 		}
 
 		// does method exist?
 		if ($class == '') {
 			if (!function_exists($this->methodname)) {
-				$this->debug("function '$this->methodname' not found!");
+				$this->debug("in invoke_method, function '$this->methodname' not found!");
 				$this->result = 'fault: method not found';
 				$this->fault('Client',"method '$this->methodname' not defined in service");
 				return;
@@ -376,23 +398,13 @@ class soap_server extends nusoap_base {
 		} else {
 			$method_to_compare = (substr(phpversion(), 0, 2) == '4.') ? strtolower($method) : $method;
 			if (!in_array($method_to_compare, get_class_methods($class))) {
-				$this->debug("method '$this->methodname' not found in class '$class'!");
+				$this->debug("in invoke_method, method '$this->methodname' not found in class '$class'!");
 				$this->result = 'fault: method not found';
 				$this->fault('Client',"method '$this->methodname' not defined in service");
 				return;
 			}
 		}
 
-		if($this->wsdl){
-			if(!$this->opData = $this->wsdl->getOperationData($this->methodname)){
-			//if(
-				$this->fault('Client',"Operation '$this->methodname' is not defined in the WSDL for this service");
-				return;
-			}
-			$this->debug('Found operation');
-			$this->appendDebug('opData=' . $this->varDump($this->opData));
-		}
-		$this->debug("method '$this->methodname' exists");
 		// evaluate message, getting back parameters
 		// verify that request parameters match the method's signature
 		if(! $this->verify_method($this->methodname,$this->methodparams)){
@@ -405,19 +417,19 @@ class soap_server extends nusoap_base {
 		}
 
 		// if there are parameters to pass
-		$this->debug('params:');
+		$this->debug('in invoke_method, params:');
 		$this->appendDebug($this->varDump($this->methodparams));
-		$this->debug("calling '$this->methodname'");
+		$this->debug("in invoke_method, calling '$this->methodname'");
 		if (!function_exists('call_user_func_array')) {
 			if ($class == '') {
-				$this->debug('calling function using eval()');
+				$this->debug('in invoke_method, calling function using eval()');
 				$funcCall = "\$this->methodreturn = $this->methodname(";
 			} else {
 				if ($delim == '..') {
-					$this->debug('calling class method using eval()');
+					$this->debug('in invoke_method, calling class method using eval()');
 					$funcCall = "\$this->methodreturn = ".$class."::".$method."(";
 				} else {
-					$this->debug('calling instance method using eval()');
+					$this->debug('in invoke_method, calling instance method using eval()');
 					// generate unique instance name
 					$instname = "\$inst_".time();
 					$funcCall = $instname." = new ".$class."(); ";
@@ -435,25 +447,25 @@ class soap_server extends nusoap_base {
 				$funcCall = substr($funcCall, 0, -1);
 			}
 			$funcCall .= ');';
-			$this->debug('function call: '.$funcCall);
+			$this->debug('in invoke_method, function call: '.$funcCall);
 			@eval($funcCall);
 		} else {
 			if ($class == '') {
-				$this->debug('calling function using call_user_func_array()');
+				$this->debug('in invoke_method, calling function using call_user_func_array()');
 				$call_arg = "$this->methodname";	// straight assignment changes $this->methodname to lower case after call_user_func_array()
 			} elseif ($delim == '..') {
-				$this->debug('calling class method using call_user_func_array()');
+				$this->debug('in invoke_method, calling class method using call_user_func_array()');
 				$call_arg = array ($class, $method);
 			} else {
-				$this->debug('calling instance method using call_user_func_array()');
+				$this->debug('in invoke_method, calling instance method using call_user_func_array()');
 				$instance = new $class ();
 				$call_arg = array(&$instance, $method);
 			}
 			$this->methodreturn = call_user_func_array($call_arg, $this->methodparams);
 		}
-        $this->debug('methodreturn:');
+        $this->debug('in invoke_method, methodreturn:');
         $this->appendDebug($this->varDump($this->methodreturn));
-		$this->debug("leaving invoke_method: called method $this->methodname, received $this->methodreturn of type ".gettype($this->methodreturn));
+		$this->debug("in invoke_method, called method $this->methodname, received $this->methodreturn of type ".gettype($this->methodreturn));
 	}
 
 	/**
@@ -625,8 +637,9 @@ class soap_server extends nusoap_base {
 	* takes the value that was created by parsing the request
 	* and compares to the method's signature, if available.
 	*
-	* @param	mixed
-	* @return	boolean
+	* @param	string	$operation	The operation to be invoked
+	* @param	array	$request	The array of parameter values
+	* @return	boolean	Whether the operation was found
 	* @access   private
 	*/
 	function verify_method($operation,$request){
@@ -647,6 +660,7 @@ class soap_server extends nusoap_base {
 	* @param    string $in array of input values
 	* @param    string $out array of output values
 	* @access   public
+	* @deprecated
 	*/
 	function add_to_map($methodname,$in,$out){
 			$this->operations[$methodname] = array('name' => $methodname,'in' => $in,'out' => $out);
@@ -669,6 +683,15 @@ class soap_server extends nusoap_base {
 	function register($name,$in=array(),$out=array(),$namespace=false,$soapaction=false,$style=false,$use=false,$documentation='',$encodingStyle=''){
 		if($this->externalWSDLURL){
 			die('You cannot bind to an external WSDL file, and register methods outside of it! Please choose either WSDL or no WSDL.');
+		}
+		if (! $name) {
+			die('You must specify a name when you register an operation');
+		}
+		if (!is_array($in)) {
+			die('You must provide an array for operation inputs');
+		}
+		if (!is_array($out)) {
+			die('You must provide an array for operation outputs');
 		}
 		if(false == $namespace) {
 		}

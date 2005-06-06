@@ -24,7 +24,7 @@ class soap_fault extends nusoap_base {
     * @param string $faultcode (client | server)
     * @param string $faultactor only used when msg routed between multiple actors
     * @param string $faultstring human readable error message
-    * @param string $faultdetail
+    * @param mixed $faultdetail detail, typically a string or array of string
 	*/
 	function soap_fault($faultcode,$faultactor='',$faultstring='',$faultdetail=''){
 		parent::nusoap_base();
@@ -37,6 +37,7 @@ class soap_fault extends nusoap_base {
 	/**
 	* serialize a fault
 	*
+	* @return	string	The serialization of the fault instance.
 	* @access   public
 	*/
 	function serialize(){
@@ -49,10 +50,10 @@ class soap_fault extends nusoap_base {
 			'<SOAP-ENV:Envelope SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"'.$ns_string.">\n".
 				'<SOAP-ENV:Body>'.
 				'<SOAP-ENV:Fault>'.
-					'<faultcode>'.$this->expandEntities($this->faultcode).'</faultcode>'.
-					'<faultactor>'.$this->expandEntities($this->faultactor).'</faultactor>'.
-					'<faultstring>'.$this->expandEntities($this->faultstring).'</faultstring>'.
-					'<detail>'.$this->serialize_val($this->faultdetail).'</detail>'.
+					$this->serialize_val($this->faultcode, 'faultcode').
+					$this->serialize_val($this->faultactor, 'faultactor').
+					$this->serialize_val($this->faultstring, 'faultstring').
+					$this->serialize_val($this->faultdetail, 'detail').
 				'</SOAP-ENV:Fault>'.
 				'</SOAP-ENV:Body>'.
 			'</SOAP-ENV:Envelope>';

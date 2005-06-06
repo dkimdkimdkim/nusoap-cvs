@@ -385,3 +385,15 @@
 - nusoap_base: improve debug and comments
 - nusoap_base: fix version, which should have been 0.7.0 since 2005-03-04
 
+2005-06-03, version 0.7.1
+- nusoap_base: adjust numeric element names for serialization, instead of forcing them to 'soapVal'
+- nusoapmime: add type=text/xml to multipart/related (thanks Emmanuel Cordonnier)
+- soap_fault: fix serialization of detail
+- soap_server: check required parameters for register method
+- soap_server: when getallheaders is used, massage header names
+- soap_server: use SOAPAction to determine operation when doc/lit service does not wrap parameters in an element with the method name (thanks Peter Hrastnik)
+- soap_transport_http: correctly handle multiple HTTP/1.1 100 responses for https (thanks Jan Slabon)
+- wsdl: fixed documentation for addComplexType (thanks Csintalan Ádám)
+- wsdl: serialize array data when maxOccurs = 'unbounded' OR maxOccurs > 1 (thanks Dominique Schreckling)
+- wsdl: when serializing a string == 'false' as a boolean, set the value to false
+- wsdl: when serializing a complexType, require the PHP value supplied to be an array

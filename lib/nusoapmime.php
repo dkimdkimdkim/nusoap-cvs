@@ -126,7 +126,7 @@ class soapclientmime extends soapclient {
 	*/
 	function getHTTPBody($soapmsg) {
 		if (count($this->requestAttachments) > 0) {
-			$params['content_type'] = 'multipart/related';
+			$params['content_type'] = 'multipart/related; type=text/xml';
 			$mimeMessage =& new Mail_mimePart('', $params);
 			unset($params);
 

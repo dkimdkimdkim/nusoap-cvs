@@ -76,7 +76,7 @@ class nusoap_base {
 	 * @var string
 	 * @access private
 	 */
-	var $version = '0.7.0';
+	var $version = '0.7.1';
 	/**
 	 * CVS revision for HTTP headers.
 	 *
@@ -383,17 +383,19 @@ class nusoap_base {
     * @access	public
 	*/
 	function serialize_val($val,$name=false,$type=false,$name_ns=false,$type_ns=false,$attributes=false,$use='encoded'){
-		$this->appendDebug("in serialize_val: name=$name, type=$type, name_ns=$name_ns, type_ns=$type_ns, use=$use, value=");
-		$this->appendDebug($this->varDump($val));
-		$this->appendDebug(", attributes=");
-		$this->appendDebug($this->varDump($attributes));
-		$this->debug("");
+		$this->debug("in serialize_val: name=$name, type=$type, name_ns=$name_ns, type_ns=$type_ns, use=$use");
+		$this->appendDebug('value=' . $this->varDump($val));
+		$this->appendDebug('attributes=' . $this->varDump($attributes));
 		
     	if(is_object($val) && get_class($val) == 'soapval'){
         	return $val->serialize($use);
         }
-		// if no name, use item
-		$name = (!$name|| is_numeric($name)) ? 'soapVal' : $name;
+		// force valid name if necessary
+		if (is_numeric($name)) {
+			$name = '__numeric_' . $name;
+		} elseif (! $name) {
+			$name = 'noname';
+		}
 		// if name has ns, add ns prefix to name
 		$xmlns = '';
         if($name_ns){

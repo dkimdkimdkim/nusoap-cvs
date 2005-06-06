@@ -575,8 +575,35 @@ class wsdl extends nusoap_base {
 				// get binding
 				//foreach($this->bindings[ $portData['binding'] ]['operations'] as $bOperation => $opData) {
 				foreach(array_keys($this->bindings[ $portData['binding'] ]['operations']) as $bOperation) {
+					// note that we could/should also check the namespace here
 					if ($operation == $bOperation) {
 						$opData = $this->bindings[ $portData['binding'] ]['operations'][$operation];
+					    return $opData;
+					} 
+				} 
+			}
+		} 
+	}
+	
+	/**
+	 * returns an associative array of data necessary for calling an operation
+	 * 
+	 * @param string $soapAction soapAction for operation
+	 * @param string $bindingType type of binding eg: soap
+	 * @return array 
+	 * @access public 
+	 */
+	function getOperationDataForSoapAction($soapAction, $bindingType = 'soap') {
+		if ($bindingType == 'soap') {
+			$bindingType = 'http://schemas.xmlsoap.org/wsdl/soap/';
+		}
+		// loop thru ports
+		foreach($this->ports as $port => $portData) {
+			// binding type of port matches parameter
+			if ($portData['bindingType'] == $bindingType) {
+				// loop through operations for the binding
+				foreach ($this->bindings[ $portData['binding'] ]['operations'] as $bOperation => $opData) {
+					if ($opData['soapAction'] == $soapAction) {
 					    return $opData;
 					} 
 				} 
@@ -1131,10 +1158,12 @@ class wsdl extends nusoap_base {
 					$this->debug("in serializeType: returning: $xml");
 					return $xml;
 				}
-		    	if ($uqType == 'boolean' && !$value) {
-					$value = 'false';
-				} elseif ($uqType == 'boolean') {
-					$value = 'true';
+		    	if ($uqType == 'boolean') {
+		    		if ((is_string($value) && $value == 'false') || (! $value)) {
+						$value = 'false';
+					} else {
+						$value = 'true';
+					}
 				} 
 				if ($uqType == 'string' && gettype($value) == 'string') {
 					$value = $this->expandEntities($value);
@@ -1234,19 +1263,25 @@ class wsdl extends nusoap_base {
 				$this->debug("in serializeType: returning: $xml");
 				return $xml;
 			}
-			$elementAttrs = $this->serializeComplexTypeAttributes($typeDef, $value, $ns, $uqType);
-			if ($use == 'literal') {
-				if ($forceType) {
-					$xml = "<$elementName$elementNS$elementAttrs xsi:type=\"" . $this->getPrefixFromNamespace($ns) . ":$uqType\">";
+			if (is_array($value)) {
+				$elementAttrs = $this->serializeComplexTypeAttributes($typeDef, $value, $ns, $uqType);
+				if ($use == 'literal') {
+					if ($forceType) {
+						$xml = "<$elementName$elementNS$elementAttrs xsi:type=\"" . $this->getPrefixFromNamespace($ns) . ":$uqType\">";
+					} else {
+						$xml = "<$elementName$elementNS$elementAttrs>";
+					}
 				} else {
-					$xml = "<$elementName$elementNS$elementAttrs>";
+					$xml = "<$elementName$elementNS$elementAttrs xsi:type=\"" . $this->getPrefixFromNamespace($ns) . ":$uqType\"$encodingStyle>";
 				}
+	
+				$xml .= $this->serializeComplexTypeElements($typeDef, $value, $ns, $uqType, $use, $encodingStyle);
+				$xml .= "</$elementName>";
 			} else {
-				$xml = "<$elementName$elementNS$elementAttrs xsi:type=\"" . $this->getPrefixFromNamespace($ns) . ":$uqType\"$encodingStyle>";
+				$this->debug("in serializeType: phpType is struct, but value is not an array");
+				$this->setError("phpType is struct, but value is not an array: see debug output for details");
+				$xml = '';
 			}
-
-			$xml .= $this->serializeComplexTypeElements($typeDef, $value, $ns, $uqType, $use, $encodingStyle);
-			$xml .= "</$elementName>";
 		} elseif ($phpType == 'array') {
 			if (isset($typeDef['form']) && ($typeDef['form'] == 'qualified')) {
 				$elementNS = " xmlns=\"$ns\"";
@@ -1456,8 +1491,7 @@ class wsdl extends nusoap_base {
 					} else {
 						$unqualified = false;
 					}
-					// TODO: if maxOccurs > 1 (not just unbounded), then allow serialization of an array
-					if (isset($attrs['maxOccurs']) && $attrs['maxOccurs'] == 'unbounded' && isset($v) && is_array($v) && $this->isArraySimpleOrStruct($v) == 'arraySimple') {
+					if (isset($attrs['maxOccurs']) && ($attrs['maxOccurs'] == 'unbounded' || $attrs['maxOccurs'] > 1) && isset($v) && is_array($v) && $this->isArraySimpleOrStruct($v) == 'arraySimple') {
 						$vv = $v;
 						foreach ($vv as $k => $v) {
 							if (isset($attrs['type'])) {
@@ -1508,14 +1542,9 @@ class wsdl extends nusoap_base {
 	* @param string phpType: currently supported are array and struct (php assoc array)
 	* @param string compositor (all|sequence|choice)
 	* @param string restrictionBase namespace:name (http://schemas.xmlsoap.org/soap/encoding/:Array)
-	* @param array elements = array ( name = array(name=>'',type=>'') )
-	* @param array attrs = array(
-	* 	array(
-	*		'ref' => "http://schemas.xmlsoap.org/soap/encoding/:arrayType",
-	*		"http://schemas.xmlsoap.org/wsdl/:arrayType" => "string[]"
-	* 	)
-	* )
-	* @param string arrayType: namespace:name (http://www.w3.org/2001/XMLSchema:string)
+	* @param array elements = array ( name => array(name=>'',type=>'') )
+	* @param array attrs = 	array(array('ref'=>'SOAP-ENC:arrayType','wsdl:arrayType'=>'xsd:string[]'))
+	* @param string arrayType: namespace:name (xsd:string)
 	* @see xmlschema
 	* @access public
 	*/

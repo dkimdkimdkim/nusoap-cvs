@@ -182,10 +182,17 @@ class soap_transport_http extends nusoap_base {
 			$this->persistentConnection = false;
 			$this->outgoing_headers['Connection'] = 'close';
 		}
-		// set timeout (NOTE: cURL does not have separate connection and response timeouts)
+		// set timeout
 		if ($connection_timeout != 0) {
 			curl_setopt($this->ch, CURLOPT_TIMEOUT, $connection_timeout);
 		}
+		// TODO: cURL has added a connection timeout separate from the response timeout
+		//if ($connection_timeout != 0) {
+		//	curl_setopt($this->ch, CURLOPT_CONNECTIONTIMEOUT, $connection_timeout);
+		//}
+		//if ($response_timeout != 0) {
+		//	curl_setopt($this->ch, CURLOPT_TIMEOUT, $response_timeout);
+		//}
 
 		// recent versions of cURL turn on peer/host checking by default,
 		// while PHP binaries are not compiled with a default location for the
@@ -710,6 +717,7 @@ class soap_transport_http extends nusoap_base {
         $cErr = curl_error($this->ch);
 		if ($cErr != '') {
         	$err = 'cURL ERROR: '.curl_errno($this->ch).': '.$cErr.'<br>';
+        	// TODO: there is a PHP bug that can cause this to SEGV for CURLINFO_CONTENT_TYPE
 			foreach(curl_getinfo($this->ch) as $k => $v){
 				$err .= "$k: $v<br>";
 			}
@@ -726,8 +734,8 @@ class soap_transport_http extends nusoap_base {
 		$this->debug('No cURL error, closing cURL');
 		curl_close($this->ch);
 		
-		// remove 100 header
-		if (ereg('^HTTP/1.1 100',$data)) {
+		// remove 100 header(s)
+		while (ereg('^HTTP/1.1 100',$data)) {
 			if ($pos = strpos($data,"\r\n\r\n")) {
 				$data = ltrim(substr($data,$pos));
 			} elseif($pos = strpos($data,"\n\n") ) {
@@ -910,7 +918,8 @@ class soap_transport_http extends nusoap_base {
 	 * @param	string $cookie_str content of cookie
 	 * @return	array with data of that cookie
 	 * @access	private
-	 *
+	 */
+	/*
 	 * TODO: allow a Set-Cookie string to be parsed into multiple cookies
 	 */
 	function parseCookie($cookie_str) {
