@@ -51,6 +51,7 @@ class soap_transport_http extends nusoap_base {
 		$this->setURL($url);
 		ereg('\$Revisio' . 'n: ([^ ]+)', $this->revision, $rev);
 		$this->outgoing_headers['User-Agent'] = $this->title.'/'.$this->version.' ('.$rev[1].')';
+		$this->debug('set User-Agent: ' . $this->outgoing_headers['User-Agent']);
 	}
 
 	function setURL($url) {
@@ -85,7 +86,8 @@ class soap_transport_http extends nusoap_base {
 		} else {
 			$this->outgoing_headers['Host'] = $this->host.':'.$this->port;
 		}
-		
+		$this->debug('set Host: ' . $this->outgoing_headers['Host']);
+
 		if (isset($u['user']) && $u['user'] != '') {
 			$this->setCredentials(urldecode($u['user']), isset($u['pass']) ? urldecode($u['pass']) : '');
 		}
@@ -181,6 +183,7 @@ class soap_transport_http extends nusoap_base {
 			//curl_setopt($this->ch, CURL_HTTP_VERSION_1_1, true);
 			$this->persistentConnection = false;
 			$this->outgoing_headers['Connection'] = 'close';
+			$this->debug('set Connection: ' . $this->outgoing_headers['Connection']);
 		}
 		// set timeout
 		if ($connection_timeout != 0) {
@@ -357,7 +360,7 @@ class soap_transport_http extends nusoap_base {
 		$this->digestRequest = $digestRequest;
 		
 		if (isset($this->outgoing_headers['Authorization'])) {
-			$this->debug('Authorization header set: ' . substr($this->outgoing_headers['Authorization'], 0, 12) . '...');
+			$this->debug('set Authorization: ' . substr($this->outgoing_headers['Authorization'], 0, 12) . '...');
 		} else {
 			$this->debug('Authorization header not set');
 		}
@@ -371,6 +374,7 @@ class soap_transport_http extends nusoap_base {
 	*/
 	function setSOAPAction($soapaction) {
 		$this->outgoing_headers['SOAPAction'] = '"' . $soapaction . '"';
+		$this->debug('set SOAPAction: ' . $this->outgoing_headers['SOAPAction']);
 	}
 	
 	/**
@@ -383,9 +387,11 @@ class soap_transport_http extends nusoap_base {
 		if (function_exists('gzdeflate')) {
 			$this->protocol_version = '1.1';
 			$this->outgoing_headers['Accept-Encoding'] = $enc;
+			$this->debug('set Accept-Encoding: ' . $this->outgoing_headers['Accept-Encoding']);
 			if (!isset($this->outgoing_headers['Connection'])) {
 				$this->outgoing_headers['Connection'] = 'close';
 				$this->persistentConnection = false;
+				$this->debug('set Connection: ' . $this->outgoing_headers['Connection']);
 			}
 			set_magic_quotes_runtime(0);
 			// deprecated
@@ -408,6 +414,7 @@ class soap_transport_http extends nusoap_base {
 		$this->port = $proxyport;
 		if ($proxyusername != '' && $proxypassword != '') {
 			$this->outgoing_headers['Proxy-Authorization'] = ' Basic '.base64_encode($proxyusername.':'.$proxypassword);
+			$this->debug('set Proxy-Authorization: ' . $this->outgoing_headers['Proxy-Authorization']);
 		}
 	}
 	
@@ -476,7 +483,8 @@ class soap_transport_http extends nusoap_base {
 	function buildPayload($data, $cookie_str = '') {
 		// add content-length header
 		$this->outgoing_headers['Content-Length'] = strlen($data);
-		
+		$this->debug('set Content-Length: ' . $this->outgoing_headers['Content-Length']);
+
 		// start building outgoing payload:
 		$req = "$this->request_method $this->uri HTTP/$this->protocol_version";
 		$this->debug("HTTP request: $req");
@@ -900,6 +908,7 @@ class soap_transport_http extends nusoap_base {
 
 	function setContentType($type, $charset = false) {
 		$this->outgoing_headers['Content-Type'] = $type . ($charset ? '; charset=' . $charset : '');
+		$this->debug('set Content-Type: ' . $this->outgoing_headers['Content-Type']);
 	}
 
 	function usePersistentConnection(){
@@ -909,6 +918,7 @@ class soap_transport_http extends nusoap_base {
 		$this->protocol_version = '1.1';
 		$this->persistentConnection = true;
 		$this->outgoing_headers['Connection'] = 'Keep-Alive';
+		$this->debug('set Connection: ' . $this->outgoing_headers['Connection']);
 		return true;
 	}
 

@@ -289,19 +289,10 @@ class wsdl extends nusoap_base {
             // set self as current value for this depth
             $this->depth_array[$depth] = $pos;
             $this->message[$pos] = array('cdata' => ''); 
-            // get element prefix
-            if (ereg(':', $name)) {
-                // get ns prefix
-                $prefix = substr($name, 0, strpos($name, ':')); 
-                // get ns
-                $namespace = isset($this->namespaces[$prefix]) ? $this->namespaces[$prefix] : ''; 
-                // get unqualified name
-                $name = substr(strstr($name, ':'), 1);
-            } 
-
+            // process attributes
             if (count($attrs) > 0) {
+				// register namespace declarations
                 foreach($attrs as $k => $v) {
-                    // if ns declarations, add to class level array of valid namespaces
                     if (ereg("^xmlns", $k)) {
                         if ($ns_prefix = substr(strrchr($k, ':'), 1)) {
                             $this->namespaces[$ns_prefix] = $v;
@@ -312,8 +303,10 @@ class wsdl extends nusoap_base {
                             $this->XMLSchemaVersion = $v;
                             $this->namespaces['xsi'] = $v . '-instance';
                         } 
-                    } //  
-                    // expand each attribute
+                    }
+                }
+                // expand each attribute prefix to its namespace
+                foreach($attrs as $k => $v) {
                     $k = strpos($k, ':') ? $this->expandQname($k) : $k;
                     if ($k != 'location' && $k != 'soapAction' && $k != 'namespace') {
                         $v = strpos($v, ':') ? $this->expandQname($v) : $v;
@@ -324,6 +317,16 @@ class wsdl extends nusoap_base {
             } else {
                 $attrs = array();
             } 
+            // get element prefix, namespace and name
+            if (ereg(':', $name)) {
+                // get ns prefix
+                $prefix = substr($name, 0, strpos($name, ':')); 
+                // get ns
+                $namespace = isset($this->namespaces[$prefix]) ? $this->namespaces[$prefix] : ''; 
+                // get unqualified name
+                $name = substr(strstr($name, ':'), 1);
+            } 
+			// process attributes, expanding any prefixes to namespaces
             // find status, register data
             switch ($this->status) {
                 case 'message':
@@ -623,8 +626,8 @@ class wsdl extends nusoap_base {
 	*	'attrs' => array() // refs to attributes array
 	*	)
     *
-    * @param $type string
-    * @param $ns string
+    * @param $type string the type
+    * @param $ns string namespace (not prefix) of the type
     * @return mixed
     * @access public
     * @see xmlschema
@@ -795,13 +798,14 @@ class wsdl extends nusoap_base {
 	/**
 	* serialize the parsed wsdl
 	*
-	* @param $debug mixed whether to put debug=1 in endpoint URL
-	* @return string , serialization of WSDL
+	* @param mixed $debug whether to put debug=1 in endpoint URL
+	* @return string serialization of WSDL
 	* @access public 
 	*/
 	function serialize($debug = 0)
 	{
-		$xml = '<?xml version="1.0" encoding="ISO-8859-1"?><definitions';
+		$xml = '<?xml version="1.0" encoding="ISO-8859-1"?>';
+		$xml .= "\n<definitions";
 		foreach($this->namespaces as $k => $v) {
 			$xml .= " xmlns:$k=\"$v\"";
 		} 
@@ -827,7 +831,7 @@ class wsdl extends nusoap_base {
 		} 
 		// types
 		if (count($this->schemas)>=1) {
-			$xml .= '<types>';
+			$xml .= "\n<types>";
 			foreach ($this->schemas as $ns => $list) {
 				foreach ($list as $xs) {
 					$xml .= $xs->serializeSchema();
@@ -838,7 +842,7 @@ class wsdl extends nusoap_base {
 		// messages
 		if (count($this->messages) >= 1) {
 			foreach($this->messages as $msgName => $msgParts) {
-				$xml .= '<message name="' . $msgName . '">';
+				$xml .= "\n<message name=\"" . $msgName . '">';
 				if(is_array($msgParts)){
 					foreach($msgParts as $partName => $partType) {
 						// print 'serializing '.$partType.', sv: '.$this->XMLSchemaVersion.'<br>';
@@ -856,8 +860,9 @@ class wsdl extends nusoap_base {
 						    if (!isset($typePrefix)) {
 						        die("$partType has no namespace!");
 						    } 
-						} 
-						$typeDef = $this->getTypeDef($this->getLocalPart($partType), $typePrefix);
+						}
+						$ns = $this->getNamespaceFromPrefix($typePrefix);
+						$typeDef = $this->getTypeDef($this->getLocalPart($partType), $ns);
 						if ($typeDef['typeClass'] == 'element') {
 							$elementortype = 'element';
 						} else {
@@ -874,9 +879,9 @@ class wsdl extends nusoap_base {
 			$binding_xml = '';
 			$portType_xml = '';
 			foreach($this->bindings as $bindingName => $attrs) {
-				$binding_xml .= '<binding name="' . $bindingName . '" type="tns:' . $attrs['portType'] . '">';
+				$binding_xml .= "\n<binding name=\"" . $bindingName . '" type="tns:' . $attrs['portType'] . '">';
 				$binding_xml .= '<soap:binding style="' . $attrs['style'] . '" transport="' . $attrs['transport'] . '"/>';
-				$portType_xml .= '<portType name="' . $attrs['portType'] . '">';
+				$portType_xml .= "\n<portType name=\"" . $attrs['portType'] . '">';
 				foreach($attrs['operations'] as $opName => $opParts) {
 					$binding_xml .= '<operation name="' . $opName . '">';
 					$binding_xml .= '<soap:operation soapAction="' . $opParts['soapAction'] . '" style="'. $opParts['style'] . '"/>';
@@ -911,7 +916,7 @@ class wsdl extends nusoap_base {
 			$xml .= $portType_xml . $binding_xml;
 		} 
 		// services
-		$xml .= '<service name="' . $this->serviceName . '">';
+		$xml .= "\n<service name=\"" . $this->serviceName . '">';
 		if (count($this->ports) >= 1) {
 			foreach($this->ports as $pName => $attrs) {
 				$xml .= '<port name="' . $pName . '" binding="tns:' . $attrs['binding'] . '">';
@@ -920,7 +925,7 @@ class wsdl extends nusoap_base {
 			} 
 		} 
 		$xml .= '</service>';
-		return $xml . '</definitions>';
+		return $xml . "\n</definitions>";
 	} 
 	
 	/**
@@ -1619,7 +1624,7 @@ class wsdl extends nusoap_base {
 	* @param array $out assoc array of output values: key = param name, value = param type
 	* @param string $namespace optional The namespace for the operation
 	* @param string $soapaction optional The soapaction for the operation
-	* @param string $style (rpc|document) optional The style for the operation
+	* @param string $style (rpc|document) optional The style for the operation Note: when 'document' is specified, parameter and return wrappers are created for you automatically
 	* @param string $use (encoded|literal) optional The use for the parameters (cannot mix right now)
 	* @param string $documentation optional The description to include in the WSDL
 	* @param string $encodingStyle optional (usually 'http://schemas.xmlsoap.org/soap/encoding/' for encoded)

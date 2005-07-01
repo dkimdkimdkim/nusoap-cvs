@@ -537,29 +537,35 @@ class XMLSchema extends nusoap_base  {
 						$contentStr .= "/>\n";
 					}
 				}
+				// compositor wraps elements
+				if (isset($attrs['compositor']) && ($attrs['compositor'] != '')) {
+					$contentStr = "  <$schemaPrefix:$attrs[compositor]>\n".$contentStr."  </$schemaPrefix:$attrs[compositor]>\n";
+				}
 			}
 			// attributes
 			if(isset($attrs['attrs']) && (count($attrs['attrs']) >= 1)){
 				foreach($attrs['attrs'] as $attr => $aParts){
-					$contentStr .= "    <$schemaPrefix:attribute ref=\"".$this->contractQName($aParts['ref']).'"';
-					if(isset($aParts['http://schemas.xmlsoap.org/wsdl/:arrayType'])){
-						$this->usedNamespaces['wsdl'] = $this->namespaces['wsdl'];
-						$contentStr .= ' wsdl:arrayType="'.$this->contractQName($aParts['http://schemas.xmlsoap.org/wsdl/:arrayType']).'"';
+					$contentStr .= "    <$schemaPrefix:attribute";
+					foreach ($aParts as $a => $v) {
+						if ($a == 'ref' || $a == 'type') {
+							$contentStr .= " $a=\"".$this->contractQName($v).'"';
+						} elseif ($a == 'http://schemas.xmlsoap.org/wsdl/:arrayType') {
+							$this->usedNamespaces['wsdl'] = $this->namespaces['wsdl'];
+							$contentStr .= ' wsdl:arrayType="'.$this->contractQName($v).'"';
+						} else {
+							$contentStr .= " $a=\"$v\"";
+						}
 					}
 					$contentStr .= "/>\n";
 				}
 			}
 			// if restriction
-			if( isset($attrs['restrictionBase']) && $attrs['restrictionBase'] != ''){
+			if (isset($attrs['restrictionBase']) && $attrs['restrictionBase'] != ''){
 				$contentStr = "   <$schemaPrefix:restriction base=\"".$this->contractQName($attrs['restrictionBase'])."\">\n".$contentStr."   </$schemaPrefix:restriction>\n";
-			}
-			// compositor obviates complex/simple content
-			if(isset($attrs['compositor']) && ($attrs['compositor'] != '')){
-				$contentStr = "  <$schemaPrefix:$attrs[compositor]>\n".$contentStr."  </$schemaPrefix:$attrs[compositor]>\n";
-			}
-			// complex or simple content
-			elseif((isset($attrs['elements']) && count($attrs['elements']) > 0) || (isset($attrs['attrs']) && count($attrs['attrs']) > 0)){
-				$contentStr = "  <$schemaPrefix:complexContent>\n".$contentStr."  </$schemaPrefix:complexContent>\n";
+				// complex or simple content
+				if ((isset($attrs['elements']) && count($attrs['elements']) > 0) || (isset($attrs['attrs']) && count($attrs['attrs']) > 0)){
+					$contentStr = "  <$schemaPrefix:complexContent>\n".$contentStr."  </$schemaPrefix:complexContent>\n";
+				}
 			}
 			// finalize complex type
 			if($contentStr != ''){

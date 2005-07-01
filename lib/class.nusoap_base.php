@@ -592,12 +592,12 @@ class nusoap_base {
     /**
     * serialize message
     *
-    * @param string body
-    * @param string headers optional
-    * @param array namespaces optional
-    * @param string style optional (rpc|document)
-    * @param string use optional (encoded|literal)
-    * @param string encodingStyle optional (usually 'http://schemas.xmlsoap.org/soap/encoding/' for encoded)
+    * @param string $body
+    * @param mixed $headers optional string of XML with SOAP header content, or array of soapval objects for SOAP headers
+    * @param array $namespaces optional
+    * @param string $style optional (rpc|document)
+    * @param string $use optional (encoded|literal)
+    * @param string $encodingStyle optional (usually 'http://schemas.xmlsoap.org/soap/encoding/' for encoded)
     * @return string message
     * @access public
     */
@@ -605,6 +605,12 @@ class nusoap_base {
     // TODO: add an option to automatically run utf8_encode on $body and $headers
     // if $this->soap_defencoding is UTF-8.  Not doing this automatically allows
     // one to send arbitrary UTF-8 characters, not just characters that map to ISO-8859-1
+
+	$this->debug("In serializeEnvelope length=" . strlen($body) . " body (max 1000 characters)=" . substr($body, 0, 1000) . " style=$style use=$use encodingStyle=$encodingStyle");
+	$this->debug("headers:");
+	$this->appendDebug($this->varDump($headers));
+	$this->debug("namespaces:");
+	$this->appendDebug($this->varDump($namespaces));
 
 	// serialize namespaces
     $ns_string = '';
@@ -617,6 +623,14 @@ class nusoap_base {
 
 	// serialize headers
 	if($headers){
+		if (is_array($headers)) {
+			$xml = '';
+			foreach ($headers as $header) {
+				$xml .= $this->serialize_val($header, false, false, false, false, false, $use);
+			}
+			$headers = $xml;
+			$this->debug("In serializeEnvelope, serialzied array of headers to $headers");
+		}
 		$headers = "<SOAP-ENV:Header>".$headers."</SOAP-ENV:Header>";
 	}
 	// serialize envelope
@@ -646,7 +660,7 @@ class nusoap_base {
 	/**
 	* contracts (changes namespace to prefix) a qualified name
 	*
-	* @param    string $string qname
+	* @param    string $qname qname
 	* @return	string contracted qname
 	* @access   private
 	*/
@@ -713,7 +727,7 @@ class nusoap_base {
     * returns the prefix part of a prefixed string
     * returns false, if not prefixed
     *
-    * @param string The prefixed string
+    * @param string $str The prefixed string
     * @return mixed The prefix or false if there is no prefix
     * @access public
     */

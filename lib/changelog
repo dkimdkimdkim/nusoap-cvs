@@ -385,7 +385,7 @@
 - nusoap_base: improve debug and comments
 - nusoap_base: fix version, which should have been 0.7.0 since 2005-03-04
 
-2005-06-03, version 0.7.1
+2005-06-06, version 0.7.1
 - nusoap_base: adjust numeric element names for serialization, instead of forcing them to 'soapVal'
 - nusoapmime: add type=text/xml to multipart/related (thanks Emmanuel Cordonnier)
 - soap_fault: fix serialization of detail
@@ -397,3 +397,13 @@
 - wsdl: serialize array data when maxOccurs = 'unbounded' OR maxOccurs > 1 (thanks Dominique Schreckling)
 - wsdl: when serializing a string == 'false' as a boolean, set the value to false
 - wsdl: when serializing a complexType, require the PHP value supplied to be an array
+
+2005-07-01, version 0.7.1
+- nusoap_base: Allow SOAP headers to be supplied as an array like parameters
+- soap_parser: de-serialize simpleContent that accompanies complexContent
+- soap_server: append debug information when programmatically-defined WSDL is returned
+- soap_transport_http: Add debug when an outgoing header is set
+- soapclient: Allow SOAP headers to be supplied as an array like parameters
+- xmlschema: serialize attributes more generally, rather than assuming they are for SOAP 1.1 Array
+- wsdl: when serializing, look up types by namespace, not prefix (simple programmatic doc/lit WSDL now seems to work)
+- wsdl: process namespace declarations first when parsing an element

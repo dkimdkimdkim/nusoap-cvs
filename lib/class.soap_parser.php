@@ -328,7 +328,7 @@ class soap_parser extends nusoap_base {
 			} elseif (isset($this->message[$pos]['xattrs'])) {
 				if (isset($this->message[$pos]['nil']) && $this->message[$pos]['nil']) {
 					$this->message[$pos]['xattrs']['!'] = null;
-				} elseif (isset($this->message[$pos]['cdata']) && $this->message[$pos]['cdata'] != '') {
+				} elseif (isset($this->message[$pos]['cdata']) && trim($this->message[$pos]['cdata']) != '') {
 	            	if (isset($this->message[$pos]['type'])) {
 						$this->message[$pos]['xattrs']['!'] = $this->decodeSimple($this->message[$pos]['cdata'], $this->message[$pos]['type'], isset($this->message[$pos]['type_namespace']) ? $this->message[$pos]['type_namespace'] : '');
 					} else {
@@ -568,6 +568,19 @@ class soap_parser extends nusoap_base {
 			if (isset($this->message[$pos]['xattrs'])) {
 				foreach ($this->message[$pos]['xattrs'] as $n => $v) {
 					$params[$n] = $v;
+				}
+			}
+			// handle simpleContent
+			if (isset($this->message[$pos]['cdata']) && trim($this->message[$pos]['cdata']) != '') {
+            	if (isset($this->message[$pos]['type'])) {
+					$params['!'] = $this->decodeSimple($this->message[$pos]['cdata'], $this->message[$pos]['type'], isset($this->message[$pos]['type_namespace']) ? $this->message[$pos]['type_namespace'] : '');
+				} else {
+					$parent = $this->message[$pos]['parent'];
+					if (isset($this->message[$parent]['type']) && ($this->message[$parent]['type'] == 'array') && isset($this->message[$parent]['arrayType'])) {
+						$params['!'] = $this->decodeSimple($this->message[$pos]['cdata'], $this->message[$parent]['arrayType'], isset($this->message[$parent]['arrayTypeNamespace']) ? $this->message[$parent]['arrayTypeNamespace'] : '');
+					} else {
+						$params['!'] = $this->message[$pos]['cdata'];
+					}
 				}
 			}
 			return is_array($params) ? $params : array();

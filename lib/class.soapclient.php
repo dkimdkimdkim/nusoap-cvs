@@ -136,7 +136,7 @@ class soapclient extends nusoap_base  {
 	* calls method, returns PHP native type
 	*
 	* @param    string $method SOAP server URL or path
-	* @param    array $params An array, associative or simple, of the parameters
+	* @param    mixed $params An array, associative or simple, of the parameters
 	*			              for the method call, or a string that is the XML
 	*			              for the call.  For rpc style, this call will
 	*			              wrap the XML in a tag named after the method, as
@@ -150,7 +150,7 @@ class soapclient extends nusoap_base  {
 	*                         *must* include the wrapper.
 	* @param	string $namespace optional method namespace (WSDL can override)
 	* @param	string $soapAction optional SOAPAction value (WSDL can override)
-	* @param	boolean $headers optional array of soapval objects for headers
+	* @param	mixed $headers optional string of XML with SOAP header content, or array of soapval objects for SOAP headers
 	* @param	boolean $rpcParams optional (no longer used)
 	* @param	string	$style optional (rpc|document) the style to use when serializing parameters (WSDL can override)
 	* @param	string	$use optional (encoded|literal) the use when serializing parameters (WSDL can override)
@@ -488,7 +488,7 @@ class soapclient extends nusoap_base  {
 	/**
 	* set the SOAP headers
 	*
-	* @param	$headers string XML
+	* @param	$headers mixed String of XML with SOAP header content, or array of soapval objects for SOAP headers
 	* @access   public
 	*/
 	function setHeaders($headers){

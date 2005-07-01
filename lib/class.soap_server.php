@@ -127,6 +127,11 @@ class soap_server extends nusoap_base {
 			} elseif ($this->wsdl) {
 				header("Content-Type: text/xml; charset=ISO-8859-1\r\n");
 				print $this->wsdl->serialize($this->debug_flag);
+				if ($this->debug_flag) {
+					$this->debug('wsdl:');
+					$this->appendDebug($this->varDump($this->wsdl));
+					print $this->getDebugAsXMLComment();
+				}
 			} else {
 				header("Content-Type: text/html; charset=ISO-8859-1\r\n");
 				print "This service does not provide WSDL";
@@ -674,7 +679,7 @@ class soap_server extends nusoap_base {
 	* @param    string $out assoc array of output values: key = param name, value = param type
 	* @param	string $namespace
 	* @param	string $soapaction
-	* @param	string $style optional (rpc|document)
+	* @param	string $style optional (rpc|document) Note: when 'document' is specified, parameter and return wrappers are created for you automatically
 	* @param	string $use optional (encoded|literal)
 	* @param	string $documentation optional Description to include in WSDL
 	* @param	string $encodingStyle optional (usually 'http://schemas.xmlsoap.org/soap/encoding/' for encoded)
