@@ -15,7 +15,7 @@ $proxyhost = isset($_POST['proxyhost']) ? $_POST['proxyhost'] : '';
 $proxyport = isset($_POST['proxyport']) ? $_POST['proxyport'] : '';
 $proxyusername = isset($_POST['proxyusername']) ? $_POST['proxyusername'] : '';
 $proxypassword = isset($_POST['proxypassword']) ? $_POST['proxypassword'] : '';
-$client = new soapclientmime('http://www.scottnichol.com/samples/mimetest3.php', false,
+$client = new soapclientmime('http://www.scottnichol.com/samples/mimetest.php', false,
 							$proxyhost, $proxyport, $proxyusername, $proxypassword);
 $err = $client->getError();
 if ($err) {
@@ -39,6 +39,7 @@ if ($client->fault) {
 			echo 'Content-Type: ' . $a['contenttype'] . "\r\n";
 			echo 'cid: ' . htmlspecialchars($a['cid'], ENT_QUOTES) . "\r\n";
 			echo htmlspecialchars($a['data'], ENT_QUOTES);
+			echo "\r\n";
 		}
 		echo '</pre>';
 	}
