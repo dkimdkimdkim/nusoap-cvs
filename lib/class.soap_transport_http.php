@@ -303,8 +303,6 @@ class soap_transport_http extends nusoap_base {
 	* @access   public
 	*/
 	function setCredentials($username, $password, $authtype = 'basic', $digestRequest = array(), $certRequest = array()) {
-		global $_SERVER;
-
 		$this->debug("Set credentials for authtype $authtype");
 		// cf. RFC 2617
 		if ($authtype == 'basic') {

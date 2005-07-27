@@ -91,7 +91,7 @@ class wsdl extends nusoap_base {
 									if ($url != '') {
 										$urlparts = parse_url($url);
 										if (!isset($urlparts['host'])) {
-											$url = $wsdlparts['scheme'] . '://' . $wsdlparts['host'] . 
+											$url = $wsdlparts['scheme'] . '://' . $wsdlparts['host'] . (isset($wsdlparts['port']) ? ':' .$wsdlparts['port'] : '') .
 													substr($wsdlparts['path'],0,strrpos($wsdlparts['path'],'/') + 1) .$urlparts['path'];
 										}
 										if (! in_array($url, $imported_urls)) {
@@ -117,7 +117,7 @@ class wsdl extends nusoap_base {
 							if ($url != '') {
 								$urlparts = parse_url($url);
 								if (!isset($urlparts['host'])) {
-									$url = $wsdlparts['scheme'] . '://' . $wsdlparts['host'] . 
+									$url = $wsdlparts['scheme'] . '://' . $wsdlparts['host'] . (isset($wsdlparts['port']) ? ':' . $wsdlparts['port'] : '') .
 											substr($wsdlparts['path'],0,strrpos($wsdlparts['path'],'/') + 1) .$urlparts['path'];
 								}
 								if (! in_array($url, $imported_urls)) {
@@ -680,6 +680,16 @@ class wsdl extends nusoap_base {
     * @access private
     */
     function webDescription(){
+    	global $HTTP_SERVER_VARS;
+
+		if (isset($_SERVER)) {
+			$PHP_SELF = $_SERVER['PHP_SELF'];
+		} elseif (isset($HTTP_SERVER_VARS)) {
+			$PHP_SELF = $HTTP_SERVER_VARS['PHP_SELF'];
+		} else {
+			$this->setError("Neither _SERVER nor HTTP_SERVER_VARS is available");
+		}
+
 		$b = '
 		<html><head><title>NuSOAP: '.$this->serviceName.'</title>
 		<style type="text/css">
@@ -759,7 +769,7 @@ class wsdl extends nusoap_base {
 			<br><br>
 			<div class=title>'.$this->serviceName.'</div>
 			<div class=nav>
-				<p>View the <a href="'.(isset($GLOBALS['PHP_SELF']) ? $GLOBALS['PHP_SELF'] : $_SERVER['PHP_SELF']).'?wsdl">WSDL</a> for the service.
+				<p>View the <a href="'.$PHP_SELF.'?wsdl">WSDL</a> for the service.
 				Click on an operation name to view it&apos;s details.</p>
 				<ul>';
 				foreach($this->getOperations() as $op => $data){
@@ -1107,9 +1117,8 @@ class wsdl extends nusoap_base {
 			$encodingStyle = ' SOAP-ENV:encodingStyle="' . $encodingStyle . '"';
 		}
 
-		// if a soap_val has been supplied, let its type override the WSDL
+		// if a soapval has been supplied, let its type override the WSDL
     	if (is_object($value) && get_class($value) == 'soapval') {
-    		// TODO: get attributes from soapval?
     		if ($value->type_ns) {
     			$type = $value->type_ns . ':' . $value->type;
 		    	$forceType = true;
@@ -1126,6 +1135,9 @@ class wsdl extends nusoap_base {
 	    	$value = $value->value;
 	    	$this->debug("in serializeType: soapval overrides value to $value");
 	    	if ($attrs) {
+	    		if (!is_array($value)) {
+	    			$value['!'] = $value;
+	    		}
 	    		foreach ($attrs as $n => $v) {
 	    			$value['!' . $n] = $v;
 	    		}
@@ -1267,6 +1279,9 @@ class wsdl extends nusoap_base {
 				}
 				$this->debug("in serializeType: returning: $xml");
 				return $xml;
+			}
+			if (is_object($value)) {
+				$value = get_object_vars($value);
 			}
 			if (is_array($value)) {
 				$elementAttrs = $this->serializeComplexTypeAttributes($typeDef, $value, $ns, $uqType);
@@ -1454,7 +1469,7 @@ class wsdl extends nusoap_base {
 	function serializeComplexTypeElements($typeDef, $value, $ns, $uqType, $use='encoded', $encodingStyle=false) {
 		$xml = '';
 		if (isset($typeDef['elements']) && is_array($typeDef['elements'])) {
-			$this->debug("serialize elements for XML Schema type $ns:$uqType");
+			$this->debug("in serializeComplexTypeElements, serialize elements for XML Schema type $ns:$uqType");
 			if (is_array($value)) {
 				$xvalue = $value;
 			} elseif (is_object($value)) {
@@ -1499,21 +1514,21 @@ class wsdl extends nusoap_base {
 					if (isset($attrs['maxOccurs']) && ($attrs['maxOccurs'] == 'unbounded' || $attrs['maxOccurs'] > 1) && isset($v) && is_array($v) && $this->isArraySimpleOrStruct($v) == 'arraySimple') {
 						$vv = $v;
 						foreach ($vv as $k => $v) {
-							if (isset($attrs['type'])) {
+							if (isset($attrs['type']) || isset($attrs['ref'])) {
 								// serialize schema-defined type
-							    $xml .= $this->serializeType($eName, $attrs['type'], $v, $use, $encodingStyle, $unqualified);
+							    $xml .= $this->serializeType($eName, isset($attrs['type']) ? $attrs['type'] : $attrs['ref'], $v, $use, $encodingStyle, $unqualified);
 							} else {
-								// serialize generic type
+								// serialize generic type (can this ever really happen?)
 							    $this->debug("calling serialize_val() for $v, $eName, false, false, false, false, $use");
 							    $xml .= $this->serialize_val($v, $eName, false, false, false, false, $use);
 							}
 						}
 					} else {
-						if (isset($attrs['type'])) {
+						if (isset($attrs['type']) || isset($attrs['ref'])) {
 							// serialize schema-defined type
-						    $xml .= $this->serializeType($eName, $attrs['type'], $v, $use, $encodingStyle, $unqualified);
+						    $xml .= $this->serializeType($eName, isset($attrs['type']) ? $attrs['type'] : $attrs['ref'], $v, $use, $encodingStyle, $unqualified);
 						} else {
-							// serialize generic type
+							// serialize generic type (can this ever really happen?)
 						    $this->debug("calling serialize_val() for $v, $eName, false, false, false, false, $use");
 						    $xml .= $this->serialize_val($v, $eName, false, false, false, false, $use);
 						}

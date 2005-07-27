@@ -4,18 +4,37 @@
 
 
 /**
-* soap_fault class, allows for creation of faults
-* mainly used for returning faults from deployed functions
+* Contains information for a SOAP fault.
+* Mainly used for returning faults from deployed functions
 * in a server instance.
 * @author   Dietrich Ayala <dietrich@ganx4.com>
 * @version  $Id$
 * @access public
 */
 class soap_fault extends nusoap_base {
-
+	/**
+	 * The fault code (client|server)
+	 * @var string
+	 * @access private
+	 */
 	var $faultcode;
+	/**
+	 * The fault actor
+	 * @var string
+	 * @access private
+	 */
 	var $faultactor;
+	/**
+	 * The fault string, a description of the fault
+	 * @var string
+	 * @access private
+	 */
 	var $faultstring;
+	/**
+	 * The fault detail, typically a string or array of string
+	 * @var mixed
+	 * @access private
+	 */
 	var $faultdetail;
 
 	/**

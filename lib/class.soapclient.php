@@ -496,7 +496,7 @@ class soapclient extends nusoap_base  {
 	}
 
 	/**
-	* get the response headers
+	* get the SOAP response headers (namespace resolution incomplete)
 	*
 	* @return	string
 	* @access   public
@@ -644,12 +644,15 @@ class soapclient extends nusoap_base  {
 				// create param string and param comment string
 				if (sizeof($opData['input']['parts']) > 0) {
 					$paramStr = '';
+					$paramArrayStr = '';
 					$paramCommentStr = '';
 					foreach ($opData['input']['parts'] as $name => $type) {
 						$paramStr .= "\$$name, ";
+						$paramArrayStr .= "'$name' => \$$name, ";
 						$paramCommentStr .= "$type \$$name, ";
 					}
 					$paramStr = substr($paramStr, 0, strlen($paramStr)-2);
+					$paramArrayStr = substr($paramArrayStr, 0, strlen($paramArrayStr)-2);
 					$paramCommentStr = substr($paramCommentStr, 0, strlen($paramCommentStr)-2);
 				} else {
 					$paramStr = '';
@@ -658,7 +661,7 @@ class soapclient extends nusoap_base  {
 				$opData['namespace'] = !isset($opData['namespace']) ? 'http://testuri.com' : $opData['namespace'];
 				$evalStr .= "// $paramCommentStr
 	function " . str_replace('.', '__', $operation) . "($paramStr) {
-		\$params = array($paramStr);
+		\$params = array($paramArrayStr);
 		return \$this->call('$operation', \$params, '".$opData['namespace']."', '".(isset($opData['soapAction']) ? $opData['soapAction'] : '')."');
 	}
 	";

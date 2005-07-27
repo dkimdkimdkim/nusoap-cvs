@@ -628,6 +628,7 @@ class XMLSchema extends nusoap_base  {
     * @param string $ns, namespace of type
     * @return mixed
     * @access public
+    * @deprecated
     */
 	function getPHPType($type,$ns){
 		if(isset($this->typemap[$ns][$type])){
@@ -641,20 +642,26 @@ class XMLSchema extends nusoap_base  {
 	}
 
 	/**
-    * returns an array of information about a given type
+    * returns an associative array of information about a given type
     * returns false if no type exists by the given name
     *
-	*	 typeDef = array(
-	*	 'elements' => array(), // refs to elements array
+	*	For a complexType typeDef = array(
 	*	'restrictionBase' => '',
 	*	'phpType' => '',
-	*	'order' => '(sequence|all)',
+	*	'compositor' => '(sequence|all)',
+	*	'elements' => array(), // refs to elements array
 	*	'attrs' => array() // refs to attributes array
+	*	... and so on (see addComplexType)
 	*	)
+	*
+	*   For simpleType or element, the array has different keys.
     *
     * @param string
     * @return mixed
     * @access public
+    * @see addComplexType
+    * @see addSimpleType
+    * @see addElement
     */
 	function getTypeDef($type){
 		//$this->debug("in getTypeDef for type $type");
@@ -723,6 +730,7 @@ class XMLSchema extends nusoap_base  {
     * @param string $type, name of type
     * @return mixed
     * @access public
+    * @deprecated
     */
     function serializeTypeDef($type){
     	//print "in sTD() for type $type<br>";
@@ -758,6 +766,7 @@ class XMLSchema extends nusoap_base  {
     * @param string $type, name of type
     * @return string
     * @access public
+    * @deprecated
 	*/
 	function typeToForm($name,$type){
 		// get typedef
@@ -828,7 +837,8 @@ class XMLSchema extends nusoap_base  {
 	* 	)
 	* )
 	* @param arrayType: namespace:name (http://www.w3.org/2001/XMLSchema:string)
-	*
+	* @access public
+	* @see getTypeDef
 	*/
 	function addComplexType($name,$typeClass='complexType',$phpType='array',$compositor='',$restrictionBase='',$elements=array(),$attrs=array(),$arrayType=''){
 		$this->complexTypes[$name] = array(
@@ -853,8 +863,9 @@ class XMLSchema extends nusoap_base  {
 	* @param restrictionBase namespace:name (http://schemas.xmlsoap.org/soap/encoding/:Array)
 	* @param typeClass (simpleType)
 	* @param phpType: (scalar)
+	* @access public
 	* @see xmlschema
-	* 
+	* @see getTypeDef
 	*/
 	function addSimpleType($name, $restrictionBase='', $typeClass='simpleType', $phpType='scalar') {
 		$this->simpleTypes[$name] = array(

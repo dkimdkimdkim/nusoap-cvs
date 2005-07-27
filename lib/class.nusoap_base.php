@@ -143,11 +143,11 @@ class nusoap_base {
 		'SOAP-ENV' => 'http://schemas.xmlsoap.org/soap/envelope/',
 		'xsd' => 'http://www.w3.org/2001/XMLSchema',
 		'xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
-		'SOAP-ENC' => 'http://schemas.xmlsoap.org/soap/encoding/',
-		'si' => 'http://soapinterop.org/xsd');
+		'SOAP-ENC' => 'http://schemas.xmlsoap.org/soap/encoding/'
+		);
 
 	/**
-	* namespaces used in the current context
+	* namespaces used in the current context, e.g. during serialization
 	*
 	* @var      array
 	* @access   private
@@ -488,7 +488,12 @@ class nusoap_base {
 				}
 				break;
 			case is_object($val):
-				$name = get_class($val);
+				if (! $name) {
+					$name = get_class($val);
+					$this->debug("In serialize_val, used class name $name as element name");
+				} else {
+					$this->debug("In serialize_val, do not override name $name for element name for class " . get_class($val));
+				}
 				foreach(get_object_vars($val) as $k => $v){
 					$pXml = isset($pXml) ? $pXml.$this->serialize_val($v,$k,false,false,false,false,$use) : $this->serialize_val($v,$k,false,false,false,false,$use);
 				}
@@ -511,6 +516,7 @@ class nusoap_base {
 								$tt = gettype($v);
 	                        }
 							$array_types[$tt] = 1;
+							// TODO: for literal, the name should be $name
 							$xml .= $this->serialize_val($v,'item',false,false,false,false,$use);
 							++$i;
 						}
@@ -555,6 +561,7 @@ class nusoap_base {
 							$type_str = " xsi:type=\"SOAP-ENC:Array\" SOAP-ENC:arrayType=\"xsd:anyType[0]\"";
 						}
 					}
+					// TODO: for array in literal, there is no wrapper here
 					$xml = "<$name$xmlns$type_str$atts>".$xml."</$name>";
 				} else {
 					// got a struct
@@ -590,15 +597,15 @@ class nusoap_base {
 	}
 
     /**
-    * serialize message
+    * serializes a message
     *
-    * @param string $body
+    * @param string $body the XML of the SOAP body
     * @param mixed $headers optional string of XML with SOAP header content, or array of soapval objects for SOAP headers
-    * @param array $namespaces optional
+    * @param array $namespaces optional the namespaces used in generating the body and headers
     * @param string $style optional (rpc|document)
     * @param string $use optional (encoded|literal)
     * @param string $encodingStyle optional (usually 'http://schemas.xmlsoap.org/soap/encoding/' for encoded)
-    * @return string message
+    * @return string the message
     * @access public
     */
     function serializeEnvelope($body,$headers=false,$namespaces=array(),$style='rpc',$use='encoded',$encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'){
@@ -874,6 +881,13 @@ function iso8601_to_timestamp($datestr){
 	}
 }
 
+/**
+* sleeps some number of microseconds
+*
+* @param    string $usec the number of microseconds to sleep
+* @access   public
+* @deprecated
+*/
 function usleepWindows($usec)
 {
 	$start = gettimeofday();

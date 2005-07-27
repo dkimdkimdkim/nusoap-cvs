@@ -407,3 +407,21 @@
 - xmlschema: serialize attributes more generally, rather than assuming they are for SOAP 1.1 Array
 - wsdl: when serializing, look up types by namespace, not prefix (simple programmatic doc/lit WSDL now seems to work)
 - wsdl: process namespace declarations first when parsing an element
+
+2005-07-27, version 0.7.1
+- nusoap_base: do not override supplied element name with class name when serializing an object in serialize_val
+- nusoap_base: remove http://soapinterop.org/xsd (si) from namespaces array
+- nusoapmime: add nusoapservermime class to implement MIME attachments on the server
+- soap_fault: improve documentation
+- soap_server: improve documentation
+- soap_server: make consistent use of _SERVER and HTTP_SERVER_VARS
+- soap_server: make all incoming HTTP header keys lower case
+- soap_server: add hook functions to support subclassing for MIME attachments
+- soap_transport_http: remove an unnecessary global statement
+- soapclient: when creating a proxy, make $params within each function an associative array
+- soapval: improve documentation
+- wsdl: when serializing complexType elements, used typed serialization if there is either a type or a reference for the element
+- wsdl: allow PHP objects to be serialized as SOAP structs in serializeType
+- wsdl: for WSDL and XML Schema imports, don't forget to use the TCP port number (thanks Luca GIOPPO)
+- wsdl: make consistent use of _SERVER and HTTP_SERVER_VARS
+- xmlschema: improve documentation
