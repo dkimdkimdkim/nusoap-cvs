@@ -76,7 +76,7 @@ class nusoap_base {
 	 * @var string
 	 * @access private
 	 */
-	var $version = '0.7.1';
+	var $version = '0.7.2';
 	/**
 	 * CVS revision for HTTP headers.
 	 *
@@ -416,7 +416,7 @@ class nusoap_base {
 		$atts = '';
 		if($attributes){
 			foreach($attributes as $k => $v){
-				$atts .= ' $k="'.$this->expandEntities($v).'"';
+				$atts .= " $k=\"".$this->expandEntities($v).'"';
 			}
 		}
 		// serialize null value

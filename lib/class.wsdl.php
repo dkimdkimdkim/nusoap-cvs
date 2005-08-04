@@ -1239,6 +1239,8 @@ class wsdl extends nusoap_base {
 				$this->debug('in serializeType: Apache SOAP type, but only support Map');
 			}
 		} else {
+			// TODO: should the type be compared to types in XSD, and the namespace
+			// set to XSD if the type matches?
 			$this->debug("in serializeType: No namespace for type $type");
 			$ns = '';
 			$uqType = $type;
@@ -1605,18 +1607,19 @@ class wsdl extends nusoap_base {
 	/**
 	* adds an XML Schema simple type to the WSDL types
 	*
-	* @param string name
-	* @param string restrictionBase namespace:name (http://schemas.xmlsoap.org/soap/encoding/:Array)
-	* @param string typeClass (simpleType)
-	* @param string phpType: (scalar)
+	* @param string $name
+	* @param string $restrictionBase namespace:name (http://schemas.xmlsoap.org/soap/encoding/:Array)
+	* @param string $typeClass (should always be simpleType)
+	* @param string $phpType (should always be scalar)
+	* @param array $enumeration array of values
 	* @see xmlschema
 	* @access public
 	*/
-	function addSimpleType($name, $restrictionBase='', $typeClass='simpleType', $phpType='scalar') {
+	function addSimpleType($name, $restrictionBase='', $typeClass='simpleType', $phpType='scalar', $enumeration=array()) {
 		$restrictionBase = strpos($restrictionBase,':') ? $this->expandQname($restrictionBase) : $restrictionBase;
 
 		$typens = isset($this->namespaces['types']) ? $this->namespaces['types'] : $this->namespaces['tns'];
-		$this->schemas[$typens][0]->addSimpleType($name, $restrictionBase, $typeClass, $phpType);
+		$this->schemas[$typens][0]->addSimpleType($name, $restrictionBase, $typeClass, $phpType, $enumeration);
 	}
 
 	/**

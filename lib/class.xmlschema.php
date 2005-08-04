@@ -859,20 +859,22 @@ class XMLSchema extends nusoap_base  {
 	/**
 	* adds a simple type to the schema
 	*
-	* @param name
-	* @param restrictionBase namespace:name (http://schemas.xmlsoap.org/soap/encoding/:Array)
-	* @param typeClass (simpleType)
-	* @param phpType: (scalar)
+	* @param string $name
+	* @param string $restrictionBase namespace:name (http://schemas.xmlsoap.org/soap/encoding/:Array)
+	* @param string $typeClass (should always be simpleType)
+	* @param string $phpType (should always be scalar)
+	* @param array $enumeration array of values
 	* @access public
 	* @see xmlschema
 	* @see getTypeDef
 	*/
-	function addSimpleType($name, $restrictionBase='', $typeClass='simpleType', $phpType='scalar') {
+	function addSimpleType($name, $restrictionBase='', $typeClass='simpleType', $phpType='scalar', $enumeration=array()) {
 		$this->simpleTypes[$name] = array(
-	    'name'		=> $name,
-	    'typeClass'	=> $typeClass,
-	    'phpType'	=> $phpType,
-	    'type' => $restrictionBase
+	    'name'			=> $name,
+	    'typeClass'		=> $typeClass,
+	    'phpType'		=> $phpType,
+	    'type'			=> $restrictionBase,
+	    'enumeration'	=> $enumeration
 		);
 		
 		$this->xdebug("addSimpleType $name:");

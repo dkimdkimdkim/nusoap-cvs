@@ -425,3 +425,14 @@
 - wsdl: for WSDL and XML Schema imports, don't forget to use the TCP port number (thanks Luca GIOPPO)
 - wsdl: make consistent use of _SERVER and HTTP_SERVER_VARS
 - xmlschema: improve documentation
+
+2005-07-31, version 0.7.2
+- nusoap_base: correctly serialize attributes in serialize_val (thanks Hidran Arias)
+- soap_parser: when resolving references, do not assume that buildVal returns an array (thanks Akshell)
+- soap_parser: removed decode_entities, which does not work (thanks Martin Sarsale)
+- soap_server: fix a bug parsing headers from _SERVER and HTTP_SERVER_VARS (thanks Bert Catsburg)
+- soap_server: parse all "headers" from HTTP_SERVER_VARS (not just HTTP_*)
+- soap_server: use PHP_SELF instead of SCRIPT_NAME for WSDL endpoint
+- soap_server: when generating a fault while debug_flag is true, put debug into faultdetail
+- wsdl: add enumeration parameter to addSimpleType
+- xmlschema: add enumeration parameter to addSimpleType

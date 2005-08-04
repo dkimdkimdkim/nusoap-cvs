@@ -324,9 +324,9 @@ class soap_server extends nusoap_base {
 			$this->debug("In parse_http_headers, use _SERVER");
 			foreach ($_SERVER as $k => $v) {
 				if (substr($k, 0, 5) == 'HTTP_') {
-					$k = strtolower(substr($k, 5));
+					$k = str_replace(' ', '-', strtolower(str_replace('_', ' ', substr($k, 5)))); 	                                         $k = strtolower(substr($k, 5));
 				} else {
-					$k = strtolower($k);
+					$k = str_replace(' ', '-', strtolower(str_replace('_', ' ', $k))); 	                                         $k = strtolower($k);
 				}
 				if ($k == 'soapaction') {
 					// get SOAPAction header
@@ -358,33 +358,35 @@ class soap_server extends nusoap_base {
 			$this->debug("In parse_http_headers, use HTTP_SERVER_VARS");
 			foreach ($HTTP_SERVER_VARS as $k => $v) {
 				if (substr($k, 0, 5) == 'HTTP_') {
-					$k = strtolower(substr($k, 5));
-					if ($k == 'soapaction') {
-						// get SOAPAction header
-						$k = 'SOAPAction';
-						$v = str_replace('"', '', $v);
-						$v = str_replace('\\', '', $v);
-						$this->SOAPAction = $v;
-					} else if ($k == 'content-type') {
-						// get the character encoding of the incoming request
-						if (strpos($v, '=')) {
-							$enc = substr(strstr($v, '='), 1);
-							$enc = str_replace('"', '', $enc);
-							$enc = str_replace('\\', '', $enc);
-							if (eregi('^(ISO-8859-1|US-ASCII|UTF-8)$', $enc)) {
-								$this->xml_encoding = strtoupper($enc);
-							} else {
-								$this->xml_encoding = 'US-ASCII';
-							}
-						} else {
-							// should be US-ASCII for HTTP 1.0 or ISO-8859-1 for HTTP 1.1
-							$this->xml_encoding = 'ISO-8859-1';
-						}
-					}
-					$this->headers[$k] = $v;
-					$this->request .= "$k: $v\r\n";
-					$this->debug("$k: $v");
+					$k = str_replace(' ', '-', strtolower(str_replace('_', ' ', substr($k, 5)))); 	                                         $k = strtolower(substr($k, 5));
+				} else {
+					$k = str_replace(' ', '-', strtolower(str_replace('_', ' ', $k))); 	                                         $k = strtolower($k);
 				}
+				if ($k == 'soapaction') {
+					// get SOAPAction header
+					$k = 'SOAPAction';
+					$v = str_replace('"', '', $v);
+					$v = str_replace('\\', '', $v);
+					$this->SOAPAction = $v;
+				} else if ($k == 'content-type') {
+					// get the character encoding of the incoming request
+					if (strpos($v, '=')) {
+						$enc = substr(strstr($v, '='), 1);
+						$enc = str_replace('"', '', $enc);
+						$enc = str_replace('\\', '', $enc);
+						if (eregi('^(ISO-8859-1|US-ASCII|UTF-8)$', $enc)) {
+							$this->xml_encoding = strtoupper($enc);
+						} else {
+							$this->xml_encoding = 'US-ASCII';
+						}
+					} else {
+						// should be US-ASCII for HTTP 1.0 or ISO-8859-1 for HTTP 1.1
+						$this->xml_encoding = 'ISO-8859-1';
+					}
+				}
+				$this->headers[$k] = $v;
+				$this->request .= "$k: $v\r\n";
+				$this->debug("$k: $v");
 			}
 		} else {
 			$this->debug("In parse_http_headers, HTTP headers not accessible");
@@ -475,7 +477,7 @@ class soap_server extends nusoap_base {
 				$this->methodname = $this->opData['name'];
 			} else {
 				$this->debug('in invoke_method, no WSDL for operation=' . $this->methodname);
-				$this->fault('Client', "Operation '$this->methodname' is not defined in the WSDL for this service");
+				$this->fault('Client', "Operation '" . $this->methodname . "' is not defined in the WSDL for this service");
 				return;
 			}
 		} else {
@@ -905,10 +907,10 @@ class soap_server extends nusoap_base {
 		if(false == $soapaction) {
 			if (isset($_SERVER)) {
 				$SERVER_NAME = $_SERVER['SERVER_NAME'];
-				$SCRIPT_NAME = $_SERVER['SCRIPT_NAME'];
+				$SCRIPT_NAME = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : $_SERVER['SCRIPT_NAME'];
 			} elseif (isset($HTTP_SERVER_VARS)) {
 				$SERVER_NAME = $HTTP_SERVER_VARS['SERVER_NAME'];
-				$SCRIPT_NAME = $HTTP_SERVER_VARS['SCRIPT_NAME'];
+				$SCRIPT_NAME = isset($HTTP_SERVER_VARS['PHP_SELF']) ? $HTTP_SERVER_VARS['PHP_SELF'] : $HTTP_SERVER_VARS['SCRIPT_NAME'];
 			} else {
 				$this->setError("Neither _SERVER nor HTTP_SERVER_VARS is available");
 			}
@@ -948,6 +950,9 @@ class soap_server extends nusoap_base {
 	* @access   public
 	*/
 	function fault($faultcode,$faultstring,$faultactor='',$faultdetail=''){
+		if ($faultdetail == '' && $this->debug_flag) {
+			$faultdetail = $this->getDebug();
+		}
 		$this->fault = new soap_fault($faultcode,$faultactor,$faultstring,$faultdetail);
 		$this->fault->soap_defencoding = $this->soap_defencoding;
 	}
@@ -970,12 +975,12 @@ class soap_server extends nusoap_base {
 		if (isset($_SERVER)) {
 			$SERVER_NAME = $_SERVER['SERVER_NAME'];
 			$SERVER_PORT = $_SERVER['SERVER_PORT'];
-			$SCRIPT_NAME = $_SERVER['SCRIPT_NAME'];
+			$SCRIPT_NAME = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : $_SERVER['SCRIPT_NAME'];
 			$HTTPS = $_SERVER['HTTPS'];
 		} elseif (isset($HTTP_SERVER_VARS)) {
 			$SERVER_NAME = $HTTP_SERVER_VARS['SERVER_NAME'];
 			$SERVER_PORT = $HTTP_SERVER_VARS['SERVER_PORT'];
-			$SCRIPT_NAME = $HTTP_SERVER_VARS['SCRIPT_NAME'];
+			$SCRIPT_NAME = isset($HTTP_SERVER_VARS['PHP_SELF']) ? $HTTP_SERVER_VARS['PHP_SELF'] : $HTTP_SERVER_VARS['SCRIPT_NAME'];
 			$HTTPS = $HTTP_SERVER_VARS['HTTPS'];
 		} else {
 			$this->setError("Neither _SERVER nor HTTP_SERVER_VARS is available");
