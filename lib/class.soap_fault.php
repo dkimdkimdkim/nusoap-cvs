@@ -40,7 +40,7 @@ class soap_fault extends nusoap_base {
 	/**
 	* constructor
     *
-    * @param string $faultcode (client | server)
+    * @param string $faultcode (SOAP-ENV:Client | SOAP-ENV:Server)
     * @param string $faultactor only used when msg routed between multiple actors
     * @param string $faultstring human readable error message
     * @param mixed $faultdetail detail, typically a string or array of string

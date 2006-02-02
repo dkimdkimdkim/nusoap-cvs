@@ -656,6 +656,7 @@ class soapclient extends nusoap_base  {
 					$paramCommentStr = substr($paramCommentStr, 0, strlen($paramCommentStr)-2);
 				} else {
 					$paramStr = '';
+					$paramArrayStr = '';
 					$paramCommentStr = 'void';
 				}
 				$opData['namespace'] = !isset($opData['namespace']) ? 'http://testuri.com' : $opData['namespace'];

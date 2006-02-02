@@ -602,7 +602,7 @@ class XMLSchema extends nusoap_base  {
 		// finish 'er up
 		$el = "<$schemaPrefix:schema targetNamespace=\"$this->schemaTargetNamespace\"\n";
 		foreach (array_diff($this->usedNamespaces, $this->enclosingNamespaces) as $nsp => $ns) {
-			$el .= " xmlns:$nsp=\"$ns\"\n";
+			$el .= " xmlns:$nsp=\"$ns\"";
 		}
 		$xml = $el . ">\n".$xml."</$schemaPrefix:schema>\n";
 		return $xml;
