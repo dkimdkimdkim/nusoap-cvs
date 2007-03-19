@@ -446,3 +446,23 @@
 - wsdl: use serialize_val to serialize an array when the XSD type is soapenc:Array (JBoss/Axis does this)
 - wsdl: change formatting of serialized XML for the WSDL
 - xmlschema: change formatting of namespaces when serializing XML for the schema
+
+2006-04-07, version 0.7.2
+- soap_server: if methodparams is not an array, call call_user_func_array with an empty array (thanks Eric Grossi)
+- wsdl: distinguish parts with element specified from those with type specified by suffixing element names with ^
+- wsdl: do a case-insensitive match on schema URI when looking for type
+- xmlschema: only get element (not type) when name has ^ suffix
+
+2006-05-16, version 0.7.2
+- soapclient: add getHeader to get parsed SOAP Header
+- soap_parser: check status when receiving Header or Body element
+- soap_parser: add soapheader
+- soap_server: add requestHeader with parsed SOAP Header
+
+2006-06-15, version 0.7.2
+- wsdl: fix bug in addComplexType (thanks Maarten Meijer)
+- soap_transport_http: change cURL message
+
+2007-03-19, version 0.7.2
+- soapclient: declare as nusoapclient, then also subclass soapclient if SOAP extension not loaded
+- soapclientmime: declare as nusoapclientmime, then also subclass soapclientmime if SOAP extension not loaded

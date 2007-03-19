@@ -665,10 +665,17 @@ class XMLSchema extends nusoap_base  {
     */
 	function getTypeDef($type){
 		//$this->debug("in getTypeDef for type $type");
-		if(isset($this->complexTypes[$type])){
+		if (substr($type, -1) == '^') {
+			$is_element = 1;
+			$type = substr($type, 0, -1);
+		} else {
+			$is_element = 0;
+		}
+
+		if((! $is_element) && isset($this->complexTypes[$type])){
 			$this->xdebug("in getTypeDef, found complexType $type");
 			return $this->complexTypes[$type];
-		} elseif(isset($this->simpleTypes[$type])){
+		} elseif((! $is_element) && isset($this->simpleTypes[$type])){
 			$this->xdebug("in getTypeDef, found simpleType $type");
 			if (!isset($this->simpleTypes[$type]['phpType'])) {
 				// get info for type to tack onto the simple type

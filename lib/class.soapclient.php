@@ -5,12 +5,12 @@
 
 /**
 *
-* soapclient higher level class for easy usage.
+* [nu]soapclient higher level class for easy usage.
 *
 * usage:
 *
 * // instantiate client with server info
-* $soapclient = new soapclient( string path [ ,boolean wsdl] );
+* $soapclient = new [nu]soapclient( string path [ ,boolean wsdl] );
 *
 * // call method, get results
 * echo $soapclient->call( string methodname [ ,array parameters] );
@@ -22,7 +22,7 @@
 * @version  $Id$
 * @access   public
 */
-class soapclient extends nusoap_base  {
+class nusoapclient extends nusoap_base  {
 
 	var $username = '';
 	var $password = '';
@@ -30,6 +30,7 @@ class soapclient extends nusoap_base  {
 	var $certRequest = array();
 	var $requestHeaders = false;	// SOAP headers in request (text)
 	var $responseHeaders = '';		// SOAP headers from response (incomplete namespace resolution) (text)
+	var $responseHeader = NULL;		// SOAP Header from response (parsed)
 	var $document = '';				// SOAP body response portion (incomplete namespace resolution) (text)
 	var $endpoint;
 	var $forceEndpoint = '';		// overrides WSDL endpoint
@@ -89,7 +90,7 @@ class soapclient extends nusoap_base  {
 	* @param	integer $response_timeout set the response timeout
 	* @access   public
 	*/
-	function soapclient($endpoint,$wsdl = false,$proxyhost = false,$proxyport = false,$proxyusername = false, $proxypassword = false, $timeout = 0, $response_timeout = 30){
+	function nusoapclient($endpoint,$wsdl = false,$proxyhost = false,$proxyport = false,$proxyusername = false, $proxypassword = false, $timeout = 0, $response_timeout = 30){
 		parent::nusoap_base();
 		$this->endpoint = $endpoint;
 		$this->proxyhost = $proxyhost;
@@ -464,8 +465,10 @@ class soapclient extends nusoap_base  {
 		} else {
 			// get SOAP headers
 			$this->responseHeaders = $parser->getHeaders();
+			// get SOAP headers
+			$this->responseHeader = $parser->get_soapheader();
 			// get decoded message
-			$return = $parser->get_response();
+			$return = $parser->get_soapbody();
             // add document for doclit support
             $this->document = $parser->document;
 			// destroy the parser object
@@ -503,6 +506,16 @@ class soapclient extends nusoap_base  {
 	*/
 	function getHeaders(){
 		return $this->responseHeaders;
+	}
+
+	/**
+	* get the SOAP response Header (parsed)
+	*
+	* @return	mixed
+	* @access   public
+	*/
+	function getHeader(){
+		return $this->responseHeader;
 	}
 
 	/**
@@ -670,7 +683,7 @@ class soapclient extends nusoap_base  {
 				unset($paramCommentStr);
 			}
 		}
-		$evalStr = 'class soap_proxy_'.$r.' extends soapclient {
+		$evalStr = 'class nusoap_proxy_'.$r.' extends nusoapclient {
 	'.$evalStr.'
 }';
 		return $evalStr;
@@ -855,6 +868,14 @@ class soapclient extends nusoap_base  {
 			}
 		}
 		return true;
+	}
+}
+
+/*
+ *	For backwards compatiblity, define soapclient unless the PHP SOAP extension is loaded.
+ */
+if (!extension_loaded('soap')) {
+	class soapclient extends nusoapclient {
 	}
 }
 ?>

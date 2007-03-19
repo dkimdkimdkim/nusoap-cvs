@@ -154,7 +154,8 @@ class soap_transport_http extends nusoap_base {
 		return true;
 	  } else if ($this->scheme == 'https') {
 		if (!extension_loaded('curl')) {
-			$this->setError('CURL Extension, or OpenSSL extension w/ PHP version >= 4.3 is required for HTTPS');
+//			$this->setError('cURL Extension, or OpenSSL extension w/ PHP version >= 4.3 is required for HTTPS');
+			$this->setError('The PHP cURL Extension is required for HTTPS.  You will need to re-build or update your PHP to included cURL.');
 			return false;
 		}
 		$this->debug('connect using https');

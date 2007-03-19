@@ -332,12 +332,12 @@ class wsdl extends nusoap_base {
                 case 'message':
                     if ($name == 'part') {
 			            if (isset($attrs['type'])) {
-		                    $this->debug("msg " . $this->currentMessage . ": found part $attrs[name]: " . implode(',', $attrs));
+		                    $this->debug("msg " . $this->currentMessage . ": found part (with type) $attrs[name]: " . implode(',', $attrs));
 		                    $this->messages[$this->currentMessage][$attrs['name']] = $attrs['type'];
             			} 
 			            if (isset($attrs['element'])) {
-		                    $this->debug("msg " . $this->currentMessage . ": found part $attrs[name]: " . implode(',', $attrs));
-			                $this->messages[$this->currentMessage][$attrs['name']] = $attrs['element'];
+		                    $this->debug("msg " . $this->currentMessage . ": found part (with element) $attrs[name]: " . implode(',', $attrs));
+			                $this->messages[$this->currentMessage][$attrs['name']] = $attrs['element'] . '^';
 			            } 
         			} 
         			break;
@@ -638,6 +638,15 @@ class wsdl extends nusoap_base {
 			$ns = $this->namespaces['tns'];
 			$this->debug("in getTypeDef: type namespace forced to $ns");
 		}
+		if (!isset($this->schemas[$ns])) {
+			foreach ($this->schemas as $ns0 => $schema0) {
+				if (strcasecmp($ns, $ns0) == 0) {
+					$this->debug("in getTypeDef: replacing schema namespace $ns with $ns0");
+					$ns = $ns0;
+					break;
+				}
+			}
+		}
 		if (isset($this->schemas[$ns])) {
 			$this->debug("in getTypeDef: have schema for namespace $ns");
 			for ($i = 0; $i < count($this->schemas[$ns]); $i++) {
@@ -872,13 +881,17 @@ class wsdl extends nusoap_base {
 						    } 
 						}
 						$ns = $this->getNamespaceFromPrefix($typePrefix);
-						$typeDef = $this->getTypeDef($this->getLocalPart($partType), $ns);
+						$localPart = $this->getLocalPart($partType);
+						$typeDef = $this->getTypeDef($localPart, $ns);
 						if ($typeDef['typeClass'] == 'element') {
 							$elementortype = 'element';
+							if (substr($localPart, -1) == '^') {
+								$localPart = substr($localPart, 0, -1);
+							}
 						} else {
 							$elementortype = 'type';
 						}
-						$xml .= "\n" . '  <part name="' . $partName . '" ' . $elementortype . '="' . $typePrefix . ':' . $this->getLocalPart($partType) . '" />';
+						$xml .= "\n" . '  <part name="' . $partName . '" ' . $elementortype . '="' . $typePrefix . ':' . $localPart . '" />';
 					}
 				}
 				$xml .= '</message>';
@@ -1256,6 +1269,9 @@ class wsdl extends nusoap_base {
 		} else {
 			$this->debug("in serializeType: found typeDef");
 			$this->appendDebug('typeDef=' . $this->varDump($typeDef));
+			if (substr($uqType, -1) == '^') {
+				$uqType = substr($uqType, 0, -1);
+			}
 		}
 		$phpType = $typeDef['phpType'];
 		$this->debug("in serializeType: uqType: $uqType, ns: $ns, phptype: $phpType, arrayType: " . (isset($typeDef['arrayType']) ? $typeDef['arrayType'] : '') ); 
@@ -1576,8 +1592,10 @@ class wsdl extends nusoap_base {
 	*/
 	function addComplexType($name,$typeClass='complexType',$phpType='array',$compositor='',$restrictionBase='',$elements=array(),$attrs=array(),$arrayType='') {
 		if (count($elements) > 0) {
+			$eElements = array();
 	    	foreach($elements as $n => $e){
 	            // expand each element
+	            $ee = array();
 	            foreach ($e as $k => $v) {
 		            $k = strpos($k,':') ? $this->expandQname($k) : $k;
 		            $v = strpos($v,':') ? $this->expandQname($v) : $v;

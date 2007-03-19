@@ -34,6 +34,12 @@ class soap_server extends nusoap_base {
 	 */
 	var $requestHeaders = '';
 	/**
+	 * SOAP Headers from request (parsed)
+	 * @var mixed
+	 * @access public
+	 */
+	var $requestHeader = NULL;
+	/**
 	 * SOAP body request portion (incomplete namespace resolution; special characters not escaped) (text)
 	 * @var string
 	 * @access public
@@ -579,7 +585,11 @@ class soap_server extends nusoap_base {
 				$instance = new $class ();
 				$call_arg = array(&$instance, $method);
 			}
-			$this->methodreturn = call_user_func_array($call_arg, array_values($this->methodparams));
+			if (is_array($this->methodparams)) {
+				$this->methodreturn = call_user_func_array($call_arg, array_values($this->methodparams));
+			} else {
+				$this->methodreturn = call_user_func_array($call_arg, array());
+			}
 		}
         $this->debug('in invoke_method, methodreturn:');
         $this->appendDebug($this->varDump($this->methodreturn));
@@ -815,10 +825,12 @@ class soap_server extends nusoap_base {
 			$this->methodURI = $parser->root_struct_namespace;
 			$this->methodname = $parser->root_struct_name;
 			$this->debug('methodname: '.$this->methodname.' methodURI: '.$this->methodURI);
-			$this->debug('calling parser->get_response()');
-			$this->methodparams = $parser->get_response();
+			$this->debug('calling parser->get_soapbody()');
+			$this->methodparams = $parser->get_soapbody();
 			// get SOAP headers
 			$this->requestHeaders = $parser->getHeaders();
+			// get SOAP Header
+			$this->requestHeader = $parser->get_soapheader();
             // add document for doclit support
             $this->document = $parser->document;
 		}
