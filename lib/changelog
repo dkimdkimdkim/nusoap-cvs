@@ -466,3 +466,11 @@
 2007-03-19, version 0.7.2
 - soapclient: declare as nusoapclient, then also subclass soapclient if SOAP extension not loaded
 - soapclientmime: declare as nusoapclientmime, then also subclass soapclientmime if SOAP extension not loaded
+
+2007-03-28, version 0.7.2
+- nusoap_base: fix serialization of a soapval when its value is a soapval
+- soapval: fix serialization of a soapval when its value is a soapval
+- soapval: add __toString (cf. http://article.gmane.org/gmane.comp.php.nusoap.general/2776)
+- nusoapclient: use lazy retrieval of WSDL instead of always getting it in the constructor
+- nusoapclient: fix getProxy that was broken in last revision
+- wsdl: add ability to set authorization credentials and retrieve WSDL outside of constructor

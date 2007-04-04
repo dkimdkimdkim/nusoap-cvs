@@ -379,16 +379,22 @@ class nusoap_base {
 	* @param	string	$type_ns	The namespace for the type of the element
 	* @param	array	$attributes	The attributes to serialize as name=>value pairs
 	* @param	string	$use	The WSDL "use" (encoded|literal)
+	* @param	boolean	$soapval	Whether this is called from soapval.
 	* @return	string	The serialized element, possibly with child elements
     * @access	public
 	*/
-	function serialize_val($val,$name=false,$type=false,$name_ns=false,$type_ns=false,$attributes=false,$use='encoded'){
-		$this->debug("in serialize_val: name=$name, type=$type, name_ns=$name_ns, type_ns=$type_ns, use=$use");
+	function serialize_val($val,$name=false,$type=false,$name_ns=false,$type_ns=false,$attributes=false,$use='encoded',$soapval=false) {
+		$this->debug("in serialize_val: name=$name, type=$type, name_ns=$name_ns, type_ns=$type_ns, use=$use, soapval=$soapval");
 		$this->appendDebug('value=' . $this->varDump($val));
 		$this->appendDebug('attributes=' . $this->varDump($attributes));
 		
-    	if(is_object($val) && get_class($val) == 'soapval'){
-        	return $val->serialize($use);
+    	if (is_object($val) && get_class($val) == 'soapval' && (! $soapval)) {
+    		$this->debug("serialize_val: serialize soapval");
+        	$xml = $val->serialize($use);
+			$this->appendDebug($val->getDebug());
+			$val->clearDebug();
+			$this->debug("serialize_val of soapval returning $xml");
+			return $xml;
         }
 		// force valid name if necessary
 		if (is_numeric($name)) {
@@ -421,20 +427,26 @@ class nusoap_base {
 		}
 		// serialize null value
 		if (is_null($val)) {
+    		$this->debug("serialize_val: serialize null");
 			if ($use == 'literal') {
 				// TODO: depends on minOccurs
-	        	return "<$name$xmlns $atts/>";
+				$xml = "<$name$xmlns $atts/>";
+				$this->debug("serialize_val returning $xml");
+	        	return $xml;
         	} else {
 				if (isset($type) && isset($type_prefix)) {
 					$type_str = " xsi:type=\"$type_prefix:$type\"";
 				} else {
 					$type_str = '';
 				}
-	        	return "<$name$xmlns$type_str $atts xsi:nil=\"true\"/>";
+				$xml = "<$name$xmlns$type_str $atts xsi:nil=\"true\"/>";
+				$this->debug("serialize_val returning $xml");
+	        	return $xml;
         	}
 		}
         // serialize if an xsd built-in primitive type
         if($type != '' && isset($this->typemap[$this->XMLSchemaVersion][$type])){
+    		$this->debug("serialize_val: serialize xsd built-in primitive type");
         	if (is_bool($val)) {
         		if ($type == 'boolean') {
 	        		$val = $val ? 'true' : 'false';
@@ -445,15 +457,20 @@ class nusoap_base {
 				$val = $this->expandEntities($val);
 			}
 			if ($use == 'literal') {
-	        	return "<$name$xmlns $atts>$val</$name>";
+				$xml = "<$name$xmlns $atts>$val</$name>";
+				$this->debug("serialize_val returning $xml");
+	        	return $xml;
         	} else {
-	        	return "<$name$xmlns $atts xsi:type=\"xsd:$type\">$val</$name>";
+				$xml = "<$name$xmlns $atts xsi:type=\"xsd:$type\">$val</$name>";
+				$this->debug("serialize_val returning $xml");
+	        	return $xml;
         	}
         }
 		// detect type and serialize
 		$xml = '';
 		switch(true) {
 			case (is_bool($val) || $type == 'boolean'):
+		   		$this->debug("serialize_val: serialize boolean");
         		if ($type == 'boolean') {
 	        		$val = $val ? 'true' : 'false';
 	        	} elseif (! $val) {
@@ -466,6 +483,7 @@ class nusoap_base {
 				}
 				break;
 			case (is_int($val) || is_long($val) || $type == 'int'):
+		   		$this->debug("serialize_val: serialize int");
 				if ($use == 'literal') {
 					$xml .= "<$name$xmlns $atts>$val</$name>";
 				} else {
@@ -473,6 +491,7 @@ class nusoap_base {
 				}
 				break;
 			case (is_float($val)|| is_double($val) || $type == 'float'):
+		   		$this->debug("serialize_val: serialize float");
 				if ($use == 'literal') {
 					$xml .= "<$name$xmlns $atts>$val</$name>";
 				} else {
@@ -480,6 +499,7 @@ class nusoap_base {
 				}
 				break;
 			case (is_string($val) || $type == 'string'):
+		   		$this->debug("serialize_val: serialize string");
 				$val = $this->expandEntities($val);
 				if ($use == 'literal') {
 					$xml .= "<$name$xmlns $atts>$val</$name>";
@@ -488,22 +508,40 @@ class nusoap_base {
 				}
 				break;
 			case is_object($val):
-				if (! $name) {
-					$name = get_class($val);
-					$this->debug("In serialize_val, used class name $name as element name");
+		   		$this->debug("serialize_val: serialize object");
+		    	if (get_class($val) == 'soapval') {
+		    		$this->debug("serialize_val: serialize soapval object");
+		        	$pXml = $val->serialize($use);
+					$this->appendDebug($val->getDebug());
+					$val->clearDebug();
+		        } else {
+					if (! $name) {
+						$name = get_class($val);
+						$this->debug("In serialize_val, used class name $name as element name");
+					} else {
+						$this->debug("In serialize_val, do not override name $name for element name for class " . get_class($val));
+					}
+					foreach(get_object_vars($val) as $k => $v){
+						$pXml = isset($pXml) ? $pXml.$this->serialize_val($v,$k,false,false,false,false,$use) : $this->serialize_val($v,$k,false,false,false,false,$use);
+					}
+				}
+				if(isset($type) && isset($type_prefix)){
+					$type_str = " xsi:type=\"$type_prefix:$type\"";
 				} else {
-					$this->debug("In serialize_val, do not override name $name for element name for class " . get_class($val));
+					$type_str = '';
 				}
-				foreach(get_object_vars($val) as $k => $v){
-					$pXml = isset($pXml) ? $pXml.$this->serialize_val($v,$k,false,false,false,false,$use) : $this->serialize_val($v,$k,false,false,false,false,$use);
+				if ($use == 'literal') {
+					$xml .= "<$name$xmlns $atts>$pXml</$name>";
+				} else {
+					$xml .= "<$name$xmlns$type_str$atts>$pXml</$name>";
 				}
-				$xml .= '<'.$name.'>'.$pXml.'</'.$name.'>';
 				break;
 			break;
 			case (is_array($val) || $type):
 				// detect if struct or array
 				$valueType = $this->isArraySimpleOrStruct($val);
                 if($valueType=='arraySimple' || ereg('^ArrayOf',$type)){
+			   		$this->debug("serialize_val: serialize array");
 					$i = 0;
 					if(is_array($val) && count($val)> 0){
 						foreach($val as $v){
@@ -565,6 +603,7 @@ class nusoap_base {
 					$xml = "<$name$xmlns$type_str$atts>".$xml."</$name>";
 				} else {
 					// got a struct
+			   		$this->debug("serialize_val: serialize struct");
 					if(isset($type) && isset($type_prefix)){
 						$type_str = " xsi:type=\"$type_prefix:$type\"";
 					} else {
@@ -590,9 +629,11 @@ class nusoap_base {
 				}
 				break;
 			default:
+		   		$this->debug("serialize_val: serialize unknown");
 				$xml .= 'not detected, got '.gettype($val).' for '.$val;
 				break;
 		}
+		$this->debug("serialize_val returning $xml");
 		return $xml;
 	}
 
@@ -636,7 +677,7 @@ class nusoap_base {
 				$xml .= $this->serialize_val($header, false, false, false, false, false, $use);
 			}
 			$headers = $xml;
-			$this->debug("In serializeEnvelope, serialzied array of headers to $headers");
+			$this->debug("In serializeEnvelope, serialized array of headers to $headers");
 		}
 		$headers = "<SOAP-ENV:Header>".$headers."</SOAP-ENV:Header>";
 	}

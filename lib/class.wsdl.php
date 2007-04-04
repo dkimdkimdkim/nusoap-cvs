@@ -45,6 +45,11 @@ class wsdl extends nusoap_base {
 	var $proxypassword = '';
 	var $timeout = 0;
 	var $response_timeout = 30;
+	// for HTTP authentication
+	var $username = '';				// Username for HTTP authentication
+	var $password = '';				// Password for HTTP authentication
+	var $authtype = '';				// Type of HTTP authentication
+	var $certRequest = array();		// Certificate for HTTP SSL authentication
 
     /**
      * constructor
@@ -60,78 +65,87 @@ class wsdl extends nusoap_base {
      */
     function wsdl($wsdl = '',$proxyhost=false,$proxyport=false,$proxyusername=false,$proxypassword=false,$timeout=0,$response_timeout=30){
 		parent::nusoap_base();
-        $this->wsdl = $wsdl;
+		$this->debug("ctor wsdl=$wsdl timeout=$timeout response_timeout=$response_timeout");
         $this->proxyhost = $proxyhost;
         $this->proxyport = $proxyport;
 		$this->proxyusername = $proxyusername;
 		$this->proxypassword = $proxypassword;
 		$this->timeout = $timeout;
 		$this->response_timeout = $response_timeout;
-        
+		$this->fetchWSDL($wsdl);
+    }
+
+	/**
+	 * fetches the WSDL document and parses it
+	 *
+	 * @access public
+	 */
+	function fetchWSDL($wsdl) {
+		$this->debug("parse and process WSDL path=$wsdl");
+		$this->wsdl = $wsdl;
         // parse wsdl file
-        if ($wsdl != "") {
-            $this->debug('initial wsdl URL: ' . $wsdl);
-            $this->parseWSDL($wsdl);
+        if ($this->wsdl != "") {
+            $this->parseWSDL($this->wsdl);
         }
         // imports
         // TODO: handle imports more properly, grabbing them in-line and nesting them
-        	$imported_urls = array();
-        	$imported = 1;
-        	while ($imported > 0) {
-        		$imported = 0;
-        		// Schema imports
-        		foreach ($this->schemas as $ns => $list) {
-        			foreach ($list as $xs) {
-						$wsdlparts = parse_url($this->wsdl);	// this is bogusly simple!
-			            foreach ($xs->imports as $ns2 => $list2) {
-			                for ($ii = 0; $ii < count($list2); $ii++) {
-			                	if (! $list2[$ii]['loaded']) {
-			                		$this->schemas[$ns]->imports[$ns2][$ii]['loaded'] = true;
-			                		$url = $list2[$ii]['location'];
-									if ($url != '') {
-										$urlparts = parse_url($url);
-										if (!isset($urlparts['host'])) {
-											$url = $wsdlparts['scheme'] . '://' . $wsdlparts['host'] . (isset($wsdlparts['port']) ? ':' .$wsdlparts['port'] : '') .
-													substr($wsdlparts['path'],0,strrpos($wsdlparts['path'],'/') + 1) .$urlparts['path'];
-										}
-										if (! in_array($url, $imported_urls)) {
-						                	$this->parseWSDL($url);
-					                		$imported++;
-					                		$imported_urls[] = $url;
-					                	}
-									} else {
-										$this->debug("Unexpected scenario: empty URL for unloaded import");
+    	$imported_urls = array();
+    	$imported = 1;
+    	while ($imported > 0) {
+    		$imported = 0;
+    		// Schema imports
+    		foreach ($this->schemas as $ns => $list) {
+    			foreach ($list as $xs) {
+					$wsdlparts = parse_url($this->wsdl);	// this is bogusly simple!
+		            foreach ($xs->imports as $ns2 => $list2) {
+		                for ($ii = 0; $ii < count($list2); $ii++) {
+		                	if (! $list2[$ii]['loaded']) {
+		                		$this->schemas[$ns]->imports[$ns2][$ii]['loaded'] = true;
+		                		$url = $list2[$ii]['location'];
+								if ($url != '') {
+									$urlparts = parse_url($url);
+									if (!isset($urlparts['host'])) {
+										$url = $wsdlparts['scheme'] . '://' . $wsdlparts['host'] . (isset($wsdlparts['port']) ? ':' .$wsdlparts['port'] : '') .
+												substr($wsdlparts['path'],0,strrpos($wsdlparts['path'],'/') + 1) .$urlparts['path'];
 									}
+									if (! in_array($url, $imported_urls)) {
+					                	$this->parseWSDL($url);
+				                		$imported++;
+				                		$imported_urls[] = $url;
+				                	}
+								} else {
+									$this->debug("Unexpected scenario: empty URL for unloaded import");
 								}
-							}
-			            } 
-        			}
-        		}
-        		// WSDL imports
-				$wsdlparts = parse_url($this->wsdl);	// this is bogusly simple!
-	            foreach ($this->import as $ns => $list) {
-	                for ($ii = 0; $ii < count($list); $ii++) {
-	                	if (! $list[$ii]['loaded']) {
-	                		$this->import[$ns][$ii]['loaded'] = true;
-	                		$url = $list[$ii]['location'];
-							if ($url != '') {
-								$urlparts = parse_url($url);
-								if (!isset($urlparts['host'])) {
-									$url = $wsdlparts['scheme'] . '://' . $wsdlparts['host'] . (isset($wsdlparts['port']) ? ':' . $wsdlparts['port'] : '') .
-											substr($wsdlparts['path'],0,strrpos($wsdlparts['path'],'/') + 1) .$urlparts['path'];
-								}
-								if (! in_array($url, $imported_urls)) {
-				                	$this->parseWSDL($url);
-			                		$imported++;
-			                		$imported_urls[] = $url;
-			                	}
-							} else {
-								$this->debug("Unexpected scenario: empty URL for unloaded import");
 							}
 						}
+		            } 
+    			}
+    		}
+    		// WSDL imports
+			$wsdlparts = parse_url($this->wsdl);	// this is bogusly simple!
+            foreach ($this->import as $ns => $list) {
+                for ($ii = 0; $ii < count($list); $ii++) {
+                	if (! $list[$ii]['loaded']) {
+                		$this->import[$ns][$ii]['loaded'] = true;
+                		$url = $list[$ii]['location'];
+						if ($url != '') {
+							$urlparts = parse_url($url);
+							if (!isset($urlparts['host'])) {
+								$url = $wsdlparts['scheme'] . '://' . $wsdlparts['host'] . (isset($wsdlparts['port']) ? ':' . $wsdlparts['port'] : '') .
+										substr($wsdlparts['path'],0,strrpos($wsdlparts['path'],'/') + 1) .$urlparts['path'];
+							}
+							if (! in_array($url, $imported_urls)) {
+			                	$this->parseWSDL($url);
+		                		$imported++;
+		                		$imported_urls[] = $url;
+		                	}
+						} else {
+							$this->debug("Unexpected scenario: empty URL for unloaded import");
+						}
 					}
-	            } 
-			}
+				}
+            } 
+		}
         // add new data to operation data
         foreach($this->bindings as $binding => $bindingData) {
             if (isset($bindingData['operations']) && is_array($bindingData['operations'])) {
@@ -160,7 +174,7 @@ class wsdl extends nusoap_base {
                 } 
             } 
         }
-    }
+	}
 
     /**
      * parses the wsdl document
@@ -168,8 +182,9 @@ class wsdl extends nusoap_base {
      * @param string $wsdl path or URL
      * @access private 
      */
-    function parseWSDL($wsdl = '')
-    {
+    function parseWSDL($wsdl = '') {
+		$this->debug("parse WSDL at path=$wsdl");
+
         if ($wsdl == '') {
             $this->debug('no wsdl passed to parseWSDL()!!');
             $this->setError('no wsdl passed to parseWSDL()!!');
@@ -187,6 +202,9 @@ class wsdl extends nusoap_base {
 			$tr->useSOAPAction = false;
 			if($this->proxyhost && $this->proxyport){
 				$tr->setProxy($this->proxyhost,$this->proxyport,$this->proxyusername,$this->proxypassword);
+			}
+			if ($this->authtype != '') {
+				$tr->setCredentials($this->username, $this->password, $this->authtype, array(), $this->certRequest);
 			}
 			$tr->setEncoding('gzip, deflate');
 			$wsdl_string = $tr->send('', $this->timeout, $this->response_timeout);
@@ -521,6 +539,22 @@ class wsdl extends nusoap_base {
 			$this->documentation .= $data;
 		} 
 	} 
+	
+	/**
+	* if authenticating, set user credentials here
+	*
+	* @param    string $username
+	* @param    string $password
+	* @param	string $authtype (basic|digest|certificate)
+	* @param	array $certRequest (keys must be cainfofile (optional), sslcertfile, sslkeyfile, passphrase, verifypeer (optional), verifyhost (optional): see corresponding options in cURL docs)
+	* @access   public
+	*/
+	function setCredentials($username, $password, $authtype = 'basic', $certRequest = array()) {
+		$this->username = $username;
+		$this->password = $password;
+		$this->authtype = $authtype;
+		$this->certRequest = $certRequest;
+	}
 	
 	function getBindingData($binding)
 	{

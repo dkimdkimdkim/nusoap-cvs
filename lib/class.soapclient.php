@@ -24,10 +24,10 @@
 */
 class nusoapclient extends nusoap_base  {
 
-	var $username = '';
-	var $password = '';
-	var $authtype = '';
-	var $certRequest = array();
+	var $username = '';				// Username for HTTP authentication
+	var $password = '';				// Password for HTTP authentication
+	var $authtype = '';				// Type of HTTP authentication
+	var $certRequest = array();		// Certificate for HTTP SSL authentication
 	var $requestHeaders = false;	// SOAP headers in request (text)
 	var $responseHeaders = '';		// SOAP headers from response (incomplete namespace resolution) (text)
 	var $responseHeader = NULL;		// SOAP Header from response (parsed)
@@ -100,6 +100,9 @@ class nusoapclient extends nusoap_base  {
 		$this->timeout = $timeout;
 		$this->response_timeout = $response_timeout;
 
+		$this->debug("ctor wsdl=$wsdl timeout=$timeout response_timeout=$response_timeout");
+		$this->appendDebug('endpoint=' . $this->varDump($endpoint));
+
 		// make values
 		if($wsdl){
 			if (is_object($endpoint) && (get_class($endpoint) == 'wsdl')) {
@@ -107,26 +110,13 @@ class nusoapclient extends nusoap_base  {
 				$this->endpoint = $this->wsdl->wsdl;
 				$this->wsdlFile = $this->endpoint;
 				$this->debug('existing wsdl instance created from ' . $this->endpoint);
+				$this->checkWSDL();
 			} else {
 				$this->wsdlFile = $this->endpoint;
-				
-				// instantiate wsdl object and parse wsdl file
-				$this->debug('instantiating wsdl class with doc: '.$endpoint);
-				$this->wsdl =& new wsdl($this->wsdlFile,$this->proxyhost,$this->proxyport,$this->proxyusername,$this->proxypassword,$this->timeout,$this->response_timeout);
+				$this->wsdl = null;
+				$this->debug('will use lazy evaluation of wsdl from ' . $this->endpoint);
 			}
-			$this->appendDebug($this->wsdl->getDebug());
-			$this->wsdl->clearDebug();
-			// catch errors
-			if($errstr = $this->wsdl->getError()){
-				$this->debug('got wsdl error: '.$errstr);
-				$this->setError('wsdl error: '.$errstr);
-			} elseif($this->operations = $this->wsdl->getOperations()){
-				$this->debug( 'got '.count($this->operations).' operations from wsdl '.$this->wsdlFile);
-				$this->endpointType = 'wsdl';
-			} else {
-				$this->debug( 'getOperations returned false');
-				$this->setError('no operations defined in the WSDL document!');
-			}
+			$this->endpointType = 'wsdl';
 		} else {
 			$this->debug("instantiate SOAP with endpoint at $endpoint");
 			$this->endpointType = 'soap';
@@ -174,6 +164,11 @@ class nusoapclient extends nusoap_base  {
 		$this->appendDebug('headers=' . $this->varDump($headers));
 		if ($headers) {
 			$this->requestHeaders = $headers;
+		}
+		if ($this->endpointType == 'wsdl' && is_null($this->wsdl)) {
+			$this->loadWSDL();
+			if ($this->getError())
+				return false;
 		}
 		// serialize parameters
 		if($this->endpointType == 'wsdl' && $opData = $this->getOperationData($operation)){
@@ -328,6 +323,39 @@ class nusoapclient extends nusoap_base  {
 	}
 
 	/**
+	* check WSDL passed as an instance or pulled from an endpoint
+	*
+	* @access   private
+	*/
+	function checkWSDL() {
+		$this->appendDebug($this->wsdl->getDebug());
+		$this->wsdl->clearDebug();
+		// catch errors
+		if($errstr = $this->wsdl->getError()){
+			$this->debug('got wsdl error: '.$errstr);
+			$this->setError('wsdl error: '.$errstr);
+		} elseif($this->operations = $this->wsdl->getOperations()){
+			$this->debug( 'got '.count($this->operations).' operations from wsdl '.$this->wsdlFile);
+		} else {
+			$this->debug( 'getOperations returned false');
+			$this->setError('no operations defined in the WSDL document!');
+		}
+	}
+
+	/**
+	 * instantiate wsdl object and parse wsdl file
+	 *
+	 * @access	public
+	 */
+	function loadWSDL() {
+		$this->debug('instantiating wsdl class with doc: '.$this->wsdlFile);
+		$this->wsdl =& new wsdl('',$this->proxyhost,$this->proxyport,$this->proxyusername,$this->proxypassword,$this->timeout,$this->response_timeout);
+		$this->wsdl->setCredentials($this->username, $this->password, $this->authtype, $this->certRequest);
+		$this->wsdl->fetchWSDL($this->wsdlFile);
+		$this->checkWSDL();
+	}
+
+	/**
 	* get available data pertaining to an operation
 	*
 	* @param    string $operation operation name
@@ -335,6 +363,11 @@ class nusoapclient extends nusoap_base  {
 	* @access   public
 	*/
 	function getOperationData($operation){
+		if ($this->endpointType == 'wsdl' && is_null($this->wsdl)) {
+			$this->loadWSDL();
+			if ($this->getError())
+				return false;
+		}
 		if(isset($this->operations[$operation])){
 			return $this->operations[$operation];
 		}
@@ -606,14 +639,14 @@ class nusoapclient extends nusoap_base  {
 	* @return   object soap_proxy object
 	* @access   public
 	*/
-	function getProxy(){
+	function getProxy() {
 		$r = rand();
 		$evalStr = $this->_getProxyClassCode($r);
 		//$this->debug("proxy class: $evalStr";
 		// eval the class
 		eval($evalStr);
 		// instantiate proxy object
-		eval("\$proxy = new soap_proxy_$r('');");
+		eval("\$proxy = new nusoap_proxy_$r('');");
 		// transfer current wsdl data to the proxy thereby avoiding parsing the wsdl twice
 		$proxy->endpointType = 'wsdl';
 		$proxy->wsdlFile = $this->wsdlFile;
@@ -624,6 +657,7 @@ class nusoapclient extends nusoap_base  {
 		$proxy->username = $this->username;
 		$proxy->password = $this->password;
 		$proxy->authtype = $this->authtype;
+		$proxy->certRequest = $this->certRequest;
 		$proxy->proxyhost = $this->proxyhost;
 		$proxy->proxyport = $this->proxyport;
 		$proxy->proxyusername = $this->proxyusername;
@@ -646,10 +680,15 @@ class nusoapclient extends nusoap_base  {
 	* @access   private
 	*/
 	function _getProxyClassCode($r) {
+		$this->debug("in getProxy endpointType=$this->endpointType");
+		$this->appendDebug("wsdl=" . $this->varDump($this->wsdl));
 		if ($this->endpointType != 'wsdl') {
 			$evalStr = 'A proxy can only be created for a WSDL client';
 			$this->setError($evalStr);
 			return $evalStr;
+		}
+		if ($this->endpointType == 'wsdl' && is_null($this->wsdl)) {
+			$this->loadWSDL();
 		}
 		$evalStr = '';
 		foreach ($this->operations as $operation => $opData) {
