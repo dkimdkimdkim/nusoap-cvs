@@ -31,6 +31,7 @@ class soap_transport_http extends nusoap_base {
 	var $useSOAPAction = true;
 	var $persistentConnection = false;
 	var $ch = false;	// cURL handle
+	var $ch_options = array(); // cURL custom options
 	var $username = '';
 	var $password = '';
 	var $authtype = '';
@@ -46,9 +47,12 @@ class soap_transport_http extends nusoap_base {
 	/**
 	* constructor
 	*/
-	function soap_transport_http($url){
+	function soap_transport_http($url, $curl_options = NULL){
 		parent::nusoap_base();
 		$this->setURL($url);
+		if (is_array($curl_options)) {
+			$this->ch_options = $curl_options;
+		}
 		ereg('\$Revisio' . 'n: ([^ ]+)', $this->revision, $rev);
 		$this->outgoing_headers['User-Agent'] = $this->title.'/'.$this->version.' ('.$rev[1].')';
 		$this->debug('set User-Agent: ' . $this->outgoing_headers['User-Agent']);
@@ -92,7 +96,29 @@ class soap_transport_http extends nusoap_base {
 			$this->setCredentials(urldecode($u['user']), isset($u['pass']) ? urldecode($u['pass']) : '');
 		}
 	}
-	
+
+	/**
+	* gets the I/O method to use
+	*
+	* @return	string	I/O method to use (socket|curl|unknown)
+	* @access	private
+	*/
+	function io_method() {
+		if (($this->scheme == 'http' || $this->scheme == 'ssl') && $this->authtype != 'ntlm')
+			return 'socket';
+		if ($this->scheme == 'https' || ($this->scheme == 'http' && $this->authtype == 'ntlm'))
+			return 'curl';
+		return 'unknown';
+	}
+
+	/**
+	* establish an HTTP connection
+	*
+	* @param    integer $timeout set connection timeout in seconds
+	* @param	integer $response_timeout set response timeout in seconds
+	* @return	boolean true if connected, false if not
+	* @access   private
+	*/
 	function connect($connection_timeout=0,$response_timeout=30){
 	  	// For PHP 4.3 with OpenSSL, change https scheme to ssl, then treat like
 	  	// "regular" socket.
@@ -107,7 +133,7 @@ class soap_transport_http extends nusoap_base {
 //		  	}
 //		}
 		$this->debug("connect connection_timeout $connection_timeout, response_timeout $response_timeout, scheme $this->scheme, host $this->host, port $this->port");
-	  if ($this->scheme == 'http' || $this->scheme == 'ssl') {
+	  if ($this->io_method() == 'socket') {
 		// use persistent connection
 		if($this->persistentConnection && isset($this->fp) && is_resource($this->fp)){
 			if (!feof($this->fp)) {
@@ -152,17 +178,17 @@ class soap_transport_http extends nusoap_base {
 
 		$this->debug('socket connected');
 		return true;
-	  } else if ($this->scheme == 'https') {
+	  } else if ($this->io_method() == 'curl') {
 		if (!extension_loaded('curl')) {
 //			$this->setError('cURL Extension, or OpenSSL extension w/ PHP version >= 4.3 is required for HTTPS');
-			$this->setError('The PHP cURL Extension is required for HTTPS.  You will need to re-build or update your PHP to included cURL.');
+			$this->setError('The PHP cURL Extension is required for HTTPS or NLTM.  You will need to re-build or update your PHP to included cURL.');
 			return false;
 		}
-		$this->debug('connect using https');
+		$this->debug('connect using cURL');
 		// init CURL
 		$this->ch = curl_init();
 		// set url
-		$hostURL = ($this->port != '') ? "https://$this->host:$this->port" : "https://$this->host";
+		$hostURL = ($this->port != '') ? "$this->scheme://$this->host:$this->port" : "$this->scheme://$this->host";
 		// add path
 		$hostURL .= $this->path;
 		curl_setopt($this->ch, CURLOPT_URL, $hostURL);
@@ -198,37 +224,46 @@ class soap_transport_http extends nusoap_base {
 		//	curl_setopt($this->ch, CURLOPT_TIMEOUT, $response_timeout);
 		//}
 
-		// recent versions of cURL turn on peer/host checking by default,
-		// while PHP binaries are not compiled with a default location for the
-		// CA cert bundle, so disable peer/host checking.
-//curl_setopt($this->ch, CURLOPT_CAINFO, 'f:\php-4.3.2-win32\extensions\curl-ca-bundle.crt');		
-		curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, 0);
-		curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 0);
-
-		// support client certificates (thanks Tobias Boes, Doug Anarino, Eryan Ariobowo)
-		if ($this->authtype == 'certificate') {
-			if (isset($this->certRequest['cainfofile'])) {
-				curl_setopt($this->ch, CURLOPT_CAINFO, $this->certRequest['cainfofile']);
+		if ($this->scheme == 'https') {
+			$this->debug('set cURL SSL verify options');
+			// recent versions of cURL turn on peer/host checking by default,
+			// while PHP binaries are not compiled with a default location for the
+			// CA cert bundle, so disable peer/host checking.
+			//curl_setopt($this->ch, CURLOPT_CAINFO, 'f:\php-4.3.2-win32\extensions\curl-ca-bundle.crt');		
+			curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, 0);
+			curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 0);
+	
+			// support client certificates (thanks Tobias Boes, Doug Anarino, Eryan Ariobowo)
+			if ($this->authtype == 'certificate') {
+				$this->debug('set cURL certificate options');
+				if (isset($this->certRequest['cainfofile'])) {
+					curl_setopt($this->ch, CURLOPT_CAINFO, $this->certRequest['cainfofile']);
+				}
+				if (isset($this->certRequest['verifypeer'])) {
+					curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, $this->certRequest['verifypeer']);
+				} else {
+					curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, 1);
+				}
+				if (isset($this->certRequest['verifyhost'])) {
+					curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, $this->certRequest['verifyhost']);
+				} else {
+					curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 1);
+				}
+				if (isset($this->certRequest['sslcertfile'])) {
+					curl_setopt($this->ch, CURLOPT_SSLCERT, $this->certRequest['sslcertfile']);
+				}
+				if (isset($this->certRequest['sslkeyfile'])) {
+					curl_setopt($this->ch, CURLOPT_SSLKEY, $this->certRequest['sslkeyfile']);
+				}
+				if (isset($this->certRequest['passphrase'])) {
+					curl_setopt($this->ch, CURLOPT_SSLKEYPASSWD , $this->certRequest['passphrase']);
+				}
 			}
-			if (isset($this->certRequest['verifypeer'])) {
-				curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, $this->certRequest['verifypeer']);
-			} else {
-				curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, 1);
-			}
-			if (isset($this->certRequest['verifyhost'])) {
-				curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, $this->certRequest['verifyhost']);
-			} else {
-				curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 1);
-			}
-			if (isset($this->certRequest['sslcertfile'])) {
-				curl_setopt($this->ch, CURLOPT_SSLCERT, $this->certRequest['sslcertfile']);
-			}
-			if (isset($this->certRequest['sslkeyfile'])) {
-				curl_setopt($this->ch, CURLOPT_SSLKEY, $this->certRequest['sslkeyfile']);
-			}
-			if (isset($this->certRequest['passphrase'])) {
-				curl_setopt($this->ch, CURLOPT_SSLKEYPASSWD , $this->certRequest['passphrase']);
-			}
+		}
+		if ($this->authtype == 'ntlm') {
+			$this->debug('set cURL NTLM authentication options');
+			curl_setopt($this->ch, CURLOPT_HTTPAUTH, CURLAUTH_NTLM);
+			curl_setopt($this->ch, CURLOPT_USERPWD, "$this->username:$this->password");
 		}
 		$this->debug('cURL connection set up');
 		return true;
@@ -238,9 +273,9 @@ class soap_transport_http extends nusoap_base {
 		return false;
 	  }
 	}
-	
+
 	/**
-	* send the SOAP message via HTTP
+	* sends the SOAP request and gets the SOAP response via HTTP[S]
 	*
 	* @param    string $data message data
 	* @param    integer $timeout set connection timeout in seconds
@@ -280,14 +315,15 @@ class soap_transport_http extends nusoap_base {
 
 
 	/**
-	* send the SOAP message via HTTPS 1.0 using CURL
+	* sends the SOAP request and gets the SOAP response via HTTPS using CURL
 	*
-	* @param    string $msg message data
+	* @param    string $data message data
 	* @param    integer $timeout set connection timeout in seconds
 	* @param	integer $response_timeout set response timeout in seconds
 	* @param	array $cookies cookies to send
 	* @return	string data
 	* @access   public
+	* @deprecated
 	*/
 	function sendHTTPS($data, $timeout=0, $response_timeout=30, $cookies) {
 		return $this->send($data, $timeout, $response_timeout, $cookies);
@@ -298,7 +334,7 @@ class soap_transport_http extends nusoap_base {
 	*
 	* @param    string $username
 	* @param    string $password
-	* @param	string $authtype (basic, digest, certificate)
+	* @param	string $authtype (basic|digest|certificate|ntlm)
 	* @param	array $digestRequest (keys must be nonce, nc, realm, qop)
 	* @param	array $certRequest (keys must be cainfofile (optional), sslcertfile, sslkeyfile, passphrase, verifypeer (optional), verifyhost (optional): see corresponding options in cURL docs)
 	* @access   public
@@ -321,7 +357,7 @@ class soap_transport_http extends nusoap_base {
 				$HA1 = md5($A1);
 	
 				// A2 = Method ":" digest-uri-value
-				$A2 = 'POST:' . $this->digest_uri;
+				$A2 = $this->request_method . ':' . $this->digest_uri;
 	
 				// H(A2)
 				$HA2 =  md5($A2);
@@ -352,6 +388,8 @@ class soap_transport_http extends nusoap_base {
 			}
 		} elseif ($authtype == 'certificate') {
 			$this->certRequest = $certRequest;
+		} elseif ($authtype == 'ntlm') {
+			// do nothing
 		}
 		$this->username = $username;
 		$this->password = $password;
@@ -476,8 +514,13 @@ class soap_transport_http extends nusoap_base {
 		return $new;
 	}
 	
-	/*
-	 *	Writes payload, including HTTP headers, to $this->outgoing_payload.
+	/**
+	 * Writes the payload, including HTTP headers, to $this->outgoing_payload.
+	 *
+	 * @param	string $data HTTP body
+	 * @param	string $cookie_str data for HTTP Cookie header
+	 * @return	void
+	 * @access	private
 	 */
 	function buildPayload($data, $cookie_str = '') {
 		// add content-length header
@@ -510,6 +553,14 @@ class soap_transport_http extends nusoap_base {
 		$this->outgoing_payload .= $data;
 	}
 
+	/**
+	* sends the SOAP request via HTTP[S]
+	*
+	* @param    string $data message data
+	* @param	array $cookies cookies to send
+	* @return	boolean	true if OK, false if problem
+	* @access   private
+	*/
 	function sendRequest($data, $cookies = NULL) {
 		// build cookie string
 		$cookie_str = $this->getCookiesForRequest($cookies, (($this->scheme == 'ssl') || ($this->scheme == 'https')));
@@ -517,7 +568,7 @@ class soap_transport_http extends nusoap_base {
 		// build payload
 		$this->buildPayload($data, $cookie_str);
 
-	  if ($this->scheme == 'http' || $this->scheme == 'ssl') {
+	  if ($this->io_method() == 'socket') {
 		// send payload
 		if(!fputs($this->fp, $this->outgoing_payload, strlen($this->outgoing_payload))) {
 			$this->setError('couldn\'t write message data to socket');
@@ -526,7 +577,7 @@ class soap_transport_http extends nusoap_base {
 		}
 		$this->debug('wrote data to socket, length = ' . strlen($this->outgoing_payload));
 		return true;
-	  } else if ($this->scheme == 'https') {
+	  } else if ($this->io_method() == 'curl') {
 		// set payload
 		// TODO: cURL does say this should only be the verb, and in fact it
 		// turns out that the URI and HTTP version are appended to this, which
@@ -544,15 +595,27 @@ class soap_transport_http extends nusoap_base {
 	  		curl_setopt($this->ch, CURLOPT_POSTFIELDS, $data);
 	  	} else {
 	  	}
+		// insert custom user-set cURL options
+		reset($this->ch_options);
+		while (list($key, $val) = each($this->ch_options)) {
+			curl_setopt($this->ch, $key, $val);
+			$this->debug("set user cURL option $key=$val");
+		}
 		$this->debug('set cURL payload');
 		return true;
 	  }
 	}
 
+	/**
+	* gets the SOAP response via HTTP[S]
+	*
+	* @return	string the response (also sets member variables like incoming_payload)
+	* @access   private
+	*/
 	function getResponse(){
 		$this->incoming_payload = '';
 	    
-	  if ($this->scheme == 'http' || $this->scheme == 'ssl') {
+	  if ($this->io_method() == 'socket') {
 	    // loop until headers have been retrieved
 	    $data = '';
 	    while (!isset($lb)){
@@ -715,7 +778,7 @@ class soap_transport_http extends nusoap_base {
 //			$this->incoming_payload = $header_data.$lb.$lb.$data;
 //		}
 	
-	  } else if ($this->scheme == 'https') {
+	  } else if ($this->io_method() == 'curl') {
 		// send and receive
 		$this->debug('send and receive with cURL');
 		$this->incoming_payload = curl_exec($this->ch);

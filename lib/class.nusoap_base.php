@@ -430,7 +430,7 @@ class nusoap_base {
     		$this->debug("serialize_val: serialize null");
 			if ($use == 'literal') {
 				// TODO: depends on minOccurs
-				$xml = "<$name$xmlns $atts/>";
+				$xml = "<$name$xmlns$atts/>";
 				$this->debug("serialize_val returning $xml");
 	        	return $xml;
         	} else {
@@ -439,7 +439,7 @@ class nusoap_base {
 				} else {
 					$type_str = '';
 				}
-				$xml = "<$name$xmlns$type_str $atts xsi:nil=\"true\"/>";
+				$xml = "<$name$xmlns$type_str$atts xsi:nil=\"true\"/>";
 				$this->debug("serialize_val returning $xml");
 	        	return $xml;
         	}
@@ -457,11 +457,11 @@ class nusoap_base {
 				$val = $this->expandEntities($val);
 			}
 			if ($use == 'literal') {
-				$xml = "<$name$xmlns $atts>$val</$name>";
+				$xml = "<$name$xmlns$atts>$val</$name>";
 				$this->debug("serialize_val returning $xml");
 	        	return $xml;
         	} else {
-				$xml = "<$name$xmlns $atts xsi:type=\"xsd:$type\">$val</$name>";
+				$xml = "<$name$xmlns xsi:type=\"xsd:$type\"$atts>$val</$name>";
 				$this->debug("serialize_val returning $xml");
 	        	return $xml;
         	}
@@ -477,7 +477,7 @@ class nusoap_base {
 	        		$val = 0;
 	        	}
 				if ($use == 'literal') {
-					$xml .= "<$name$xmlns $atts>$val</$name>";
+					$xml .= "<$name$xmlns$atts>$val</$name>";
 				} else {
 					$xml .= "<$name$xmlns xsi:type=\"xsd:boolean\"$atts>$val</$name>";
 				}
@@ -485,7 +485,7 @@ class nusoap_base {
 			case (is_int($val) || is_long($val) || $type == 'int'):
 		   		$this->debug("serialize_val: serialize int");
 				if ($use == 'literal') {
-					$xml .= "<$name$xmlns $atts>$val</$name>";
+					$xml .= "<$name$xmlns$atts>$val</$name>";
 				} else {
 					$xml .= "<$name$xmlns xsi:type=\"xsd:int\"$atts>$val</$name>";
 				}
@@ -493,7 +493,7 @@ class nusoap_base {
 			case (is_float($val)|| is_double($val) || $type == 'float'):
 		   		$this->debug("serialize_val: serialize float");
 				if ($use == 'literal') {
-					$xml .= "<$name$xmlns $atts>$val</$name>";
+					$xml .= "<$name$xmlns$atts>$val</$name>";
 				} else {
 					$xml .= "<$name$xmlns xsi:type=\"xsd:float\"$atts>$val</$name>";
 				}
@@ -502,7 +502,7 @@ class nusoap_base {
 		   		$this->debug("serialize_val: serialize string");
 				$val = $this->expandEntities($val);
 				if ($use == 'literal') {
-					$xml .= "<$name$xmlns $atts>$val</$name>";
+					$xml .= "<$name$xmlns$atts>$val</$name>";
 				} else {
 					$xml .= "<$name$xmlns xsi:type=\"xsd:string\"$atts>$val</$name>";
 				}
@@ -531,7 +531,7 @@ class nusoap_base {
 					$type_str = '';
 				}
 				if ($use == 'literal') {
-					$xml .= "<$name$xmlns $atts>$pXml</$name>";
+					$xml .= "<$name$xmlns$atts>$pXml</$name>";
 				} else {
 					$xml .= "<$name$xmlns$type_str$atts>$pXml</$name>";
 				}
@@ -610,7 +610,7 @@ class nusoap_base {
 						$type_str = '';
 					}
 					if ($use == 'literal') {
-						$xml .= "<$name$xmlns $atts>";
+						$xml .= "<$name$xmlns$atts>";
 					} else {
 						$xml .= "<$name$xmlns$type_str$atts>";
 					}
@@ -641,7 +641,7 @@ class nusoap_base {
     * serializes a message
     *
     * @param string $body the XML of the SOAP body
-    * @param mixed $headers optional string of XML with SOAP header content, or array of soapval objects for SOAP headers
+    * @param mixed $headers optional string of XML with SOAP header content, or array of soapval objects for SOAP headers, or associative array
     * @param array $namespaces optional the namespaces used in generating the body and headers
     * @param string $style optional (rpc|document)
     * @param string $use optional (encoded|literal)
@@ -673,8 +673,12 @@ class nusoap_base {
 	if($headers){
 		if (is_array($headers)) {
 			$xml = '';
-			foreach ($headers as $header) {
-				$xml .= $this->serialize_val($header, false, false, false, false, false, $use);
+			foreach ($headers as $k => $v) {
+				if (is_object($v) && get_class($v) == 'soapval') {
+					$xml .= $this->serialize_val($v, false, false, false, false, false, $use);
+				} else {
+					$xml .= $this->serialize_val($v, $k, false, false, false, false, $use);
+				}
 			}
 			$headers = $xml;
 			$this->debug("In serializeEnvelope, serialized array of headers to $headers");
@@ -733,7 +737,7 @@ class nusoap_base {
 	/**
 	* expands (changes prefix to namespace) a qualified name
 	*
-	* @param    string $string qname
+	* @param    string $qname qname
 	* @return	string expanded qname
 	* @access   private
 	*/
@@ -852,6 +856,16 @@ class nusoap_base {
 		ob_end_clean();
 		return $ret_val;
 	}
+
+	/**
+	* represents the object as a string
+	*
+	* @return	string
+	* @access   public
+	*/
+	function __toString() {
+		return $this->varDump($this);
+	}
 }
 
 // XML Schema Datatype Helper Functions
@@ -862,6 +876,7 @@ class nusoap_base {
 * convert unix timestamp to ISO 8601 compliant date string
 *
 * @param    string $timestamp Unix time stamp
+* @param	boolean $utc Whether the time stamp is UTC or local
 * @access   public
 */
 function timestamp_to_iso8601($timestamp,$utc=true){
@@ -916,7 +931,8 @@ function iso8601_to_timestamp($datestr){
 				$regs[5] = $regs[5] - $m;
 			}
 		}
-		return strtotime("$regs[1]-$regs[2]-$regs[3] $regs[4]:$regs[5]:$regs[6]Z");
+		return gmmktime($regs[4], $regs[5], $regs[6], $regs[2], $regs[3], $regs[1]);
+//		return strtotime("$regs[1]-$regs[2]-$regs[3] $regs[4]:$regs[5]:$regs[6]Z");
 	} else {
 		return false;
 	}

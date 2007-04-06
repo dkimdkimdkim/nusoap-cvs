@@ -474,3 +474,31 @@
 - nusoapclient: use lazy retrieval of WSDL instead of always getting it in the constructor
 - nusoapclient: fix getProxy that was broken in last revision
 - wsdl: add ability to set authorization credentials and retrieve WSDL outside of constructor
+
+2007-04-05, version 0.7.2
+- nusoapclientmime: don't rely exclusively on Content-Disposition to distinguish the root part from attachment; also check Content-Type (thanks Ben Bosman)
+- nusoapclientmime: obey RFC 2045 Section 5.1 (thanks Chris Butler)
+- nusoapservermime: don't rely exclusively on Content-Disposition to distinguish the root part from attachment; also check Content-Type (thanks Ben Bosman)
+- nusoapservermime: obey RFC 2045 Section 5.1 (thanks Chris Butler)
+- nusoap_base: remove extra whitespace from some XML elements
+- nusoap_base: allow SOAP headers to be specified as an associative array (thanks Unique)
+- nusoap_base: implement __toString
+- nusoap_base: improve doc accuracy and consistency (thanks Martin K?gler)
+- iso8601_to_timestamp: avoid problem with negative hours after calculation, etc. (thanks Guntram Trebs)
+- nusoapclient: support user-settable cURL options (thanks Ciprian Popovici)
+- nusoapclient: call SOAP 1.2 binding operations if no SOAP 1.1 present (there is no reason to believe this will always work!)
+- nusoapclient: improve doc accuracy and consistency (thanks Martin K?gler)
+- soap_server: don't try to use eval to call function when any parameter is an object
+- soap_server: don't print return value within debug string; returned objects would need __toString in PHP 5.2
+- soap_server: use URL scheme for WSDL access as the scheme in SOAPAction
+- soap_server: strip port number from server name (some FastCGI implementations include port in server name)
+- soap_transport_http: support user-settable cURL options (thanks Ciprian Popovici)
+- soap_transport_http: use cURL for NTLM authentication
+- soap_transport_http: make digest authentication work for GET as well as POST
+- soap_transport_http: improve doc accuracy and consistency (thanks Martin K?gler)
+- soapval: remove __toString
+- wsdl: set operation style if necessary, but do not override one already provided (thanks Raffaele Capobianco)
+- wsdl: check SOAP 1.2 binding operations if no SOAP 1.1 present
+- wsdl: improve doc accuracy and consistency (thanks Martin K?gler)
+- xmlschema: fix simpleType serialization
+- xmlschema: improve doc accuracy and consistency (thanks Martin K?gler)

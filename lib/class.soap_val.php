@@ -99,16 +99,6 @@ class soapval extends nusoap_base {
 	function decode(){
 		return $this->value;
 	}
-
-	/**
-	* represents the soapval object as a string
-	*
-	* @return	string
-	* @access   public
-	*/
-	function __toString() {
-		return $this->varDump($this);
-	}
 }
 
 

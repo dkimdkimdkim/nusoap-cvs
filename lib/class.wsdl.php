@@ -165,7 +165,8 @@ class wsdl extends nusoap_base {
 					if(isset($this->messages[ $this->bindings[$binding]['operations'][$operation]['output']['message'] ])){
                    		$this->bindings[$binding]['operations'][$operation]['output']['parts'] = $this->messages[ $this->bindings[$binding]['operations'][$operation]['output']['message'] ];
                     }
-					if (isset($bindingData['style'])) {
+                    // Set operation style if necessary, but do not override one already provided
+					if (isset($bindingData['style']) && !isset($this->bindings[$binding]['operations'][$operation]['style'])) {
                         $this->bindings[$binding]['operations'][$operation]['style'] = $bindingData['style'];
                     }
                     $this->bindings[$binding]['operations'][$operation]['transport'] = isset($bindingData['transport']) ? $bindingData['transport'] : '';
@@ -545,7 +546,7 @@ class wsdl extends nusoap_base {
 	*
 	* @param    string $username
 	* @param    string $password
-	* @param	string $authtype (basic|digest|certificate)
+	* @param	string $authtype (basic|digest|certificate|ntlm)
 	* @param	array $certRequest (keys must be cainfofile (optional), sslcertfile, sslkeyfile, passphrase, verifypeer (optional), verifyhost (optional): see corresponding options in cURL docs)
 	* @access   public
 	*/
@@ -566,15 +567,16 @@ class wsdl extends nusoap_base {
 	/**
 	 * returns an assoc array of operation names => operation data
 	 * 
-	 * @param string $bindingType eg: soap, smtp, dime (only soap is currently supported)
+	 * @param string $bindingType eg: soap, smtp, dime (only soap and soap12 are currently supported)
 	 * @return array 
 	 * @access public 
 	 */
-	function getOperations($bindingType = 'soap')
-	{
+	function getOperations($bindingType = 'soap') {
 		$ops = array();
 		if ($bindingType == 'soap') {
 			$bindingType = 'http://schemas.xmlsoap.org/wsdl/soap/';
+		} elseif ($bindingType == 'soap12') {
+			$bindingType = 'http://schemas.xmlsoap.org/wsdl/soap12/';
 		}
 		// loop thru ports
 		foreach($this->ports as $port => $portData) {
@@ -595,8 +597,8 @@ class wsdl extends nusoap_base {
 	/**
 	 * returns an associative array of data necessary for calling an operation
 	 * 
-	 * @param string $operation , name of operation
-	 * @param string $bindingType , type of binding eg: soap
+	 * @param string $operation name of operation
+	 * @param string $bindingType type of binding eg: soap, soap12
 	 * @return array 
 	 * @access public 
 	 */
@@ -604,6 +606,8 @@ class wsdl extends nusoap_base {
 	{
 		if ($bindingType == 'soap') {
 			$bindingType = 'http://schemas.xmlsoap.org/wsdl/soap/';
+		} elseif ($bindingType == 'soap12') {
+			$bindingType = 'http://schemas.xmlsoap.org/wsdl/soap12/';
 		}
 		// loop thru ports
 		foreach($this->ports as $port => $portData) {
@@ -626,13 +630,15 @@ class wsdl extends nusoap_base {
 	 * returns an associative array of data necessary for calling an operation
 	 * 
 	 * @param string $soapAction soapAction for operation
-	 * @param string $bindingType type of binding eg: soap
+	 * @param string $bindingType type of binding eg: soap, soap12
 	 * @return array 
 	 * @access public 
 	 */
 	function getOperationDataForSoapAction($soapAction, $bindingType = 'soap') {
 		if ($bindingType == 'soap') {
 			$bindingType = 'http://schemas.xmlsoap.org/wsdl/soap/';
+		} elseif ($bindingType == 'soap12') {
+			$bindingType = 'http://schemas.xmlsoap.org/wsdl/soap12/';
 		}
 		// loop thru ports
 		foreach($this->ports as $port => $portData) {
@@ -1071,9 +1077,10 @@ class wsdl extends nusoap_base {
 	 * - multi-ref serialization
 	 * - validate PHP values against type definitions, return errors if invalid
 	 * 
-	 * @param string $ type name
-	 * @param mixed $ param value
-	 * @return mixed new param or false if initial value didn't validate
+	 * @param string $operation operation name
+	 * @param string $direction (input|output)
+	 * @param mixed $parameters parameter value(s)
+	 * @return mixed parameters serialized as XML or false on error (e.g. operation not found)
 	 * @access public
 	 * @deprecated
 	 */
@@ -1613,14 +1620,14 @@ class wsdl extends nusoap_base {
 	/**
 	* adds an XML Schema complex type to the WSDL types
 	*
-	* @param string	name
-	* @param string typeClass (complexType|simpleType|attribute)
-	* @param string phpType: currently supported are array and struct (php assoc array)
-	* @param string compositor (all|sequence|choice)
-	* @param string restrictionBase namespace:name (http://schemas.xmlsoap.org/soap/encoding/:Array)
-	* @param array elements = array ( name => array(name=>'',type=>'') )
-	* @param array attrs = 	array(array('ref'=>'SOAP-ENC:arrayType','wsdl:arrayType'=>'xsd:string[]'))
-	* @param string arrayType: namespace:name (xsd:string)
+	* @param string	$name
+	* @param string $typeClass (complexType|simpleType|attribute)
+	* @param string $phpType currently supported are array and struct (php assoc array)
+	* @param string $compositor (all|sequence|choice)
+	* @param string $restrictionBase namespace:name (http://schemas.xmlsoap.org/soap/encoding/:Array)
+	* @param array $elements e.g. array ( name => array(name=>'',type=>'') )
+	* @param array $attrs e.g. array(array('ref'=>'SOAP-ENC:arrayType','wsdl:arrayType'=>'xsd:string[]'))
+	* @param string $arrayType as namespace:name (xsd:string)
 	* @see xmlschema
 	* @access public
 	*/

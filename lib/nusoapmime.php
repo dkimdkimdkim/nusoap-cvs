@@ -126,7 +126,7 @@ class nusoapclientmime extends nusoapclient {
 	*/
 	function getHTTPBody($soapmsg) {
 		if (count($this->requestAttachments) > 0) {
-			$params['content_type'] = 'multipart/related; type=text/xml';
+			$params['content_type'] = 'multipart/related; type="text/xml"';
 			$mimeMessage =& new Mail_mimePart('', $params);
 			unset($params);
 
@@ -231,7 +231,7 @@ class nusoapclientmime extends nusoapclient {
 			$structure = Mail_mimeDecode::decode($params);
 
 			foreach ($structure->parts as $part) {
-				if (!isset($part->disposition)) {
+				if (!isset($part->disposition) && (strstr($part->headers['content-type'], 'text/xml'))) {
 					$this->debug('Have root part of type ' . $part->headers['content-type']);
 					$return = parent::parseResponse($part->headers, $part->body);
 				} else {
@@ -354,7 +354,7 @@ class nusoapservermime extends soap_server {
 	*/
 	function getHTTPBody($soapmsg) {
 		if (count($this->responseAttachments) > 0) {
-			$params['content_type'] = 'multipart/related; type=text/xml';
+			$params['content_type'] = 'multipart/related; type="text/xml"';
 			$mimeMessage =& new Mail_mimePart('', $params);
 			unset($params);
 
@@ -459,7 +459,7 @@ class nusoapservermime extends soap_server {
 			$structure = Mail_mimeDecode::decode($params);
 
 			foreach ($structure->parts as $part) {
-				if (!isset($part->disposition)) {
+				if (!isset($part->disposition) && (strstr($part->headers['content-type'], 'text/xml'))) {
 					$this->debug('Have root part of type ' . $part->headers['content-type']);
 					$return = parent::parseRequest($part->headers, $part->body);
 				} else {

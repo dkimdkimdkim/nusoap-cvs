@@ -51,7 +51,9 @@ class nusoapclient extends nusoap_base  {
 	var $cookies = array();			// Cookies from response or for request
     var $decode_utf8 = true;		// toggles whether the parser decodes element content w/ utf8_decode()
 	var $operations = array();		// WSDL operations, empty for WSDL initialization error
-	
+	var $curl_options = array();	// User-specified cURL options
+	var $bindingType = '';			// WSDL operation binding type
+
 	/*
 	 * fault related variables
 	 */
@@ -126,7 +128,7 @@ class nusoapclient extends nusoap_base  {
 	/**
 	* calls method, returns PHP native type
 	*
-	* @param    string $method SOAP server URL or path
+	* @param    string $operation SOAP server URL or path
 	* @param    mixed $params An array, associative or simple, of the parameters
 	*			              for the method call, or a string that is the XML
 	*			              for the call.  For rpc style, this call will
@@ -141,7 +143,7 @@ class nusoapclient extends nusoap_base  {
 	*                         *must* include the wrapper.
 	* @param	string $namespace optional method namespace (WSDL can override)
 	* @param	string $soapAction optional SOAPAction value (WSDL can override)
-	* @param	mixed $headers optional string of XML with SOAP header content, or array of soapval objects for SOAP headers
+	* @param	mixed $headers optional string of XML with SOAP header content, or array of soapval objects for SOAP headers, or associative array
 	* @param	boolean $rpcParams optional (no longer used)
 	* @param	string	$style optional (rpc|document) the style to use when serializing parameters (WSDL can override)
 	* @param	string	$use optional (encoded|literal) the use when serializing parameters (WSDL can override)
@@ -331,11 +333,16 @@ class nusoapclient extends nusoap_base  {
 		$this->appendDebug($this->wsdl->getDebug());
 		$this->wsdl->clearDebug();
 		// catch errors
-		if($errstr = $this->wsdl->getError()){
+		if ($errstr = $this->wsdl->getError()) {
 			$this->debug('got wsdl error: '.$errstr);
 			$this->setError('wsdl error: '.$errstr);
-		} elseif($this->operations = $this->wsdl->getOperations()){
-			$this->debug( 'got '.count($this->operations).' operations from wsdl '.$this->wsdlFile);
+		} elseif ($this->operations = $this->wsdl->getOperations('soap')) {
+			$this->bindingType = 'soap';
+			$this->debug('got '.count($this->operations).' operations from wsdl '.$this->wsdlFile.' for binding type '.$this->bindingType);
+		} elseif ($this->operations = $this->wsdl->getOperations('soap12')) {
+			$this->bindingType = 'soap12';
+			$this->debug('got '.count($this->operations).' operations from wsdl '.$this->wsdlFile.' for binding type '.$this->bindingType);
+			$this->debug('**************** WARNING: SOAP 1.2 BINDING *****************');
 		} else {
 			$this->debug( 'getOperations returned false');
 			$this->setError('no operations defined in the WSDL document!');
@@ -398,7 +405,7 @@ class nusoapclient extends nusoap_base  {
 				if($this->persistentConnection == true && is_object($this->persistentConnection)){
 					$http =& $this->persistentConnection;
 				} else {
-					$http = new soap_transport_http($this->endpoint);
+					$http = new soap_transport_http($this->endpoint, $this->curl_options);
 					if ($this->persistentConnection) {
 						$http->usePersistentConnection();
 					}
@@ -512,6 +519,17 @@ class nusoapclient extends nusoap_base  {
 	 }
 
 	/**
+	* sets user-specified cURL options
+	*
+	* @param	mixed $option The cURL option (always integer?)
+	* @param	mixed $value The cURL option value
+	* @access   public
+	*/
+	function setCurlOption($option, $value) {
+		$this->curl_options[$option] = $value;
+	}
+
+	/**
 	* sets the SOAP endpoint, which can override WSDL
 	*
 	* @param	$endpoint string The endpoint URL to use, or empty string or false to prevent override
@@ -572,7 +590,7 @@ class nusoapclient extends nusoap_base  {
 	*
 	* @param    string $username
 	* @param    string $password
-	* @param	string $authtype (basic|digest|certificate)
+	* @param	string $authtype (basic|digest|certificate|ntlm)
 	* @param	array $certRequest (keys must be cainfofile (optional), sslcertfile, sslkeyfile, passphrase, verifypeer (optional), verifyhost (optional): see corresponding options in cURL docs)
 	* @access   public
 	*/

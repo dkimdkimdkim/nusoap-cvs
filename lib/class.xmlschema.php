@@ -81,8 +81,8 @@ class XMLSchema extends nusoap_base  {
     /**
     * parse an XML file
     *
-    * @param string $xml, path/URL to XML file
-    * @param string $type, (schema | xml)
+    * @param string $xml path/URL to XML file
+    * @param string $type (schema | xml)
 	* @return boolean
     * @access public
     */
@@ -109,7 +109,7 @@ class XMLSchema extends nusoap_base  {
 	* parse an XML string
 	*
 	* @param    string $xml path or URL
-    * @param string $type, (schema|xml)
+    * @param	string $type (schema|xml)
 	* @access   private
 	*/
 	function parseString($xml,$type){
@@ -584,7 +584,7 @@ class XMLSchema extends nusoap_base  {
 						$xml .= "  <$schemaPrefix:enumeration value=\"$e\"/>\n";
 					}
 				}
-				$xml .= " </$schemaPrefix:simpleType>";
+				$xml .= "  </$schemaPrefix:restriction>\n </$schemaPrefix:simpleType>";
 			}
 		}
 		// elements
@@ -624,8 +624,8 @@ class XMLSchema extends nusoap_base  {
     * returns false if no type exists, or not w/ the given namespace
     * else returns a string that is either a native php type, or 'struct'
     *
-    * @param string $type, name of defined type
-    * @param string $ns, namespace of type
+    * @param string $type name of defined type
+    * @param string $ns namespace of type
     * @return mixed
     * @access public
     * @deprecated
@@ -656,7 +656,7 @@ class XMLSchema extends nusoap_base  {
 	*
 	*   For simpleType or element, the array has different keys.
     *
-    * @param string
+    * @param string $type
     * @return mixed
     * @access public
     * @see addComplexType
@@ -734,7 +734,7 @@ class XMLSchema extends nusoap_base  {
 	/**
     * returns a sample serialization of a given type, or false if no type by the given name
     *
-    * @param string $type, name of type
+    * @param string $type name of type
     * @return mixed
     * @access public
     * @deprecated
@@ -769,8 +769,8 @@ class XMLSchema extends nusoap_base  {
     * returns HTML form elements that allow a user
     * to enter values for creating an instance of the given type.
     *
-    * @param string $name, name for type instance
-    * @param string $type, name of type
+    * @param string $name name for type instance
+    * @param string $type name of type
     * @return string
     * @access public
     * @deprecated
