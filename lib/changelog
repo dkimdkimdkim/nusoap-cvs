@@ -502,3 +502,19 @@
 - wsdl: improve doc accuracy and consistency (thanks Martin K?gler)
 - xmlschema: fix simpleType serialization
 - xmlschema: improve doc accuracy and consistency (thanks Martin K?gler)
+
+2007-04-09, version 0.7.2
+- nusoapclient: set decode_utf8 when creating a proxy (thanks Dmitri Dmitrienko)
+- nusoapclient: rename class to nusoap_client
+- soap_fault: also provide a class named nusoap_fault
+- soap_parser: also provide a class named nusoap_parser
+- soap_server: also provide a class named nusoap_server
+- soap_transport_http: skip HTTP responses 301 and 401 when using cURL
+- soap_transport_http: don't force HTTP Connection header when using cURL
+- soap_transport_http: don't set HTTP Host and Content-Length headers when using cURL
+- soap_transport_http: support CURLOPT_SSLCERTPASSWD (thanks David Blanco)
+- wsdl: support user-settable cURL options (thanks Ciprian Popovici)
+- wsdl: serialize parameters for non-SOAP 1.1 binding operations (there is no reason to believe this will always work!)
+- xmlschema: also provide a class named nusoap_xmlschema
+- nusoapclientmime: rename class to nusoap_client_mime
+- nusoapservermime: rename class to nusoap_server_mime

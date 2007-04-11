@@ -14,7 +14,7 @@
 * @version  $Id$
 * @access   public
 */
-class XMLSchema extends nusoap_base  {
+class nusoap_xmlschema extends nusoap_base  {
 	
 	// files
 	var $schema = '';
@@ -53,9 +53,9 @@ class XMLSchema extends nusoap_base  {
 	* @param	string $namespaces namespaces defined in enclosing XML
 	* @access   public
 	*/
-	function XMLSchema($schema='',$xml='',$namespaces=array()){
+	function nusoap_xmlschema($schema='',$xml='',$namespaces=array()){
 		parent::nusoap_base();
-		$this->debug('xmlschema class instantiated, inside constructor');
+		$this->debug('nusoap_xmlschema class instantiated, inside constructor');
 		// files
 		$this->schema = $schema;
 		$this->xml = $xml;
@@ -872,7 +872,7 @@ class XMLSchema extends nusoap_base  {
 	* @param string $phpType (should always be scalar)
 	* @param array $enumeration array of values
 	* @access public
-	* @see xmlschema
+	* @see nusoap_xmlschema
 	* @see getTypeDef
 	*/
 	function addSimpleType($name, $restrictionBase='', $typeClass='simpleType', $phpType='scalar', $enumeration=array()) {
@@ -892,7 +892,7 @@ class XMLSchema extends nusoap_base  {
 	* adds an element to the schema
 	*
 	* @param array $attrs attributes that must include name and type
-	* @see xmlschema
+	* @see nusoap_xmlschema
 	* @access public
 	*/
 	function addElement($attrs) {
@@ -907,7 +907,11 @@ class XMLSchema extends nusoap_base  {
 	}
 }
 
-
+/**
+ * Backward compatibility
+ */
+class XMLSchema extends nusoap_xmlschema {
+}
 
 
 ?>

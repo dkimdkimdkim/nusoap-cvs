@@ -36,11 +36,12 @@ class soap_transport_http extends nusoap_base {
 	var $password = '';
 	var $authtype = '';
 	var $digestRequest = array();
-	var $certRequest = array();	// keys must be cainfofile (optional), sslcertfile, sslkeyfile, passphrase, verifypeer (optional), verifyhost (optional)
+	var $certRequest = array();	// keys must be cainfofile (optional), sslcertfile, sslkeyfile, passphrase, certpassword (optional), verifypeer (optional), verifyhost (optional)
 								// cainfofile: certificate authority file, e.g. '$pathToPemFiles/rootca.pem'
 								// sslcertfile: SSL certificate file, e.g. '$pathToPemFiles/mycert.pem'
 								// sslkeyfile: SSL key file, e.g. '$pathToPemFiles/mykey.pem'
 								// passphrase: SSL key password/passphrase
+								// certpassword: SSL certificate password
 								// verifypeer: default is 1
 								// verifyhost: default is 1
 
@@ -205,6 +206,8 @@ class soap_transport_http extends nusoap_base {
 //		}
 		// persistent connection
 		if ($this->persistentConnection) {
+			// I believe the following comment is now bogus, having applied to
+			// the code when it used CURLOPT_CUSTOMREQUEST to send the request.
 			// The way we send data, we cannot use persistent connections, since
 			// there will be some "junk" at the end of our request.
 			//curl_setopt($this->ch, CURL_HTTP_VERSION_1_1, true);
@@ -256,13 +259,21 @@ class soap_transport_http extends nusoap_base {
 					curl_setopt($this->ch, CURLOPT_SSLKEY, $this->certRequest['sslkeyfile']);
 				}
 				if (isset($this->certRequest['passphrase'])) {
-					curl_setopt($this->ch, CURLOPT_SSLKEYPASSWD , $this->certRequest['passphrase']);
+					curl_setopt($this->ch, CURLOPT_SSLKEYPASSWD, $this->certRequest['passphrase']);
+				}
+				if (isset($this->certRequest['certpassword'])) {
+					curl_setopt($this->ch, CURLOPT_SSLCERTPASSWD, $this->certRequest['certpassword']);
 				}
 			}
 		}
 		if ($this->authtype == 'ntlm') {
+			// Avoid errors when PHP does not have these options
+			$CURLOPT_HTTPAUTH = 107;
+			@$CURLOPT_HTTPAUTH = CURLOPT_HTTPAUTH;
+			$CURLAUTH_NTLM = 8;
+			@$CURLAUTH_NTLM = CURLAUTH_NTLM;
 			$this->debug('set cURL NTLM authentication options');
-			curl_setopt($this->ch, CURLOPT_HTTPAUTH, CURLAUTH_NTLM);
+			curl_setopt($this->ch, $CURLOPT_HTTPAUTH, $CURLAUTH_NTLM);
 			curl_setopt($this->ch, CURLOPT_USERPWD, "$this->username:$this->password");
 		}
 		$this->debug('cURL connection set up');
@@ -336,7 +347,7 @@ class soap_transport_http extends nusoap_base {
 	* @param    string $password
 	* @param	string $authtype (basic|digest|certificate|ntlm)
 	* @param	array $digestRequest (keys must be nonce, nc, realm, qop)
-	* @param	array $certRequest (keys must be cainfofile (optional), sslcertfile, sslkeyfile, passphrase, verifypeer (optional), verifyhost (optional): see corresponding options in cURL docs)
+	* @param	array $certRequest (keys must be cainfofile (optional), sslcertfile, sslkeyfile, passphrase, certpassword (optional), verifypeer (optional), verifyhost (optional): see corresponding options in cURL docs)
 	* @access   public
 	*/
 	function setCredentials($username, $password, $authtype = 'basic', $digestRequest = array(), $certRequest = array()) {
@@ -523,6 +534,10 @@ class soap_transport_http extends nusoap_base {
 	 * @access	private
 	 */
 	function buildPayload($data, $cookie_str = '') {
+		// Note: for cURL connections, $this->outgoing_payload is ignored,
+		// as is the Content-Length header, but these are still created as
+		// debugging guides.
+
 		// add content-length header
 		$this->outgoing_headers['Content-Length'] = strlen($data);
 		$this->debug('set Content-Length: ' . $this->outgoing_headers['Content-Length']);
@@ -583,24 +598,31 @@ class soap_transport_http extends nusoap_base {
 		// turns out that the URI and HTTP version are appended to this, which
 		// some servers refuse to work with
 		//curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $this->outgoing_payload);
+
 		foreach($this->outgoing_headers as $k => $v){
-			$curl_headers[] = "$k: $v";
+			if ($k == 'Connection' || $k == 'Content-Length' || $k == 'Host') {
+				$this->debug("Skip cURL header $k: $v");
+			} else {
+				$curl_headers[] = "$k: $v";
+			}
 		}
 		if ($cookie_str != '') {
 			$curl_headers[] = 'Cookie: ' . $cookie_str;
 		}
 		curl_setopt($this->ch, CURLOPT_HTTPHEADER, $curl_headers);
+		$this->debug('set cURL HTTP headers');
 		if ($this->request_method == "POST") {
 	  		curl_setopt($this->ch, CURLOPT_POST, 1);
 	  		curl_setopt($this->ch, CURLOPT_POSTFIELDS, $data);
+			$this->debug('set cURL POST data');
 	  	} else {
 	  	}
 		// insert custom user-set cURL options
-		reset($this->ch_options);
-		while (list($key, $val) = each($this->ch_options)) {
+		foreach ($this->ch_options as $key => $val) {
 			curl_setopt($this->ch, $key, $val);
 			$this->debug("set user cURL option $key=$val");
 		}
+
 		$this->debug('set cURL payload');
 		return true;
 	  }
@@ -804,12 +826,26 @@ class soap_transport_http extends nusoap_base {
 		$this->debug('No cURL error, closing cURL');
 		curl_close($this->ch);
 		
-		// remove 100 header(s)
-		while (ereg('^HTTP/1.1 100',$data)) {
+		// try removing 100, 301, 401 header(s)
+		$savedata = $data;
+		while (ereg('^HTTP/1.1 100',$data) || ereg('^HTTP/1.1 301',$data) || ereg('^HTTP/1.1 401',$data)) {
+			$this->debug("Found HTTP/1.1 header to skip");
 			if ($pos = strpos($data,"\r\n\r\n")) {
 				$data = ltrim(substr($data,$pos));
 			} elseif($pos = strpos($data,"\n\n") ) {
 				$data = ltrim(substr($data,$pos));
+			}
+		}
+
+		if ($data == '') {
+			// just remove 100 header(s)
+			$data = $savedata;
+			while (ereg('^HTTP/1.1 100',$data)) {
+				if ($pos = strpos($data,"\r\n\r\n")) {
+					$data = ltrim(substr($data,$pos));
+				} elseif($pos = strpos($data,"\n\n") ) {
+					$data = ltrim(substr($data,$pos));
+				}
 			}
 		}
 		

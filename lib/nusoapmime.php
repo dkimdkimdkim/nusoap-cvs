@@ -45,7 +45,7 @@ require_once('Mail/mimePart.php');
 * @version  $Id$
 * @access   public
 */
-class nusoapclientmime extends nusoapclient {
+class nusoap_client_mime extends nusoap_client {
 	/**
 	 * @var array Each array element in the return is an associative array with keys
 	 * data, filename, contenttype, cid
@@ -260,12 +260,12 @@ class nusoapclientmime extends nusoapclient {
  *	For backwards compatiblity, define soapclientmime unless the PHP SOAP extension is loaded.
  */
 if (!extension_loaded('soap')) {
-	class soapclientmime extends nusoapclientmime {
+	class soapclientmime extends nusoap_client_mime {
 	}
 }
 
 /**
-* nusoapservermime server supporting MIME attachments defined at
+* nusoap_server_mime server supporting MIME attachments defined at
 * http://www.w3.org/TR/SOAP-attachments.  It depends on the PEAR Mail_MIME library.
 *
 * @author   Scott Nichol <snichol@sourceforge.net>
@@ -273,7 +273,7 @@ if (!extension_loaded('soap')) {
 * @version  $Id$
 * @access   public
 */
-class nusoapservermime extends soap_server {
+class nusoap_server_mime extends nusoap_server {
 	/**
 	 * @var array Each array element in the return is an associative array with keys
 	 * data, filename, contenttype, cid
@@ -483,4 +483,11 @@ class nusoapservermime extends soap_server {
 		return parent::parseRequest($headers, $data);
 	}
 }
+
+/*
+ *	For backwards compatiblity
+ */
+class nusoapservermime extends nusoap_server_mime {
+}
+
 ?>

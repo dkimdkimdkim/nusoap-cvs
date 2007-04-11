@@ -45,6 +45,7 @@ class wsdl extends nusoap_base {
 	var $proxypassword = '';
 	var $timeout = 0;
 	var $response_timeout = 30;
+	var $curl_options = array();	// User-specified cURL options
 	// for HTTP authentication
 	var $username = '';				// Username for HTTP authentication
 	var $password = '';				// Password for HTTP authentication
@@ -61,9 +62,10 @@ class wsdl extends nusoap_base {
 	 * @param string $proxypassword
 	 * @param integer $timeout set the connection timeout
 	 * @param integer $response_timeout set the response timeout
+	 * @param array $curl_options user-specified cURL options
      * @access public 
      */
-    function wsdl($wsdl = '',$proxyhost=false,$proxyport=false,$proxyusername=false,$proxypassword=false,$timeout=0,$response_timeout=30){
+    function wsdl($wsdl = '',$proxyhost=false,$proxyport=false,$proxyusername=false,$proxypassword=false,$timeout=0,$response_timeout=30,$curl_options=null){
 		parent::nusoap_base();
 		$this->debug("ctor wsdl=$wsdl timeout=$timeout response_timeout=$response_timeout");
         $this->proxyhost = $proxyhost;
@@ -72,6 +74,8 @@ class wsdl extends nusoap_base {
 		$this->proxypassword = $proxypassword;
 		$this->timeout = $timeout;
 		$this->response_timeout = $response_timeout;
+		if (is_array($curl_options))
+			$this->curl_options = $curl_options;
 		$this->fetchWSDL($wsdl);
     }
 
@@ -198,7 +202,7 @@ class wsdl extends nusoap_base {
         if (isset($wsdl_props['scheme']) && ($wsdl_props['scheme'] == 'http' || $wsdl_props['scheme'] == 'https')) {
             $this->debug('getting WSDL http(s) URL ' . $wsdl);
         	// get wsdl
-	        $tr = new soap_transport_http($wsdl);
+	        $tr = new soap_transport_http($wsdl, $this->curl_options);
 			$tr->request_method = 'GET';
 			$tr->useSOAPAction = false;
 			if($this->proxyhost && $this->proxyport){
@@ -297,7 +301,7 @@ class wsdl extends nusoap_base {
         	$this->debug('Parsing WSDL schema');
             // $this->debug("startElement for $name ($attrs[name]). status = $this->status (".$this->getLocalPart($name).")");
             $this->status = 'schema';
-            $this->currentSchema = new xmlschema('', '', $this->namespaces);
+            $this->currentSchema = new nusoap_xmlschema('', '', $this->namespaces);
             $this->currentSchema->schemaStartElement($parser, $name, $attrs);
             $this->appendDebug($this->currentSchema->getDebug());
             $this->currentSchema->clearDebug();
@@ -547,7 +551,7 @@ class wsdl extends nusoap_base {
 	* @param    string $username
 	* @param    string $password
 	* @param	string $authtype (basic|digest|certificate|ntlm)
-	* @param	array $certRequest (keys must be cainfofile (optional), sslcertfile, sslkeyfile, passphrase, verifypeer (optional), verifyhost (optional): see corresponding options in cURL docs)
+	* @param	array $certRequest (keys must be cainfofile (optional), sslcertfile, sslkeyfile, passphrase, certpassword (optional), verifypeer (optional), verifyhost (optional): see corresponding options in cURL docs)
 	* @access   public
 	*/
 	function setCredentials($username, $password, $authtype = 'basic', $certRequest = array()) {
@@ -666,11 +670,11 @@ class wsdl extends nusoap_base {
 	*	'attrs' => array() // refs to attributes array
 	*	)
     *
-    * @param $type string the type
-    * @param $ns string namespace (not prefix) of the type
+    * @param string $type the type
+    * @param string $ns namespace (not prefix) of the type
     * @return mixed
     * @access public
-    * @see xmlschema
+    * @see nusoap_xmlschema
     */
 	function getTypeDef($type, $ns) {
 		$this->debug("in getTypeDef: type=$type, ns=$ns");
@@ -1001,12 +1005,13 @@ class wsdl extends nusoap_base {
 	 * @param string $operation operation name
 	 * @param string $direction (input|output)
 	 * @param mixed $parameters parameter value(s)
+	 * @param string $bindingType (soap|soap12)
 	 * @return mixed parameters serialized as XML or false on error (e.g. operation not found)
 	 * @access public
 	 */
-	function serializeRPCParameters($operation, $direction, $parameters)
+	function serializeRPCParameters($operation, $direction, $parameters, $bindingType = 'soap')
 	{
-		$this->debug("in serializeRPCParameters: operation=$operation, direction=$direction, XMLSchemaVersion=$this->XMLSchemaVersion"); 
+		$this->debug("in serializeRPCParameters: operation=$operation, direction=$direction, XMLSchemaVersion=$this->XMLSchemaVersion, bindingType=$bindingType");
 		$this->appendDebug('parameters=' . $this->varDump($parameters));
 		
 		if ($direction != 'input' && $direction != 'output') {
@@ -1014,9 +1019,9 @@ class wsdl extends nusoap_base {
 			$this->setError('The value of the \$direction argument needs to be either "input" or "output"');
 			return false;
 		} 
-		if (!$opData = $this->getOperationData($operation)) {
-			$this->debug('Unable to retrieve WSDL data for operation: ' . $operation);
-			$this->setError('Unable to retrieve WSDL data for operation: ' . $operation);
+		if (!$opData = $this->getOperationData($operation, $bindingType)) {
+			$this->debug('Unable to retrieve WSDL data for operation: ' . $operation . ' bindingType: ' . $bindingType);
+			$this->setError('Unable to retrieve WSDL data for operation: ' . $operation . ' bindingType: ' . $bindingType);
 			return false;
 		}
 		$this->debug('opData:');
@@ -1628,7 +1633,7 @@ class wsdl extends nusoap_base {
 	* @param array $elements e.g. array ( name => array(name=>'',type=>'') )
 	* @param array $attrs e.g. array(array('ref'=>'SOAP-ENC:arrayType','wsdl:arrayType'=>'xsd:string[]'))
 	* @param string $arrayType as namespace:name (xsd:string)
-	* @see xmlschema
+	* @see nusoap_xmlschema
 	* @access public
 	*/
 	function addComplexType($name,$typeClass='complexType',$phpType='array',$compositor='',$restrictionBase='',$elements=array(),$attrs=array(),$arrayType='') {
@@ -1675,7 +1680,7 @@ class wsdl extends nusoap_base {
 	* @param string $typeClass (should always be simpleType)
 	* @param string $phpType (should always be scalar)
 	* @param array $enumeration array of values
-	* @see xmlschema
+	* @see nusoap_xmlschema
 	* @access public
 	*/
 	function addSimpleType($name, $restrictionBase='', $typeClass='simpleType', $phpType='scalar', $enumeration=array()) {
@@ -1689,7 +1694,7 @@ class wsdl extends nusoap_base {
 	* adds an element to the WSDL types
 	*
 	* @param array $attrs attributes that must include name and type
-	* @see xmlschema
+	* @see nusoap_xmlschema
 	* @access public
 	*/
 	function addElement($attrs) {

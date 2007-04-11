@@ -22,7 +22,7 @@
 * @version  $Id$
 * @access   public
 */
-class nusoapclient extends nusoap_base  {
+class nusoap_client extends nusoap_base  {
 
 	var $username = '';				// Username for HTTP authentication
 	var $password = '';				// Password for HTTP authentication
@@ -92,7 +92,7 @@ class nusoapclient extends nusoap_base  {
 	* @param	integer $response_timeout set the response timeout
 	* @access   public
 	*/
-	function nusoapclient($endpoint,$wsdl = false,$proxyhost = false,$proxyport = false,$proxyusername = false, $proxypassword = false, $timeout = 0, $response_timeout = 30){
+	function nusoap_client($endpoint,$wsdl = false,$proxyhost = false,$proxyport = false,$proxyusername = false, $proxypassword = false, $timeout = 0, $response_timeout = 30){
 		parent::nusoap_base();
 		$this->endpoint = $endpoint;
 		$this->proxyhost = $proxyhost;
@@ -201,7 +201,7 @@ class nusoapclient extends nusoap_base  {
 				$payload = $params;
 			} elseif (is_array($params)) {
 				$this->debug("serializing param array for WSDL operation $operation");
-				$payload = $this->wsdl->serializeRPCParameters($operation,'input',$params);
+				$payload = $this->wsdl->serializeRPCParameters($operation,'input',$params,$this->bindingType);
 			} else {
 				$this->debug('params must be array or string');
 				$this->setError('params must be array or string');
@@ -356,7 +356,7 @@ class nusoapclient extends nusoap_base  {
 	 */
 	function loadWSDL() {
 		$this->debug('instantiating wsdl class with doc: '.$this->wsdlFile);
-		$this->wsdl =& new wsdl('',$this->proxyhost,$this->proxyport,$this->proxyusername,$this->proxypassword,$this->timeout,$this->response_timeout);
+		$this->wsdl =& new wsdl('',$this->proxyhost,$this->proxyport,$this->proxyusername,$this->proxypassword,$this->timeout,$this->response_timeout,$this->curl_options);
 		$this->wsdl->setCredentials($this->username, $this->password, $this->authtype, $this->certRequest);
 		$this->wsdl->fetchWSDL($this->wsdlFile);
 		$this->checkWSDL();
@@ -492,8 +492,8 @@ class nusoapclient extends nusoap_base  {
 			// should be US-ASCII for HTTP 1.0 or ISO-8859-1 for HTTP 1.1
 			$this->xml_encoding = 'ISO-8859-1';
 		}
-		$this->debug('Use encoding: ' . $this->xml_encoding . ' when creating soap_parser');
-		$parser = new soap_parser($data,$this->xml_encoding,$this->operation,$this->decode_utf8);
+		$this->debug('Use encoding: ' . $this->xml_encoding . ' when creating nusoap_parser');
+		$parser = new nusoap_parser($data,$this->xml_encoding,$this->operation,$this->decode_utf8);
 		// add parser debug data to our debug
 		$this->appendDebug($parser->getDebug());
 		// if parse errors
@@ -532,7 +532,7 @@ class nusoapclient extends nusoap_base  {
 	/**
 	* sets the SOAP endpoint, which can override WSDL
 	*
-	* @param	$endpoint string The endpoint URL to use, or empty string or false to prevent override
+	* @param	string $endpoint The endpoint URL to use, or empty string or false to prevent override
 	* @access   public
 	*/
 	function setEndpoint($endpoint) {
@@ -542,7 +542,7 @@ class nusoapclient extends nusoap_base  {
 	/**
 	* set the SOAP headers
 	*
-	* @param	$headers mixed String of XML with SOAP header content, or array of soapval objects for SOAP headers
+	* @param	mixed $headers String of XML with SOAP header content, or array of soapval objects for SOAP headers
 	* @access   public
 	*/
 	function setHeaders($headers){
@@ -672,22 +672,25 @@ class nusoapclient extends nusoap_base  {
 		$proxy->operations = $this->operations;
 		$proxy->defaultRpcParams = $this->defaultRpcParams;
 		// transfer other state
+		$proxy->soap_defencoding = $this->soap_defencoding;
 		$proxy->username = $this->username;
 		$proxy->password = $this->password;
 		$proxy->authtype = $this->authtype;
 		$proxy->certRequest = $this->certRequest;
+		$proxy->requestHeaders = $this->requestHeaders;
+		$proxy->endpoint = $this->endpoint;
+		$proxy->forceEndpoint = $this->forceEndpoint;
 		$proxy->proxyhost = $this->proxyhost;
 		$proxy->proxyport = $this->proxyport;
 		$proxy->proxyusername = $this->proxyusername;
 		$proxy->proxypassword = $this->proxypassword;
+		$proxy->http_encoding = $this->http_encoding;
 		$proxy->timeout = $this->timeout;
 		$proxy->response_timeout = $this->response_timeout;
-		$proxy->http_encoding = $this->http_encoding;
-		$proxy->persistentConnection = $this->persistentConnection;
-		$proxy->requestHeaders = $this->requestHeaders;
-		$proxy->soap_defencoding = $this->soap_defencoding;
-		$proxy->endpoint = $this->endpoint;
-		$proxy->forceEndpoint = $this->forceEndpoint;
+		$proxy->persistentConnection = &$this->persistentConnection;
+		$proxy->decode_utf8 = $this->decode_utf8;
+		$proxy->curl_options = $this->curl_options;
+		$proxy->bindingType = $this->bindingType;
 		return $proxy;
 	}
 
@@ -740,7 +743,7 @@ class nusoapclient extends nusoap_base  {
 				unset($paramCommentStr);
 			}
 		}
-		$evalStr = 'class nusoap_proxy_'.$r.' extends nusoapclient {
+		$evalStr = 'class nusoap_proxy_'.$r.' extends nusoap_client {
 	'.$evalStr.'
 }';
 		return $evalStr;
@@ -809,7 +812,7 @@ class nusoapclient extends nusoap_base  {
 	 *
 	 * @param	string $name Cookie Name
 	 * @param	string $value Cookie Value
-	 * @return	if cookie-set was successful returns true, else false
+	 * @return	boolean if cookie-set was successful returns true, else false
 	 * @access	public
 	 */
 	function setCookie($name, $value) {
@@ -833,7 +836,7 @@ class nusoapclient extends nusoap_base  {
 	/**
 	 * checks all Cookies and delete those which are expired
 	 *
-	 * @return   always return true
+	 * @return   boolean always return true
 	 * @access   private
 	 */
 	function checkCookies() {
@@ -866,7 +869,7 @@ class nusoapclient extends nusoap_base  {
 	 * updates the current cookies with a new set
 	 *
 	 * @param	array $cookies new cookies with which to update current ones
-	 * @return	always return true
+	 * @return	boolean always return true
 	 * @access	private
 	 */
 	function UpdateCookies($cookies) {
@@ -928,11 +931,11 @@ class nusoapclient extends nusoap_base  {
 	}
 }
 
-/*
- *	For backwards compatiblity, define soapclient unless the PHP SOAP extension is loaded.
- */
 if (!extension_loaded('soap')) {
-	class soapclient extends nusoapclient {
+	/**
+	 *	For backwards compatiblity, define soapclient unless the PHP SOAP extension is loaded.
+	 */
+	class soapclient extends nusoap_client {
 	}
 }
 ?>

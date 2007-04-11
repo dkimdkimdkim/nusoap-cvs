@@ -5,13 +5,13 @@
 
 /**
 *
-* soap_parser class parses SOAP XML messages into native PHP values
+* nusoap_parser class parses SOAP XML messages into native PHP values
 *
 * @author   Dietrich Ayala <dietrich@ganx4.com>
 * @version  $Id$
 * @access   public
 */
-class soap_parser extends nusoap_base {
+class nusoap_parser extends nusoap_base {
 
 	var $xml = '';
 	var $xml_encoding = '';
@@ -56,7 +56,7 @@ class soap_parser extends nusoap_base {
 	* @param    string $decode_utf8 whether to decode UTF-8 to ISO-8859-1
 	* @access   public
 	*/
-	function soap_parser($xml,$encoding='UTF-8',$method='',$decode_utf8=true){
+	function nusoap_parser($xml,$encoding='UTF-8',$method='',$decode_utf8=true){
 		parent::nusoap_base();
 		$this->xml = $xml;
 		$this->xml_encoding = $encoding;
@@ -88,7 +88,7 @@ class soap_parser extends nusoap_base {
 			} else {
 				$this->debug('No XML declaration');
 			}
-			$this->debug('Entering soap_parser(), length='.strlen($xml).', encoding='.$encoding);
+			$this->debug('Entering nusoap_parser(), length='.strlen($xml).', encoding='.$encoding);
 			// Create an XML parser - why not xml_parser_create_ns?
 			$this->parser = xml_parser_create($this->xml_encoding);
 			// Set the options for parsing the XML data.
@@ -628,7 +628,11 @@ class soap_parser extends nusoap_base {
 	}
 }
 
-
+/**
+ * Backward compatibility
+ */
+class soap_parser extends nusoap_parser {
+}
 
 
 ?>

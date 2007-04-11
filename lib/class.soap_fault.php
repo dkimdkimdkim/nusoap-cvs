@@ -11,7 +11,7 @@
 * @version  $Id$
 * @access public
 */
-class soap_fault extends nusoap_base {
+class nusoap_fault extends nusoap_base {
 	/**
 	 * The fault code (client|server)
 	 * @var string
@@ -45,7 +45,7 @@ class soap_fault extends nusoap_base {
     * @param string $faultstring human readable error message
     * @param mixed $faultdetail detail, typically a string or array of string
 	*/
-	function soap_fault($faultcode,$faultactor='',$faultstring='',$faultdetail=''){
+	function nusoap_fault($faultcode,$faultactor='',$faultstring='',$faultdetail=''){
 		parent::nusoap_base();
 		$this->faultcode = $faultcode;
 		$this->faultactor = $faultactor;
@@ -80,7 +80,11 @@ class soap_fault extends nusoap_base {
 	}
 }
 
-
+/**
+ * Backward compatibility
+ */
+class soap_fault extends nusoap_fault {
+}
 
 
 ?>
