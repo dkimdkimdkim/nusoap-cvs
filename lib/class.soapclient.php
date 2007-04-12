@@ -10,7 +10,7 @@
 * usage:
 *
 * // instantiate client with server info
-* $soapclient = new [nu]soapclient( string path [ ,boolean wsdl] );
+* $soapclient = new nusoap_client( string path [ ,mixed wsdl] );
 *
 * // call method, get results
 * echo $soapclient->call( string methodname [ ,array parameters] );
@@ -53,6 +53,7 @@ class nusoap_client extends nusoap_base  {
 	var $operations = array();		// WSDL operations, empty for WSDL initialization error
 	var $curl_options = array();	// User-specified cURL options
 	var $bindingType = '';			// WSDL operation binding type
+	var $use_curl = false;			// whether to always try to use cURL
 
 	/*
 	 * fault related variables
@@ -332,6 +333,7 @@ class nusoap_client extends nusoap_base  {
 	function checkWSDL() {
 		$this->appendDebug($this->wsdl->getDebug());
 		$this->wsdl->clearDebug();
+		$this->debug('checkWSDL');
 		// catch errors
 		if ($errstr = $this->wsdl->getError()) {
 			$this->debug('got wsdl error: '.$errstr);
@@ -344,7 +346,7 @@ class nusoap_client extends nusoap_base  {
 			$this->debug('got '.count($this->operations).' operations from wsdl '.$this->wsdlFile.' for binding type '.$this->bindingType);
 			$this->debug('**************** WARNING: SOAP 1.2 BINDING *****************');
 		} else {
-			$this->debug( 'getOperations returned false');
+			$this->debug('getOperations returned false');
 			$this->setError('no operations defined in the WSDL document!');
 		}
 	}
@@ -356,7 +358,7 @@ class nusoap_client extends nusoap_base  {
 	 */
 	function loadWSDL() {
 		$this->debug('instantiating wsdl class with doc: '.$this->wsdlFile);
-		$this->wsdl =& new wsdl('',$this->proxyhost,$this->proxyport,$this->proxyusername,$this->proxypassword,$this->timeout,$this->response_timeout,$this->curl_options);
+		$this->wsdl =& new wsdl('',$this->proxyhost,$this->proxyport,$this->proxyusername,$this->proxypassword,$this->timeout,$this->response_timeout,$this->curl_options,$this->use_curl);
 		$this->wsdl->setCredentials($this->username, $this->password, $this->authtype, $this->certRequest);
 		$this->wsdl->fetchWSDL($this->wsdlFile);
 		$this->checkWSDL();
@@ -405,7 +407,7 @@ class nusoap_client extends nusoap_base  {
 				if($this->persistentConnection == true && is_object($this->persistentConnection)){
 					$http =& $this->persistentConnection;
 				} else {
-					$http = new soap_transport_http($this->endpoint, $this->curl_options);
+					$http = new soap_transport_http($this->endpoint, $this->curl_options, $this->use_curl);
 					if ($this->persistentConnection) {
 						$http->usePersistentConnection();
 					}
@@ -475,7 +477,8 @@ class nusoap_client extends nusoap_base  {
 	* @access   private
 	*/
     function parseResponse($headers, $data) {
-		$this->debug('Entering parseResponse() for data of length ' . strlen($data) . ' and type ' . $headers['content-type']);
+		$this->debug('Entering parseResponse() for data of length ' . strlen($data) . ' headers:');
+		$this->appendDebug($this->varDump($headers));
 		if (!strstr($headers['content-type'], 'text/xml')) {
 			$this->setError('Response not of type text/xml');
 			return false;
@@ -526,6 +529,7 @@ class nusoap_client extends nusoap_base  {
 	* @access   public
 	*/
 	function setCurlOption($option, $value) {
+		$this->debug("setCurlOption($option, \"$value\")");
 		$this->curl_options[$option] = $value;
 	}
 
@@ -536,6 +540,7 @@ class nusoap_client extends nusoap_base  {
 	* @access   public
 	*/
 	function setEndpoint($endpoint) {
+		$this->debug("setEndpoint(\"$endpoint\")");
 		$this->forceEndpoint = $endpoint;
 	}
 
@@ -546,6 +551,8 @@ class nusoap_client extends nusoap_base  {
 	* @access   public
 	*/
 	function setHeaders($headers){
+		$this->debug("setHeaders:");
+		$this->appendDebug($this->varDump($headers));
 		$this->requestHeaders = $headers;
 	}
 
@@ -604,19 +611,32 @@ class nusoap_client extends nusoap_base  {
 	/**
 	* use HTTP encoding
 	*
-	* @param    string $enc
+	* @param    string $enc HTTP encoding
 	* @access   public
 	*/
 	function setHTTPEncoding($enc='gzip, deflate'){
+		$this->debug("setHTTPEncoding(\"$enc\")");
 		$this->http_encoding = $enc;
 	}
 	
+	/**
+	* Set whether to try to use cURL connections if possible
+	*
+	* @param	boolean $use Whether to try to use cURL
+	* @access   public
+	*/
+	function setUseCURL($use) {
+		$this->debug("setUseCURL($use)");
+		$this->use_curl = $use;
+	}
+
 	/**
 	* use HTTP persistent connections if possible
 	*
 	* @access   public
 	*/
 	function useHTTPPersistentConnection(){
+		$this->debug("useHTTPPersistentConnection");
 		$this->persistentConnection = true;
 	}
 	
@@ -691,6 +711,7 @@ class nusoap_client extends nusoap_base  {
 		$proxy->decode_utf8 = $this->decode_utf8;
 		$proxy->curl_options = $this->curl_options;
 		$proxy->bindingType = $this->bindingType;
+		$proxy->useCURL = $this->useCURL;
 		return $proxy;
 	}
 

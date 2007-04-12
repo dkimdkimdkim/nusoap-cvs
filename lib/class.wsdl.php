@@ -46,6 +46,7 @@ class wsdl extends nusoap_base {
 	var $timeout = 0;
 	var $response_timeout = 30;
 	var $curl_options = array();	// User-specified cURL options
+	var $use_curl = false;			// whether to always try to use cURL
 	// for HTTP authentication
 	var $username = '';				// Username for HTTP authentication
 	var $password = '';				// Password for HTTP authentication
@@ -63,9 +64,10 @@ class wsdl extends nusoap_base {
 	 * @param integer $timeout set the connection timeout
 	 * @param integer $response_timeout set the response timeout
 	 * @param array $curl_options user-specified cURL options
+	 * @param boolean $use_curl try to use cURL
      * @access public 
      */
-    function wsdl($wsdl = '',$proxyhost=false,$proxyport=false,$proxyusername=false,$proxypassword=false,$timeout=0,$response_timeout=30,$curl_options=null){
+    function wsdl($wsdl = '',$proxyhost=false,$proxyport=false,$proxyusername=false,$proxypassword=false,$timeout=0,$response_timeout=30,$curl_options=null,$use_curl=false){
 		parent::nusoap_base();
 		$this->debug("ctor wsdl=$wsdl timeout=$timeout response_timeout=$response_timeout");
         $this->proxyhost = $proxyhost;
@@ -76,6 +78,7 @@ class wsdl extends nusoap_base {
 		$this->response_timeout = $response_timeout;
 		if (is_array($curl_options))
 			$this->curl_options = $curl_options;
+		$this->use_curl = $use_curl;
 		$this->fetchWSDL($wsdl);
     }
 
@@ -202,7 +205,7 @@ class wsdl extends nusoap_base {
         if (isset($wsdl_props['scheme']) && ($wsdl_props['scheme'] == 'http' || $wsdl_props['scheme'] == 'https')) {
             $this->debug('getting WSDL http(s) URL ' . $wsdl);
         	// get wsdl
-	        $tr = new soap_transport_http($wsdl, $this->curl_options);
+	        $tr = new soap_transport_http($wsdl, $this->curl_options, $this->use_curl);
 			$tr->request_method = 'GET';
 			$tr->useSOAPAction = false;
 			if($this->proxyhost && $this->proxyport){

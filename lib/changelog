@@ -518,3 +518,10 @@
 - xmlschema: also provide a class named nusoap_xmlschema
 - nusoapclientmime: rename class to nusoap_client_mime
 - nusoapservermime: rename class to nusoap_server_mime
+
+2007-04-11, version 0.7.2
+- nusoap_client: enable cURL usage to be forced (thanks Giunta Gaetano)
+- soap_transport_http: enable cURL proxy usage (thanks Giunta Gaetano)
+- soap_transport_http: enable cURL usage to be forced (thanks Giunta Gaetano)
+- soap_transport_http: use cURL's HTTP authentication options for basic, digest
+- wsdl: enable cURL usage to be forced (thanks Giunta Gaetano)
