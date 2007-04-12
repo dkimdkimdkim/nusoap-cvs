@@ -14,12 +14,15 @@ $proxyhost = isset($_POST['proxyhost']) ? $_POST['proxyhost'] : '';
 $proxyport = isset($_POST['proxyport']) ? $_POST['proxyport'] : '';
 $proxyusername = isset($_POST['proxyusername']) ? $_POST['proxyusername'] : '';
 $proxypassword = isset($_POST['proxypassword']) ? $_POST['proxypassword'] : '';
-$client = new soapclient("http://soap.amazon.com/onca/soap2", false,
+$useCURL = isset($_POST['usecurl']) ? $_POST['usecurl'] : '0';
+$client = new nusoap_client("http://soap.amazon.com/onca/soap2", false,
 						$proxyhost, $proxyport, $proxyusername, $proxypassword);
 $err = $client->getError();
 if ($err) {
 	echo '<h2>Constructor error</h2><pre>' . $err . '</pre>';
 }
+$client->setUseCurl($useCURL);
+$client->useHTTPPersistentConnection();
 $param = array(
     'manufacturer' => "O'Reilly",
     'page'         => '1',

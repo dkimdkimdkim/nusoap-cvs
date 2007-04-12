@@ -15,12 +15,14 @@ $proxyhost = isset($_POST['proxyhost']) ? $_POST['proxyhost'] : '';
 $proxyport = isset($_POST['proxyport']) ? $_POST['proxyport'] : '';
 $proxyusername = isset($_POST['proxyusername']) ? $_POST['proxyusername'] : '';
 $proxypassword = isset($_POST['proxypassword']) ? $_POST['proxypassword'] : '';
-$client = new soapclientmime('http://www.scottnichol.com/samples/mimetest.php', false,
+$useCURL = isset($_POST['usecurl']) ? $_POST['usecurl'] : '0';
+$client = new nusoap_client_mime('http://www.scottnichol.com/samples/mimetest.php', false,
 							$proxyhost, $proxyport, $proxyusername, $proxypassword);
 $err = $client->getError();
 if ($err) {
 	echo '<h2>Constructor error</h2><pre>' . $err . '</pre>';
 }
+$client->setUseCurl($useCURL);
 $client->setHTTPEncoding('deflate, gzip');
 $cid = $client->addAttachment('', 'mimeclient.php');
 $result = $client->call('hello', array('name' => 'Scott'));
