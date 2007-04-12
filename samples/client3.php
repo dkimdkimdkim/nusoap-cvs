@@ -14,15 +14,17 @@ $proxyhost = isset($_POST['proxyhost']) ? $_POST['proxyhost'] : '';
 $proxyport = isset($_POST['proxyport']) ? $_POST['proxyport'] : '';
 $proxyusername = isset($_POST['proxyusername']) ? $_POST['proxyusername'] : '';
 $proxypassword = isset($_POST['proxypassword']) ? $_POST['proxypassword'] : '';
-$client = new soapclient("http://api.google.com/search/beta2", false,
+$useCURL = isset($_POST['usecurl']) ? $_POST['usecurl'] : '0';
+$client = new nusoap_client("http://api.google.com/search/beta2", false,
 						$proxyhost, $proxyport, $proxyusername, $proxypassword);
 $err = $client->getError();
 if ($err) {
 	echo '<h2>Constructor error</h2><pre>' . $err . '</pre>';
 }
+$client->setUseCurl($useCURL);
 $client->soap_defencoding = 'UTF-8';
 
-echo 'You must set your own Google key in the source code to run this client!'; exit();
+//echo 'You must set your own Google key in the source code to run this client!'; exit();
 $params = array(
 	'Googlekey'=>'set your own Google key',
 	'queryStr'=>'robotics',
