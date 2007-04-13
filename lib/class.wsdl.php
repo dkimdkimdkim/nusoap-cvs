@@ -558,6 +558,8 @@ class wsdl extends nusoap_base {
 	* @access   public
 	*/
 	function setCredentials($username, $password, $authtype = 'basic', $certRequest = array()) {
+		$this->debug("setCredentials username=$username authtype=$authtype certRequest=");
+		$this->appendDebug($this->varDump($certRequest));
 		$this->username = $username;
 		$this->password = $password;
 		$this->authtype = $authtype;

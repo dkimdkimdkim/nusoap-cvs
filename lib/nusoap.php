@@ -1371,9 +1371,6 @@ class nusoap_xmlschema extends nusoap_base  {
 			break;
 			case 'element':
 				array_push($this->elementStack, $this->currentElement);
-				// elements defined as part of a complex type should
-				// not really be added to $this->elements, but for some
-				// reason, they are
 				if (!isset($attrs['form'])) {
 					$attrs['form'] = $this->schemaInfo['elementFormDefault'];
 				}
@@ -1397,8 +1394,6 @@ class nusoap_xmlschema extends nusoap_base  {
 						$this->complexTypes[$this->currentComplexType]['arrayType'] = $attrs['type'];
 					}
 					$this->currentElement = $attrs['name'];
-					$this->elements[ $attrs['name'] ] = $attrs;
-					$this->elements[ $attrs['name'] ]['typeClass'] = 'element';
 					$ename = $attrs['name'];
 				} elseif(isset($attrs['ref'])){
 					$this->xdebug("processing element as ref to ".$attrs['ref']);
@@ -1407,14 +1402,16 @@ class nusoap_xmlschema extends nusoap_base  {
 				} else {
 					$this->xdebug("processing untyped element ".$attrs['name']);
 					$this->currentElement = $attrs['name'];
-					$this->elements[ $attrs['name'] ] = $attrs;
-					$this->elements[ $attrs['name'] ]['typeClass'] = 'element';
 					$attrs['type'] = $this->schemaTargetNamespace . ':' . $attrs['name'] . '_ContainedType';
-					$this->elements[ $attrs['name'] ]['type'] = $attrs['type'];
 					$ename = $attrs['name'];
 				}
-				if(isset($ename) && $this->currentComplexType){
+				if (isset($ename) && $this->currentComplexType) {
+					$this->xdebug("add element $ename to complexType $this->currentComplexType");
 					$this->complexTypes[$this->currentComplexType]['elements'][$ename] = $attrs;
+				} elseif (!isset($attrs['ref'])) {
+					$this->xdebug("add element $ename to elements array");
+					$this->elements[ $attrs['name'] ] = $attrs;
+					$this->elements[ $attrs['name'] ]['typeClass'] = 'element';
 				}
 			break;
 			case 'enumeration':	//	restriction value list member
@@ -2092,6 +2089,7 @@ class soap_transport_http extends nusoap_base {
 	var $incoming_cookies = array();
 	var $outgoing_payload = '';
 	var $incoming_payload = '';
+	var $response_status_line;	// HTTP response status line
 	var $useSOAPAction = true;
 	var $persistentConnection = false;
 	var $ch = false;	// cURL handle
@@ -2130,6 +2128,19 @@ class soap_transport_http extends nusoap_base {
 		$this->use_curl = $use_curl;
 		ereg('\$Revisio' . 'n: ([^ ]+)', $this->revision, $rev);
 		$this->setHeader('User-Agent', $this->title.'/'.$this->version.' ('.$rev[1].')');
+	}
+
+	/**
+	* sets a cURL option
+	*
+	* @param	mixed $option The cURL option (always integer?)
+	* @param	mixed $value The cURL option value
+	* @access   private
+	*/
+	function setCurlOption($option, $value) {
+		$this->debug("setCurlOption option=$option, value=");
+		$this->appendDebug($this->varDump($value));
+		curl_setopt($this->ch, $option, $value);
 	}
 
 	/**
@@ -2295,16 +2306,24 @@ class soap_transport_http extends nusoap_base {
 			return false;
 		}
 		// Avoid warnings when PHP does not have these options
-		$CURLOPT_HTTPAUTH = 107;
+		@$CURLOPT_CONNECTIONTIMEOUT = CURLOPT_CONNECTIONTIMEOUT;
+		if ($CURLOPT_CONNECTIONTIMEOUT == 'CURLOPT_CONNECTIONTIMEOUT')
+			$CURLOPT_CONNECTIONTIMEOUT = 78;
 		@$CURLOPT_HTTPAUTH = CURLOPT_HTTPAUTH;
-		$CURLOPT_PROXYAUTH = 111;
+		if ($CURLOPT_HTTPAUTH == 'CURLOPT_HTTPAUTH')
+			$CURLOPT_HTTPAUTH = 107;
 		@$CURLOPT_PROXYAUTH = CURLOPT_PROXYAUTH;
-		$CURLAUTH_BASIC = 1;
+		if ($CURLOPT_PROXYAUTH == 'CURLOPT_PROXYAUTH')
+			$CURLOPT_PROXYAUTH = 111;
 		@$CURLAUTH_BASIC = CURLAUTH_BASIC;
-		$CURLAUTH_DIGEST = 2;
+		if ($CURLAUTH_BASIC == 'CURLAUTH_BASIC')
+			$CURLAUTH_BASIC = 1;
 		@$CURLAUTH_DIGEST = CURLAUTH_DIGEST;
-		$CURLAUTH_NTLM = 8;
+		if ($CURLAUTH_DIGEST == 'CURLAUTH_DIGEST')
+			$CURLAUTH_DIGEST = 2;
 		@$CURLAUTH_NTLM = CURLAUTH_NTLM;
+		if ($CURLAUTH_NTLM == 'CURLAUTH_NTLM')
+			$CURLAUTH_NTLM = 8;
 
 		$this->debug('connect using cURL');
 		// init CURL
@@ -2313,17 +2332,17 @@ class soap_transport_http extends nusoap_base {
 		$hostURL = ($this->port != '') ? "$this->scheme://$this->host:$this->port" : "$this->scheme://$this->host";
 		// add path
 		$hostURL .= $this->path;
-		curl_setopt($this->ch, CURLOPT_URL, $hostURL);
+		$this->setCurlOption(CURLOPT_URL, $hostURL);
 		// follow location headers (re-directs)
-		curl_setopt($this->ch, CURLOPT_FOLLOWLOCATION, 1);
+		$this->setCurlOption(CURLOPT_FOLLOWLOCATION, 1);
 		// ask for headers in the response output
-		curl_setopt($this->ch, CURLOPT_HEADER, 1);
+		$this->setCurlOption(CURLOPT_HEADER, 1);
 		// ask for the response output as the return value
-		curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 1);
+		$this->setCurlOption(CURLOPT_RETURNTRANSFER, 1);
 		// encode
 		// We manage this ourselves through headers and encoding
 //		if(function_exists('gzuncompress')){
-//			curl_setopt($this->ch, CURLOPT_ENCODING, 'deflate');
+//			$this->setCurlOption(CURLOPT_ENCODING, 'deflate');
 //		}
 		// persistent connection
 		if ($this->persistentConnection) {
@@ -2331,94 +2350,90 @@ class soap_transport_http extends nusoap_base {
 			// the code when it used CURLOPT_CUSTOMREQUEST to send the request.
 			// The way we send data, we cannot use persistent connections, since
 			// there will be some "junk" at the end of our request.
-			//curl_setopt($this->ch, CURL_HTTP_VERSION_1_1, true);
+			//$this->setCurlOption(CURL_HTTP_VERSION_1_1, true);
 			$this->persistentConnection = false;
 			$this->setHeader('Connection', 'close');
 		}
-		// set timeout
+		// set timeouts
 		if ($connection_timeout != 0) {
-			curl_setopt($this->ch, CURLOPT_TIMEOUT, $connection_timeout);
+			$this->setCurlOption($CURLOPT_CONNECTIONTIMEOUT, $connection_timeout);
 		}
-		// TODO: cURL has added a connection timeout separate from the response timeout
-		//if ($connection_timeout != 0) {
-		//	curl_setopt($this->ch, CURLOPT_CONNECTIONTIMEOUT, $connection_timeout);
-		//}
-		//if ($response_timeout != 0) {
-		//	curl_setopt($this->ch, CURLOPT_TIMEOUT, $response_timeout);
-		//}
+		if ($response_timeout != 0) {
+			$this->setCurlOption(CURLOPT_TIMEOUT, $response_timeout);
+		}
 
 		if ($this->scheme == 'https') {
 			$this->debug('set cURL SSL verify options');
 			// recent versions of cURL turn on peer/host checking by default,
 			// while PHP binaries are not compiled with a default location for the
 			// CA cert bundle, so disable peer/host checking.
-			//curl_setopt($this->ch, CURLOPT_CAINFO, 'f:\php-4.3.2-win32\extensions\curl-ca-bundle.crt');		
-			curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, 0);
-			curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 0);
+			//$this->setCurlOption(CURLOPT_CAINFO, 'f:\php-4.3.2-win32\extensions\curl-ca-bundle.crt');		
+			$this->setCurlOption(CURLOPT_SSL_VERIFYPEER, 0);
+			$this->setCurlOption(CURLOPT_SSL_VERIFYHOST, 0);
 	
 			// support client certificates (thanks Tobias Boes, Doug Anarino, Eryan Ariobowo)
 			if ($this->authtype == 'certificate') {
 				$this->debug('set cURL certificate options');
 				if (isset($this->certRequest['cainfofile'])) {
-					curl_setopt($this->ch, CURLOPT_CAINFO, $this->certRequest['cainfofile']);
+					$this->setCurlOption(CURLOPT_CAINFO, $this->certRequest['cainfofile']);
 				}
 				if (isset($this->certRequest['verifypeer'])) {
-					curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, $this->certRequest['verifypeer']);
+					$this->setCurlOption(CURLOPT_SSL_VERIFYPEER, $this->certRequest['verifypeer']);
 				} else {
-					curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, 1);
+					$this->setCurlOption(CURLOPT_SSL_VERIFYPEER, 1);
 				}
 				if (isset($this->certRequest['verifyhost'])) {
-					curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, $this->certRequest['verifyhost']);
+					$this->setCurlOption(CURLOPT_SSL_VERIFYHOST, $this->certRequest['verifyhost']);
 				} else {
-					curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 1);
+					$this->setCurlOption(CURLOPT_SSL_VERIFYHOST, 1);
 				}
 				if (isset($this->certRequest['sslcertfile'])) {
-					curl_setopt($this->ch, CURLOPT_SSLCERT, $this->certRequest['sslcertfile']);
+					$this->setCurlOption(CURLOPT_SSLCERT, $this->certRequest['sslcertfile']);
 				}
 				if (isset($this->certRequest['sslkeyfile'])) {
-					curl_setopt($this->ch, CURLOPT_SSLKEY, $this->certRequest['sslkeyfile']);
+					$this->setCurlOption(CURLOPT_SSLKEY, $this->certRequest['sslkeyfile']);
 				}
 				if (isset($this->certRequest['passphrase'])) {
-					curl_setopt($this->ch, CURLOPT_SSLKEYPASSWD, $this->certRequest['passphrase']);
+					$this->setCurlOption(CURLOPT_SSLKEYPASSWD, $this->certRequest['passphrase']);
 				}
 				if (isset($this->certRequest['certpassword'])) {
-					curl_setopt($this->ch, CURLOPT_SSLCERTPASSWD, $this->certRequest['certpassword']);
+					$this->setCurlOption(CURLOPT_SSLCERTPASSWD, $this->certRequest['certpassword']);
 				}
 			}
 		}
 		if ($this->authtype && ($this->authtype != 'certificate')) {
 			if ($this->username) {
 				$this->debug('set cURL username/password');
-				curl_setopt($this->ch, CURLOPT_USERPWD, "$this->username:$this->password");
+				$this->setCurlOption(CURLOPT_USERPWD, "$this->username:$this->password");
 			}
 			if ($this->authtype == 'basic') {
 				$this->debug('set cURL for Basic authentication');
-				curl_setopt($this->ch, $CURLOPT_HTTPAUTH, $CURLAUTH_BASIC);
+				$this->setCurlOption($CURLOPT_HTTPAUTH, $CURLAUTH_BASIC);
 			}
 			if ($this->authtype == 'digest') {
 				$this->debug('set cURL for digest authentication');
-				curl_setopt($this->ch, $CURLOPT_HTTPAUTH, $CURLAUTH_DIGEST);
+				$this->setCurlOption($CURLOPT_HTTPAUTH, $CURLAUTH_DIGEST);
 			}
 			if ($this->authtype == 'ntlm') {
 				$this->debug('set cURL for NTLM authentication');
-				curl_setopt($this->ch, $CURLOPT_HTTPAUTH, $CURLAUTH_NTLM);
+				$this->setCurlOption($CURLOPT_HTTPAUTH, $CURLAUTH_NTLM);
 			}
 		}
 		if (is_array($this->proxy)) {
 			$this->debug('set cURL proxy options');
 			if ($this->proxy['port'] != '') {
-				curl_setopt($this->ch, CURLOPT_PROXY, $this->proxy['host'].':'.$this->proxy['port']);
+				$this->setCurlOption(CURLOPT_PROXY, $this->proxy['host'].':'.$this->proxy['port']);
 			} else {
-				curl_setopt($this->ch, CURLOPT_PROXY, $this->proxy['host']);
+				$this->setCurlOption(CURLOPT_PROXY, $this->proxy['host']);
 			}
 			if ($this->proxy['username'] || $this->proxy['password']) {
 				$this->debug('set cURL proxy authentication options');
-				curl_setopt($this->ch, CURLOPT_PROXYUSERPWD, $this->proxy['username'].':'.$this->proxy['password']);
+				$this->setCurlOption(CURLOPT_PROXYUSERPWD, $this->proxy['username'].':'.$this->proxy['password']);
 				if ($this->proxy['authtype'] == 'basic') {
-					curl_setopt($this->ch, $CURLOPT_PROXYAUTH, $CURLAUTH_BASIC);
+					$this->setCurlOption($CURLOPT_PROXYAUTH, $CURLAUTH_BASIC);
 				}
 				if ($this->proxy['authtype'] == 'ntlm') {
-					curl_setopt($this->ch, $CURLOPT_PROXYAUTH, $CURLAUTH_NTLM);
+					$this->setCurlOption($CURLOPT_PROXYAUTH, $CURLAUTH_NTLM);
 				}
 			}
 		}
@@ -2463,7 +2478,7 @@ class soap_transport_http extends nusoap_base {
 				// get response
 				$respdata = $this->getResponse();
 			} else {
-				$this->setError('Too many tries to get an OK response');
+				$this->setError("Too many tries to get an OK response ($this->response_status_line)");
 			}
 		}		
 		$this->debug('end of send()');
@@ -2497,7 +2512,10 @@ class soap_transport_http extends nusoap_base {
 	* @access   public
 	*/
 	function setCredentials($username, $password, $authtype = 'basic', $digestRequest = array(), $certRequest = array()) {
-		$this->debug("Set credentials for authtype $authtype");
+		$this->debug("setCredentials username=$username authtype=$authtype digestRequest=");
+		$this->appendDebug($this->varDump($digestRequest));
+		$this->debug("certRequest=");
+		$this->appendDebug($this->varDump($certRequest));
 		// cf. RFC 2617
 		if ($authtype == 'basic') {
 			$this->setHeader('Authorization', 'Basic '.base64_encode(str_replace(':','',$username).':'.$password));
@@ -2550,6 +2568,10 @@ class soap_transport_http extends nusoap_base {
 			// do nothing
 			$this->debug('Authorization header not set for ntlm');
 		}
+		$this->username = $username;
+		$this->password = $password;
+		$this->authtype = $authtype;
+		$this->digestRequest = $digestRequest;
 	}
 	
 	/**
@@ -2743,10 +2765,10 @@ class soap_transport_http extends nusoap_base {
 		return true;
 	  } else if ($this->io_method() == 'curl') {
 		// set payload
-		// TODO: cURL does say this should only be the verb, and in fact it
+		// cURL does say this should only be the verb, and in fact it
 		// turns out that the URI and HTTP version are appended to this, which
-		// some servers refuse to work with
-		//curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $this->outgoing_payload);
+		// some servers refuse to work with (so we no longer use this method!)
+		//$this->setCurlOption(CURLOPT_CUSTOMREQUEST, $this->outgoing_payload);
 		$curl_headers = array();
 		foreach($this->outgoing_headers as $k => $v){
 			if ($k == 'Connection' || $k == 'Content-Length' || $k == 'Host' || $k == 'Authorization' || $k == 'Proxy-Authorization') {
@@ -2758,18 +2780,17 @@ class soap_transport_http extends nusoap_base {
 		if ($cookie_str != '') {
 			$curl_headers[] = 'Cookie: ' . $cookie_str;
 		}
-		curl_setopt($this->ch, CURLOPT_HTTPHEADER, $curl_headers);
+		$this->setCurlOption(CURLOPT_HTTPHEADER, $curl_headers);
 		$this->debug('set cURL HTTP headers');
 		if ($this->request_method == "POST") {
-	  		curl_setopt($this->ch, CURLOPT_POST, 1);
-	  		curl_setopt($this->ch, CURLOPT_POSTFIELDS, $data);
+	  		$this->setCurlOption(CURLOPT_POST, 1);
+	  		$this->setCurlOption(CURLOPT_POSTFIELDS, $data);
 			$this->debug('set cURL POST data');
 	  	} else {
 	  	}
 		// insert custom user-set cURL options
 		foreach ($this->ch_options as $key => $val) {
-			curl_setopt($this->ch, $key, $val);
-			$this->debug("set user cURL option $key=$val");
+			$this->setCurlOption($key, $val);
 		}
 
 		$this->debug('set cURL payload');
@@ -3036,7 +3057,8 @@ class soap_transport_http extends nusoap_base {
 		}
 	  }
 
-		$arr = explode(' ', $header_array[0], 3);
+		$this->response_status_line = $header_array[0];
+		$arr = explode(' ', $this->response_status_line, 3);
 		$http_version = $arr[0];
 		$http_status = intval($arr[1]);
 		$http_reason = count($arr) > 2 ? $arr[2] : '';
@@ -4901,6 +4923,8 @@ class wsdl extends nusoap_base {
 	* @access   public
 	*/
 	function setCredentials($username, $password, $authtype = 'basic', $certRequest = array()) {
+		$this->debug("setCredentials username=$username authtype=$authtype certRequest=");
+		$this->appendDebug($this->varDump($certRequest));
 		$this->username = $username;
 		$this->password = $password;
 		$this->authtype = $authtype;
@@ -7302,7 +7326,8 @@ class nusoap_client extends nusoap_base  {
 	* @access   public
 	*/
 	function setCurlOption($option, $value) {
-		$this->debug("setCurlOption($option, \"$value\")");
+		$this->debug("setCurlOption option=$option, value=");
+		$this->appendDebug($this->varDump($value));
 		$this->curl_options[$option] = $value;
 	}
 
@@ -7324,7 +7349,7 @@ class nusoap_client extends nusoap_base  {
 	* @access   public
 	*/
 	function setHeaders($headers){
-		$this->debug("setHeaders:");
+		$this->debug("setHeaders headers=");
 		$this->appendDebug($this->varDump($headers));
 		$this->requestHeaders = $headers;
 	}
@@ -7375,6 +7400,8 @@ class nusoap_client extends nusoap_base  {
 	* @access   public
 	*/
 	function setCredentials($username, $password, $authtype = 'basic', $certRequest = array()) {
+		$this->debug("setCredentials username=$username authtype=$authtype certRequest=");
+		$this->appendDebug($this->varDump($certRequest));
 		$this->username = $username;
 		$this->password = $password;
 		$this->authtype = $authtype;

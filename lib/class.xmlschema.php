@@ -325,9 +325,6 @@ class nusoap_xmlschema extends nusoap_base  {
 			break;
 			case 'element':
 				array_push($this->elementStack, $this->currentElement);
-				// elements defined as part of a complex type should
-				// not really be added to $this->elements, but for some
-				// reason, they are
 				if (!isset($attrs['form'])) {
 					$attrs['form'] = $this->schemaInfo['elementFormDefault'];
 				}
@@ -351,8 +348,6 @@ class nusoap_xmlschema extends nusoap_base  {
 						$this->complexTypes[$this->currentComplexType]['arrayType'] = $attrs['type'];
 					}
 					$this->currentElement = $attrs['name'];
-					$this->elements[ $attrs['name'] ] = $attrs;
-					$this->elements[ $attrs['name'] ]['typeClass'] = 'element';
 					$ename = $attrs['name'];
 				} elseif(isset($attrs['ref'])){
 					$this->xdebug("processing element as ref to ".$attrs['ref']);
@@ -361,14 +356,16 @@ class nusoap_xmlschema extends nusoap_base  {
 				} else {
 					$this->xdebug("processing untyped element ".$attrs['name']);
 					$this->currentElement = $attrs['name'];
-					$this->elements[ $attrs['name'] ] = $attrs;
-					$this->elements[ $attrs['name'] ]['typeClass'] = 'element';
 					$attrs['type'] = $this->schemaTargetNamespace . ':' . $attrs['name'] . '_ContainedType';
-					$this->elements[ $attrs['name'] ]['type'] = $attrs['type'];
 					$ename = $attrs['name'];
 				}
-				if(isset($ename) && $this->currentComplexType){
+				if (isset($ename) && $this->currentComplexType) {
+					$this->xdebug("add element $ename to complexType $this->currentComplexType");
 					$this->complexTypes[$this->currentComplexType]['elements'][$ename] = $attrs;
+				} elseif (!isset($attrs['ref'])) {
+					$this->xdebug("add element $ename to elements array");
+					$this->elements[ $attrs['name'] ] = $attrs;
+					$this->elements[ $attrs['name'] ]['typeClass'] = 'element';
 				}
 			break;
 			case 'enumeration':	//	restriction value list member

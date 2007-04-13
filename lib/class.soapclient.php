@@ -529,7 +529,8 @@ class nusoap_client extends nusoap_base  {
 	* @access   public
 	*/
 	function setCurlOption($option, $value) {
-		$this->debug("setCurlOption($option, \"$value\")");
+		$this->debug("setCurlOption option=$option, value=");
+		$this->appendDebug($this->varDump($value));
 		$this->curl_options[$option] = $value;
 	}
 
@@ -551,7 +552,7 @@ class nusoap_client extends nusoap_base  {
 	* @access   public
 	*/
 	function setHeaders($headers){
-		$this->debug("setHeaders:");
+		$this->debug("setHeaders headers=");
 		$this->appendDebug($this->varDump($headers));
 		$this->requestHeaders = $headers;
 	}
@@ -602,6 +603,8 @@ class nusoap_client extends nusoap_base  {
 	* @access   public
 	*/
 	function setCredentials($username, $password, $authtype = 'basic', $certRequest = array()) {
+		$this->debug("setCredentials username=$username authtype=$authtype certRequest=");
+		$this->appendDebug($this->varDump($certRequest));
 		$this->username = $username;
 		$this->password = $password;
 		$this->authtype = $authtype;

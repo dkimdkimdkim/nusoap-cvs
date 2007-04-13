@@ -525,3 +525,13 @@
 - soap_transport_http: enable cURL usage to be forced (thanks Giunta Gaetano)
 - soap_transport_http: use cURL's HTTP authentication options for basic, digest
 - wsdl: enable cURL usage to be forced (thanks Giunta Gaetano)
+
+2007-04-12, version 0.7.2
+- nusoap_client: add debug
+- nusoap_xmlschema: don't add elements of complexTypes to elements array (thanks Heiko Hund)
+- soap_transport_http: set cURL connection timeout if supported
+- soap_transport_http: add debug when setting cURL option
+- soap_transport_http: fix digest authentication broken in previous revision
+- wsdl: add debug
+- wsdlcache: address some issues with non-existing cache-files and PHP Warnings which came in such cases (thanks Ingo Fischer)
+- wsdlcache: change class name to nusoap_wsdlcache
