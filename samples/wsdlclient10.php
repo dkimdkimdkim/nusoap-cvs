@@ -15,12 +15,14 @@ $proxyhost = isset($_POST['proxyhost']) ? $_POST['proxyhost'] : '';
 $proxyport = isset($_POST['proxyport']) ? $_POST['proxyport'] : '';
 $proxyusername = isset($_POST['proxyusername']) ? $_POST['proxyusername'] : '';
 $proxypassword = isset($_POST['proxypassword']) ? $_POST['proxypassword'] : '';
-$client = new soapclient('http://www.abundanttech.com/webservices/population/population.wsdl', true,
+$useCURL = isset($_POST['usecurl']) ? $_POST['usecurl'] : '0';
+$client = new soapclient('http://www.abundanttech.com/WebServices/Population/population.asmx?WSDL', true,
 						$proxyhost, $proxyport, $proxyusername, $proxypassword);
 $err = $client->getError();
 if ($err) {
 	echo '<h2>Constructor error</h2><pre>' . $err . '</pre>';
 }
+$client->setUseCurl($useCURL);
 $result = $client->call('getCountries', array(), '', '', false, true);
 if ($client->fault) {
 	echo '<h2>Fault</h2><pre>';
