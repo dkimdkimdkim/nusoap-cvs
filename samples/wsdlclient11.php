@@ -4,6 +4,7 @@
  *
  *	WSDL client sample.
  *	Exercises a document/literal NuSOAP service (added nusoap.php 1.73).
+ *	Does not explicitly wrap parameters.
  *
  *	Service: WSDL
  *	Payload: document/literal
@@ -15,15 +16,17 @@ $proxyhost = isset($_POST['proxyhost']) ? $_POST['proxyhost'] : '';
 $proxyport = isset($_POST['proxyport']) ? $_POST['proxyport'] : '';
 $proxyusername = isset($_POST['proxyusername']) ? $_POST['proxyusername'] : '';
 $proxypassword = isset($_POST['proxypassword']) ? $_POST['proxypassword'] : '';
+$useCURL = isset($_POST['usecurl']) ? $_POST['usecurl'] : '0';
 $client = new soapclient('http://www.scottnichol.com/samples/hellowsdl3.wsdl', true,
 						$proxyhost, $proxyport, $proxyusername, $proxypassword);
 $err = $client->getError();
 if ($err) {
 	echo '<h2>Constructor error</h2><pre>' . $err . '</pre>';
 }
+$client->setUseCurl($useCURL);
 $person = array('firstname' => 'Willi', 'age' => 22, 'gender' => 'male');
-$param = array('name' => $person);
-$result = $client->call('hello', array('parameters' => $param));
+$name = array('name' => $person);
+$result = $client->call('hello', $name);
 if ($client->fault) {
 	echo '<h2>Fault</h2><pre>';
 	print_r($result);
