@@ -535,3 +535,6 @@
 - wsdl: add debug
 - wsdlcache: address some issues with non-existing cache-files and PHP Warnings which came in such cases (thanks Ingo Fischer)
 - wsdlcache: change class name to nusoap_wsdlcache
+
+2007-04-13, version 0.7.2
+- wsdl: wrap parameters if unwrapped values are supplied and WSDL specifies Microsoft-style wrapping

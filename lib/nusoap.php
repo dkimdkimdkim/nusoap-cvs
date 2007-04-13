@@ -5364,9 +5364,87 @@ class wsdl extends nusoap_base {
 		$xml .= "\n" . '</service>';
 		return $xml . "\n</definitions>";
 	} 
-	
+
+	/**
+	 * determine whether a set of parameters are unwrapped
+	 * when they are expect to be wrapped, Microsoft-style.
+	 *
+	 * @param string $type the type (element name) of the wrapper
+	 * @param array $parameters the parameter values for the SOAP call
+	 * @return boolean whether they parameters are unwrapped (and should be wrapped)
+	 * @accees private
+	 */
+	function parametersMatchWrapped($type, $parameters) {
+		$this->debug("in parametersMatchWrapped type=$type, parameters=");
+		$this->appendDebug($this->varDump($parameters));
+
+		// split type into namespace:unqualified-type
+		if (strpos($type, ':')) {
+			$uqType = substr($type, strrpos($type, ':') + 1);
+			$ns = substr($type, 0, strrpos($type, ':'));
+			$this->debug("in parametersMatchWrapped: got a prefixed type: $uqType, $ns");
+			if ($this->getNamespaceFromPrefix($ns)) {
+				$ns = $this->getNamespaceFromPrefix($ns);
+				$this->debug("in parametersMatchWrapped: expanded prefixed type: $uqType, $ns");
+			}
+		} else {
+			// TODO: should the type be compared to types in XSD, and the namespace
+			// set to XSD if the type matches?
+			$this->debug("in parametersMatchWrapped: No namespace for type $type");
+			$ns = '';
+			$uqType = $type;
+		}
+
+		// get the type information
+		if (!$typeDef = $this->getTypeDef($uqType, $ns)) {
+			$this->debug("in parametersMatchWrapped: $type ($uqType) is not a supported type.");
+			return false;
+		}
+		$this->debug("in parametersMatchWrapped: found typeDef=");
+		$this->appendDebug($this->varDump($typeDef));
+		if (substr($uqType, -1) == '^') {
+			$uqType = substr($uqType, 0, -1);
+		}
+		$phpType = $typeDef['phpType'];
+		$arrayType = (isset($typeDef['arrayType']) ? $typeDef['arrayType'] : '');
+		$this->debug("in parametersMatchWrapped: uqType: $uqType, ns: $ns, phptype: $phpType, arrayType: $arrayType");
+		
+		// we expect a complexType or element of complexType
+		if ($phpType != 'struct') {
+			$this->debug("in parametersMatchWrapped: not a struct");
+			return false;
+		}
+
+		// see whether the parameter names match the elements
+		if (isset($typeDef['elements']) && is_array($typeDef['elements'])) {
+			$elements = 0;
+			$matches = 0;
+			foreach ($typeDef['elements'] as $name => $attrs) {
+				$elements++;
+				if (isset($parameters[$name])) {
+					$this->debug("have parameter named $name");
+					$matches++;
+				} else {
+					$this->debug("do not have parameter named $name");
+				}
+			}
+
+			$this->debug("$matches parameter names match $elements wrapped parameter names");
+			if ($matches == 0) {
+				return false;
+			}
+			return true;
+		}
+
+		// since there are no elements for the type, if the user passed no
+		// parameters, the parameters match wrapped.
+		$this->debug("no elements type $ns:$uqType");
+		return count($parameters) == 0;
+	}
+
 	/**
 	 * serialize PHP values according to a WSDL message definition
+	 * contrary to the method name, this is not limited to RPC
 	 *
 	 * TODO
 	 * - multi-ref serialization
@@ -5379,8 +5457,7 @@ class wsdl extends nusoap_base {
 	 * @return mixed parameters serialized as XML or false on error (e.g. operation not found)
 	 * @access public
 	 */
-	function serializeRPCParameters($operation, $direction, $parameters, $bindingType = 'soap')
-	{
+	function serializeRPCParameters($operation, $direction, $parameters, $bindingType = 'soap') {
 		$this->debug("in serializeRPCParameters: operation=$operation, direction=$direction, XMLSchemaVersion=$this->XMLSchemaVersion, bindingType=$bindingType");
 		$this->appendDebug('parameters=' . $this->varDump($parameters));
 		
@@ -5394,7 +5471,7 @@ class wsdl extends nusoap_base {
 			$this->setError('Unable to retrieve WSDL data for operation: ' . $operation . ' bindingType: ' . $bindingType);
 			return false;
 		}
-		$this->debug('opData:');
+		$this->debug('in serializeRPCParameters: opData:');
 		$this->appendDebug($this->varDump($opData));
 
 		// Get encoding style for output and set to current
@@ -5407,14 +5484,29 @@ class wsdl extends nusoap_base {
 		// set input params
 		$xml = '';
 		if (isset($opData[$direction]['parts']) && sizeof($opData[$direction]['parts']) > 0) {
-			
+			$parts = &$opData[$direction]['parts'];
+			$part_count = sizeof($parts);
+			$style = $opData['style'];
 			$use = $opData[$direction]['use'];
-			$this->debug('have ' . count($opData[$direction]['parts']) . ' part(s) to serialize');
+			$this->debug("have $part_count part(s) to serialize using $style/$use");
 			if (is_array($parameters)) {
 				$parametersArrayType = $this->isArraySimpleOrStruct($parameters);
-				$this->debug('have ' . count($parameters) . ' parameter(s) provided as ' . $parametersArrayType . ' to serialize');
-				foreach($opData[$direction]['parts'] as $name => $type) {
-					$this->debug('serializing part "'.$name.'" of type "'.$type.'"');
+				$parameter_count = count($parameters);
+				$this->debug("have $parameter_count parameter(s) provided as $parametersArrayType to serialize");
+				// check for Microsoft-style wrapped parameters
+				if ($style == 'document' && $use == 'literal' && $part_count == 1 && isset($parts['parameters'])) {
+					// check whether the caller has wrapped the parameters
+					if (($parametersArrayType == 'arrayStruct' || $parameter_count == 0) && !isset($parameters['parameters'])) {
+						// check whether caller's parameters match the wrapped ones
+						if ($this->parametersMatchWrapped($parts['parameters'], $parameters)) {
+							$this->debug("wrap the parameters for the caller");
+							$parameters = array('parameters' => $parameters);
+							$parameter_count = 1;
+						}
+					}
+				}
+				foreach ($parts as $name => $type) {
+					$this->debug("serializing part $name of type $type");
 					// Track encoding style
 					if (isset($opData[$direction]['encodingStyle']) && $encodingStyle != $opData[$direction]['encodingStyle']) {
 						$encodingStyle = $opData[$direction]['encodingStyle'];			
