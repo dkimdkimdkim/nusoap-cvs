@@ -308,7 +308,8 @@ class nusoap_base {
 		while (strpos($this->debug_str, '--')) {
 			$this->debug_str = str_replace('--', '- -', $this->debug_str);
 		}
-    	return "<!--\n" . $this->debug_str . "\n-->";
+		$ret = "<!--\n" . $this->debug_str . "\n-->";
+    	return $ret;
 	}
 
 	/**

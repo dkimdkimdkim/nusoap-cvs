@@ -538,3 +538,8 @@
 
 2007-04-13, version 0.7.2
 - wsdl: wrap parameters if unwrapped values are supplied and WSDL specifies Microsoft-style wrapping
+
+2007-04-16, version 0.7.2
+- nusoap_base: avoid warning in getDebugAsXMLComment
+- nusoap_client: small debug change
+- nusoap_client_mime: set responseData when the root part is found

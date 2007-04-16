@@ -233,6 +233,7 @@ class nusoap_client_mime extends nusoap_client {
 			foreach ($structure->parts as $part) {
 				if (!isset($part->disposition) && (strstr($part->headers['content-type'], 'text/xml'))) {
 					$this->debug('Have root part of type ' . $part->headers['content-type']);
+					$root = $part->body;
 					$return = parent::parseResponse($part->headers, $part->body);
 				} else {
 					$this->debug('Have an attachment of type ' . $part->headers['content-type']);
@@ -245,11 +246,12 @@ class nusoap_client_mime extends nusoap_client {
 			}
 		
 			if (isset($return)) {
+				$this->responseData = $root;
 				return $return;
 			}
 			
 			$this->setError('No root part found in multipart/related content');
-			return;
+			return '';
 		}
 		$this->debug('Not multipart/related');
 		return parent::parseResponse($headers, $data);

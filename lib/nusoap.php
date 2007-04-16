@@ -308,7 +308,8 @@ class nusoap_base {
 		while (strpos($this->debug_str, '--')) {
 			$this->debug_str = str_replace('--', '- -', $this->debug_str);
 		}
-    	return "<!--\n" . $this->debug_str . "\n-->";
+		$ret = "<!--\n" . $this->debug_str . "\n-->";
+    	return $ret;
 	}
 
 	/**
@@ -7369,7 +7370,7 @@ class nusoap_client extends nusoap_base  {
 		$this->debug('Entering parseResponse() for data of length ' . strlen($data) . ' headers:');
 		$this->appendDebug($this->varDump($headers));
 		if (!strstr($headers['content-type'], 'text/xml')) {
-			$this->setError('Response not of type text/xml');
+			$this->setError('Response not of type text/xml: ' . $headers['content-type']);
 			return false;
 		}
 		if (strpos($headers['content-type'], '=')) {
