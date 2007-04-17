@@ -543,3 +543,6 @@
 - nusoap_base: avoid warning in getDebugAsXMLComment
 - nusoap_client: small debug change
 - nusoap_client_mime: set responseData when the root part is found
+
+2007-04-17, version 0.7.2
+- soap_transport_http: improve detection of undefined cURL options (thanks Ingo Fischer)

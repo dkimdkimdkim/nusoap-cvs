@@ -4,13 +4,11 @@
 
 
 /**
-* parses an XML Schema, allows access to it's data, other utility methods
-* no validation... yet.
-* very experimental and limited. As is discussed on XML-DEV, I'm one of the people
-* that just doesn't have time to read the spec(s) thoroughly, and just have a couple of trusty
-* tutorials I refer to :)
+* parses an XML Schema, allows access to it's data, other utility methods.
+* imperfect, no validation... yet, but quite functional.
 *
 * @author   Dietrich Ayala <dietrich@ganx4.com>
+* @author   Scott Nichol <snichol@users.sourceforge.net>
 * @version  $Id$
 * @access   public
 */

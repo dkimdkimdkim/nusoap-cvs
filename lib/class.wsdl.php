@@ -4,9 +4,11 @@
 
 
 /**
-* parses a WSDL file, allows access to it's data, other utility methods
+* parses a WSDL file, allows access to it's data, other utility methods.
+* also builds WSDL structures programmatically.
 * 
 * @author   Dietrich Ayala <dietrich@ganx4.com>
+* @author   Scott Nichol <snichol@users.sourceforge.net>
 * @version  $Id$
 * @access public 
 */

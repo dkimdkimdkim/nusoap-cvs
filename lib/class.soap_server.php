@@ -9,6 +9,7 @@
 * that is capable of receiving messages and returning responses
 *
 * @author   Dietrich Ayala <dietrich@ganx4.com>
+* @author   Scott Nichol <snichol@users.sourceforge.net>
 * @version  $Id$
 * @access   public
 */

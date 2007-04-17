@@ -21,6 +21,12 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+The NuSOAP project home is:
+http://sourceforge.net/projects/nusoap/
+
+The primary support for NuSOAP is the mailing list:
+nusoap-general@lists.sourceforge.net
+
 If you have any questions or comments, please email:
 
 Dietrich Ayala
@@ -59,6 +65,7 @@ $GLOBALS['_transient']['static']['nusoap_base']->globalDebugLevel = 9;
 * nusoap_base
 *
 * @author   Dietrich Ayala <dietrich@ganx4.com>
+* @author   Scott Nichol <snichol@users.sourceforge.net>
 * @version  $Id$
 * @access   public
 */
@@ -1051,13 +1058,11 @@ class soap_fault extends nusoap_fault {
 
 
 /**
-* parses an XML Schema, allows access to it's data, other utility methods
-* no validation... yet.
-* very experimental and limited. As is discussed on XML-DEV, I'm one of the people
-* that just doesn't have time to read the spec(s) thoroughly, and just have a couple of trusty
-* tutorials I refer to :)
+* parses an XML Schema, allows access to it's data, other utility methods.
+* imperfect, no validation... yet, but quite functional.
 *
 * @author   Dietrich Ayala <dietrich@ganx4.com>
+* @author   Scott Nichol <snichol@users.sourceforge.net>
 * @version  $Id$
 * @access   public
 */
@@ -2070,6 +2075,7 @@ class soapval extends nusoap_base {
 * NOTE: PHP must be compiled with the CURL extension for HTTPS support
 *
 * @author   Dietrich Ayala <dietrich@ganx4.com>
+* @author   Scott Nichol <snichol@users.sourceforge.net>
 * @version  $Id$
 * @access public
 */
@@ -2307,23 +2313,29 @@ class soap_transport_http extends nusoap_base {
 			return false;
 		}
 		// Avoid warnings when PHP does not have these options
-		@$CURLOPT_CONNECTIONTIMEOUT = CURLOPT_CONNECTIONTIMEOUT;
-		if ($CURLOPT_CONNECTIONTIMEOUT == 'CURLOPT_CONNECTIONTIMEOUT')
+		if (defined('CURLOPT_CONNECTIONTIMEOUT'))
+			$CURLOPT_CONNECTIONTIMEOUT = CURLOPT_CONNECTIONTIMEOUT;
+		else
 			$CURLOPT_CONNECTIONTIMEOUT = 78;
-		@$CURLOPT_HTTPAUTH = CURLOPT_HTTPAUTH;
-		if ($CURLOPT_HTTPAUTH == 'CURLOPT_HTTPAUTH')
+		if (defined('CURLOPT_HTTPAUTH'))
+			$CURLOPT_HTTPAUTH = CURLOPT_HTTPAUTH;
+		else
 			$CURLOPT_HTTPAUTH = 107;
-		@$CURLOPT_PROXYAUTH = CURLOPT_PROXYAUTH;
-		if ($CURLOPT_PROXYAUTH == 'CURLOPT_PROXYAUTH')
+		if (defined('CURLOPT_PROXYAUTH'))
+			$CURLOPT_PROXYAUTH = CURLOPT_PROXYAUTH;
+		else
 			$CURLOPT_PROXYAUTH = 111;
-		@$CURLAUTH_BASIC = CURLAUTH_BASIC;
-		if ($CURLAUTH_BASIC == 'CURLAUTH_BASIC')
+		if (defined('CURLAUTH_BASIC'))
+			$CURLAUTH_BASIC = CURLAUTH_BASIC;
+		else
 			$CURLAUTH_BASIC = 1;
-		@$CURLAUTH_DIGEST = CURLAUTH_DIGEST;
-		if ($CURLAUTH_DIGEST == 'CURLAUTH_DIGEST')
+		if (defined('CURLAUTH_DIGEST'))
+			$CURLAUTH_DIGEST = CURLAUTH_DIGEST;
+		else
 			$CURLAUTH_DIGEST = 2;
-		@$CURLAUTH_NTLM = CURLAUTH_NTLM;
-		if ($CURLAUTH_NTLM == 'CURLAUTH_NTLM')
+		if (defined('CURLAUTH_NTLM'))
+			$CURLAUTH_NTLM = CURLAUTH_NTLM;
+		else
 			$CURLAUTH_NTLM = 8;
 
 		$this->debug('connect using cURL');
@@ -3314,6 +3326,7 @@ class soap_transport_http extends nusoap_base {
 * that is capable of receiving messages and returning responses
 *
 * @author   Dietrich Ayala <dietrich@ganx4.com>
+* @author   Scott Nichol <snichol@users.sourceforge.net>
 * @version  $Id$
 * @access   public
 */
@@ -4370,9 +4383,11 @@ class soap_server extends nusoap_server {
 
 
 /**
-* parses a WSDL file, allows access to it's data, other utility methods
+* parses a WSDL file, allows access to it's data, other utility methods.
+* also builds WSDL structures programmatically.
 * 
 * @author   Dietrich Ayala <dietrich@ganx4.com>
+* @author   Scott Nichol <snichol@users.sourceforge.net>
 * @version  $Id$
 * @access public 
 */
@@ -6263,6 +6278,7 @@ class wsdl extends nusoap_base {
 * nusoap_parser class parses SOAP XML messages into native PHP values
 *
 * @author   Dietrich Ayala <dietrich@ganx4.com>
+* @author   Scott Nichol <snichol@users.sourceforge.net>
 * @version  $Id$
 * @access   public
 */
@@ -6909,6 +6925,7 @@ class soap_parser extends nusoap_parser {
 * unset($soapclient);
 *
 * @author   Dietrich Ayala <dietrich@ganx4.com>
+* @author   Scott Nichol <snichol@users.sourceforge.net>
 * @version  $Id$
 * @access   public
 */

@@ -1,11 +1,16 @@
 <?php
+/*
+The NuSOAP project home is:
+http://sourceforge.net/projects/nusoap/
 
-
+The primary support for NuSOAP is the mailing list:
+nusoap-general@lists.sourceforge.net
+*/
 
 /**
 * caches instances of the wsdl class
 * 
-* @author   Scott Nichol <snichol@computer.org>
+* @author   Scott Nichol <snichol@users.sourceforge.net>
 * @author	Ingo Fischer <ingo@apollon.de>
 * @version  $Id$
 * @access public 

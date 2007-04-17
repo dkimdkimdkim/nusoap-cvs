@@ -8,6 +8,7 @@
 * NOTE: PHP must be compiled with the CURL extension for HTTPS support
 *
 * @author   Dietrich Ayala <dietrich@ganx4.com>
+* @author   Scott Nichol <snichol@users.sourceforge.net>
 * @version  $Id$
 * @access public
 */
@@ -245,23 +246,29 @@ class soap_transport_http extends nusoap_base {
 			return false;
 		}
 		// Avoid warnings when PHP does not have these options
-		@$CURLOPT_CONNECTIONTIMEOUT = CURLOPT_CONNECTIONTIMEOUT;
-		if ($CURLOPT_CONNECTIONTIMEOUT == 'CURLOPT_CONNECTIONTIMEOUT')
+		if (defined('CURLOPT_CONNECTIONTIMEOUT'))
+			$CURLOPT_CONNECTIONTIMEOUT = CURLOPT_CONNECTIONTIMEOUT;
+		else
 			$CURLOPT_CONNECTIONTIMEOUT = 78;
-		@$CURLOPT_HTTPAUTH = CURLOPT_HTTPAUTH;
-		if ($CURLOPT_HTTPAUTH == 'CURLOPT_HTTPAUTH')
+		if (defined('CURLOPT_HTTPAUTH'))
+			$CURLOPT_HTTPAUTH = CURLOPT_HTTPAUTH;
+		else
 			$CURLOPT_HTTPAUTH = 107;
-		@$CURLOPT_PROXYAUTH = CURLOPT_PROXYAUTH;
-		if ($CURLOPT_PROXYAUTH == 'CURLOPT_PROXYAUTH')
+		if (defined('CURLOPT_PROXYAUTH'))
+			$CURLOPT_PROXYAUTH = CURLOPT_PROXYAUTH;
+		else
 			$CURLOPT_PROXYAUTH = 111;
-		@$CURLAUTH_BASIC = CURLAUTH_BASIC;
-		if ($CURLAUTH_BASIC == 'CURLAUTH_BASIC')
+		if (defined('CURLAUTH_BASIC'))
+			$CURLAUTH_BASIC = CURLAUTH_BASIC;
+		else
 			$CURLAUTH_BASIC = 1;
-		@$CURLAUTH_DIGEST = CURLAUTH_DIGEST;
-		if ($CURLAUTH_DIGEST == 'CURLAUTH_DIGEST')
+		if (defined('CURLAUTH_DIGEST'))
+			$CURLAUTH_DIGEST = CURLAUTH_DIGEST;
+		else
 			$CURLAUTH_DIGEST = 2;
-		@$CURLAUTH_NTLM = CURLAUTH_NTLM;
-		if ($CURLAUTH_NTLM == 'CURLAUTH_NTLM')
+		if (defined('CURLAUTH_NTLM'))
+			$CURLAUTH_NTLM = CURLAUTH_NTLM;
+		else
 			$CURLAUTH_NTLM = 8;
 
 		$this->debug('connect using cURL');
