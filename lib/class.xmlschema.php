@@ -151,6 +151,21 @@ class nusoap_xmlschema extends nusoap_base  {
 	}
 
 	/**
+	 * gets a type name for an unnamed type
+	 *
+	 * @param	string	Element name
+	 * @return	string	A type name for an unnamed type
+	 * @access	private
+	 */
+	function CreateTypeName($ename) {
+		$scope = '';
+		for ($i = 0; $i < count($this->complexTypeStack); $i++) {
+			$scope .= $this->complexTypeStack[$i] . '_';
+		}
+		return $scope . $ename . '_ContainedType';
+	}
+	
+	/**
 	* start-element handler
 	*
 	* @param    string $parser XML parser object
@@ -282,6 +297,8 @@ class nusoap_xmlschema extends nusoap_base  {
 			case 'complexType':
 				array_push($this->complexTypeStack, $this->currentComplexType);
 				if(isset($attrs['name'])){
+					// TODO: what is the scope of named complexTypes that appear
+					//       nested within other c complexTypes?
 					$this->xdebug('processing named complexType '.$attrs['name']);
 					//$this->currentElement = false;
 					$this->currentComplexType = $attrs['name'];
@@ -300,9 +317,10 @@ class nusoap_xmlschema extends nusoap_base  {
 					} else {
 						$this->complexTypes[$this->currentComplexType]['phpType'] = 'struct';
 					}
-				}else{
-					$this->xdebug('processing unnamed complexType for element '.$this->currentElement);
-					$this->currentComplexType = $this->currentElement . '_ContainedType';
+				} else {
+					$name = $this->CreateTypeName($this->currentElement);
+					$this->xdebug('processing unnamed complexType for element ' . $this->currentElement . ' named ' . $name);
+					$this->currentComplexType = $name;
 					//$this->currentElement = false;
 					$this->complexTypes[$this->currentComplexType] = $attrs;
 					$this->complexTypes[$this->currentComplexType]['typeClass'] = 'complexType';
@@ -352,9 +370,10 @@ class nusoap_xmlschema extends nusoap_base  {
 					$this->currentElement = "ref to ".$attrs['ref'];
 					$ename = $this->getLocalPart($attrs['ref']);
 				} else {
-					$this->xdebug("processing untyped element ".$attrs['name']);
+					$type = $this->CreateTypeName($this->currentComplexType . '_' . $attrs['name']);
+					$this->xdebug("processing untyped element " . $attrs['name'] . ' type ' . $type);
 					$this->currentElement = $attrs['name'];
-					$attrs['type'] = $this->schemaTargetNamespace . ':' . $attrs['name'] . '_ContainedType';
+					$attrs['type'] = $this->schemaTargetNamespace . ':' . $type;
 					$ename = $attrs['name'];
 				}
 				if (isset($ename) && $this->currentComplexType) {
@@ -429,8 +448,9 @@ class nusoap_xmlschema extends nusoap_base  {
 					$this->simpleTypes[ $attrs['name'] ]['typeClass'] = 'simpleType';
 					$this->simpleTypes[ $attrs['name'] ]['phpType'] = 'scalar';
 				} else {
-					$this->xdebug('processing unnamed simpleType for element '.$this->currentElement);
-					$this->currentSimpleType = $this->currentElement . '_ContainedType';
+					$name = $this->CreateTypeName($this->currentComplexType . '_' . $this->currentElement);
+					$this->xdebug('processing unnamed simpleType for element ' . $this->currentElement . ' named ' . $name);
+					$this->currentSimpleType = $name;
 					//$this->currentElement = false;
 					$this->simpleTypes[$this->currentSimpleType] = $attrs;
 					$this->simpleTypes[$this->currentSimpleType]['phpType'] = 'scalar';

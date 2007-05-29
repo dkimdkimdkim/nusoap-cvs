@@ -684,7 +684,11 @@ class nusoap_client extends nusoap_base  {
 	function getProxy() {
 		$r = rand();
 		$evalStr = $this->_getProxyClassCode($r);
-		//$this->debug("proxy class: $evalStr";
+		//$this->debug("proxy class: $evalStr");
+		if ($this->getError()) {
+			$this->debug("Error from _getProxyClassCode, so return NULL");
+			return null;
+		}
 		// eval the class
 		eval($evalStr);
 		// instantiate proxy object
@@ -715,7 +719,7 @@ class nusoap_client extends nusoap_base  {
 		$proxy->decode_utf8 = $this->decode_utf8;
 		$proxy->curl_options = $this->curl_options;
 		$proxy->bindingType = $this->bindingType;
-		$proxy->useCURL = $this->useCURL;
+		$proxy->use_curl = $this->use_curl;
 		return $proxy;
 	}
 
@@ -731,10 +735,14 @@ class nusoap_client extends nusoap_base  {
 		if ($this->endpointType != 'wsdl') {
 			$evalStr = 'A proxy can only be created for a WSDL client';
 			$this->setError($evalStr);
+			$evalStr = "echo \"$evalStr\";";
 			return $evalStr;
 		}
 		if ($this->endpointType == 'wsdl' && is_null($this->wsdl)) {
 			$this->loadWSDL();
+			if ($this->getError()) {
+				return "echo \"" . $this->getError() . "\";";
+			}
 		}
 		$evalStr = '';
 		foreach ($this->operations as $operation => $opData) {

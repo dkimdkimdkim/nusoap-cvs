@@ -546,3 +546,11 @@
 
 2007-04-17, version 0.7.2
 - soap_transport_http: improve detection of undefined cURL options (thanks Ingo Fischer)
+
+2007-05-28, version 0.7.2
+- soap_transport_http: support digest authentication opaque feature (cf. RFC 2617) (thanks Daniel Lacroix)
+- soap_transport_http: check safe_mode and open_basedir before setting CURLOPT_FOLLOWLOCATION
+- soap_transport_http: skip "HTTP/1.0 200 Connection established" header when cURL returns it (thanks Raimund Jacob)
+- nusoap_client: improve handling when getProxy is called and WSDL is not being used
+- nusoap_base: add comments about which specifications are used/implemented by NuSOAP
+- nusoap_xmlschema: create names for unnamed types that are unique by scope within XML Schema

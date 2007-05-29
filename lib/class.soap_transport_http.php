@@ -280,7 +280,15 @@ class soap_transport_http extends nusoap_base {
 		$hostURL .= $this->path;
 		$this->setCurlOption(CURLOPT_URL, $hostURL);
 		// follow location headers (re-directs)
-		$this->setCurlOption(CURLOPT_FOLLOWLOCATION, 1);
+		if (ini_get('safe_mode') || ini_get('open_basedir')) {
+			$this->debug('safe_mode or open_basedir set, so do not set CURLOPT_FOLLOWLOCATION');
+			$this->debug('safe_mode = ');
+			$this->appendDebug($this->varDump(ini_get('safe_mode')));
+			$this->debug('open_basedir = ');
+			$this->appendDebug($this->varDump(ini_get('open_basedir')));
+		} else {
+			$this->setCurlOption(CURLOPT_FOLLOWLOCATION, 1);
+		}
 		// ask for headers in the response output
 		$this->setCurlOption(CURLOPT_HEADER, 1);
 		// ask for the response output as the return value
@@ -505,7 +513,12 @@ class soap_transport_http extends nusoap_base {
 	
 				$hashedDigest = md5($unhashedDigest);
 	
-				$this->setHeader('Authorization', 'Digest username="' . $username . '", realm="' . $digestRequest['realm'] . '", nonce="' . $nonce . '", uri="' . $this->digest_uri . '", cnonce="' . $cnonce . '", nc=' . sprintf("%08x", $digestRequest['nc']) . ', qop="' . $digestRequest['qop'] . '", response="' . $hashedDigest . '"');
+				$opaque = '';	
+				if (isset($digestRequest['opaque'])) {
+					$opaque = ', opaque="' . $digestRequest['opaque'] . '"';
+				}
+
+				$this->setHeader('Authorization', 'Digest username="' . $username . '", realm="' . $digestRequest['realm'] . '", nonce="' . $nonce . '", uri="' . $this->digest_uri . $opaque . '", cnonce="' . $cnonce . '", nc=' . sprintf("%08x", $digestRequest['nc']) . ', qop="' . $digestRequest['qop'] . '", response="' . $hashedDigest . '"');
 			}
 		} elseif ($authtype == 'certificate') {
 			$this->certRequest = $certRequest;
@@ -579,6 +592,32 @@ class soap_transport_http extends nusoap_base {
 		}
 	}
 	
+
+	/**
+	 * Test if the given string starts with a header that is to be skipped.
+	 * Skippable headers result from chunked transfer and proxy requests.
+	 *
+	 * @param	string $data The string to check.
+	 * @returns	boolean	Whether a skippable header was found.
+	 * @access	private
+	 */
+	function isSkippableCurlHeader(&$data) {
+		$skipHeaders = array(	'HTTP/1.1 100',
+								'HTTP/1.0 301',
+								'HTTP/1.1 301',
+								'HTTP/1.0 302',
+								'HTTP/1.1 302',
+								'HTTP/1.0 401',
+								'HTTP/1.1 401',
+								'HTTP/1.0 200 Connection established');
+		foreach ($skipHeaders as $hd) {
+			$prefix = substr($data, 0, strlen($hd));
+			if ($prefix == $hd) return true;
+		}
+
+		return false;
+	}
+
 	/**
 	* decode a string that is encoded w/ "chunked' transfer encoding
  	* as defined in RFC2068 19.4.6
@@ -789,8 +828,8 @@ class soap_transport_http extends nusoap_base {
 					$lb = "\n";
 				}
 			}
-			// remove 100 header
-			if(isset($lb) && ereg('^HTTP/1.1 100',$data)){
+			// remove skippable headers
+			if (isset($lb) && ereg('^HTTP/1.1 100',$data)) {
 				unset($lb);
 				$data = '';
 			}//
@@ -942,10 +981,10 @@ class soap_transport_http extends nusoap_base {
 		$this->debug('No cURL error, closing cURL');
 		curl_close($this->ch);
 		
-		// try removing 100, 301, 401 header(s)
+		// try removing skippable headers
 		$savedata = $data;
-		while (ereg('^HTTP/1.1 100',$data) || ereg('^HTTP/1.1 301',$data) || ereg('^HTTP/1.1 401',$data)) {
-			$this->debug("Found HTTP/1.1 header to skip");
+		while (isSkippableCurlHeader($data)) {
+			$this->debug("Found HTTP header to skip");
 			if ($pos = strpos($data,"\r\n\r\n")) {
 				$data = ltrim(substr($data,$pos));
 			} elseif($pos = strpos($data,"\n\n") ) {
@@ -954,7 +993,7 @@ class soap_transport_http extends nusoap_base {
 		}
 
 		if ($data == '') {
-			// just remove 100 header(s)
+			// have nothing left; just remove 100 header(s)
 			$data = $savedata;
 			while (ereg('^HTTP/1.1 100',$data)) {
 				if ($pos = strpos($data,"\r\n\r\n")) {
@@ -1010,8 +1049,8 @@ class soap_transport_http extends nusoap_base {
 		$http_reason = count($arr) > 2 ? $arr[2] : '';
 
  		// see if we need to resend the request with http digest authentication
- 		if (isset($this->incoming_headers['location']) && $http_status == 301) {
- 			$this->debug("Got 301 $http_reason with Location: " . $this->incoming_headers['location']);
+ 		if (isset($this->incoming_headers['location']) && ($http_status == 301 || $http_status == 302)) {
+ 			$this->debug("Got $http_status $http_reason with Location: " . $this->incoming_headers['location']);
  			$this->setURL($this->incoming_headers['location']);
 			$this->tryagain = true;
 			return false;
@@ -1121,10 +1160,23 @@ class soap_transport_http extends nusoap_base {
 		return $data;
 	}
 
+	/**
+	 * sets the content-type for the SOAP message to be sent
+	 *
+	 * @param	string $type the content type, MIME style
+	 * @param	mixed $charset character set used for encoding (or false)
+	 * @access	public
+	 */
 	function setContentType($type, $charset = false) {
 		$this->setHeader('Content-Type', $type . ($charset ? '; charset=' . $charset : ''));
 	}
 
+	/**
+	 * specifies that an HTTP persistent connection should be used
+	 *
+	 * @return	boolean whether the request was honored by this method.
+	 * @access	public
+	 */
 	function usePersistentConnection(){
 		if (isset($this->outgoing_headers['Accept-Encoding'])) {
 			return false;

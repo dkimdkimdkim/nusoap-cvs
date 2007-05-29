@@ -38,6 +38,20 @@ http://www.nusphere.com
 
 */
 
+/*
+ *	Some of the standards implmented in whole or part by NuSOAP:
+ *
+ *	SOAP 1.1 (http://www.w3.org/TR/2000/NOTE-SOAP-20000508/)
+ *	WSDL 1.1 (http://www.w3.org/TR/2001/NOTE-wsdl-20010315)
+ *	SOAP Messages With Attachments (http://www.w3.org/TR/SOAP-attachments)
+ *	XML 1.0 (http://www.w3.org/TR/2006/REC-xml-20060816/)
+ *	Namespaces in XML 1.0 (http://www.w3.org/TR/2006/REC-xml-names-20060816/)
+ *	XML Schema 1.0 (http://www.w3.org/TR/xmlschema-0/)
+ *	RFC 2045 Multipurpose Internet Mail Extensions (MIME) Part One: Format of Internet Message Bodies
+ *	RFC 2068 Hypertext Transfer Protocol -- HTTP/1.1
+ *	RFC 2617 HTTP Authentication: Basic and Digest Access Authentication
+ */
+
 /* load classes
 
 // necessary classes
@@ -1205,6 +1219,21 @@ class nusoap_xmlschema extends nusoap_base  {
 	}
 
 	/**
+	 * gets a type name for an unnamed type
+	 *
+	 * @param	string	Element name
+	 * @return	string	A type name for an unnamed type
+	 * @access	private
+	 */
+	function CreateTypeName($ename) {
+		$scope = '';
+		for ($i = 0; $i < count($this->complexTypeStack); $i++) {
+			$scope .= $this->complexTypeStack[$i] . '_';
+		}
+		return $scope . $ename . '_ContainedType';
+	}
+	
+	/**
 	* start-element handler
 	*
 	* @param    string $parser XML parser object
@@ -1336,6 +1365,8 @@ class nusoap_xmlschema extends nusoap_base  {
 			case 'complexType':
 				array_push($this->complexTypeStack, $this->currentComplexType);
 				if(isset($attrs['name'])){
+					// TODO: what is the scope of named complexTypes that appear
+					//       nested within other c complexTypes?
 					$this->xdebug('processing named complexType '.$attrs['name']);
 					//$this->currentElement = false;
 					$this->currentComplexType = $attrs['name'];
@@ -1354,9 +1385,10 @@ class nusoap_xmlschema extends nusoap_base  {
 					} else {
 						$this->complexTypes[$this->currentComplexType]['phpType'] = 'struct';
 					}
-				}else{
-					$this->xdebug('processing unnamed complexType for element '.$this->currentElement);
-					$this->currentComplexType = $this->currentElement . '_ContainedType';
+				} else {
+					$name = $this->CreateTypeName($this->currentElement);
+					$this->xdebug('processing unnamed complexType for element ' . $this->currentElement . ' named ' . $name);
+					$this->currentComplexType = $name;
 					//$this->currentElement = false;
 					$this->complexTypes[$this->currentComplexType] = $attrs;
 					$this->complexTypes[$this->currentComplexType]['typeClass'] = 'complexType';
@@ -1406,9 +1438,10 @@ class nusoap_xmlschema extends nusoap_base  {
 					$this->currentElement = "ref to ".$attrs['ref'];
 					$ename = $this->getLocalPart($attrs['ref']);
 				} else {
-					$this->xdebug("processing untyped element ".$attrs['name']);
+					$type = $this->CreateTypeName($this->currentComplexType . '_' . $attrs['name']);
+					$this->xdebug("processing untyped element " . $attrs['name'] . ' type ' . $type);
 					$this->currentElement = $attrs['name'];
-					$attrs['type'] = $this->schemaTargetNamespace . ':' . $attrs['name'] . '_ContainedType';
+					$attrs['type'] = $this->schemaTargetNamespace . ':' . $type;
 					$ename = $attrs['name'];
 				}
 				if (isset($ename) && $this->currentComplexType) {
@@ -1483,8 +1516,9 @@ class nusoap_xmlschema extends nusoap_base  {
 					$this->simpleTypes[ $attrs['name'] ]['typeClass'] = 'simpleType';
 					$this->simpleTypes[ $attrs['name'] ]['phpType'] = 'scalar';
 				} else {
-					$this->xdebug('processing unnamed simpleType for element '.$this->currentElement);
-					$this->currentSimpleType = $this->currentElement . '_ContainedType';
+					$name = $this->CreateTypeName($this->currentComplexType . '_' . $this->currentElement);
+					$this->xdebug('processing unnamed simpleType for element ' . $this->currentElement . ' named ' . $name);
+					$this->currentSimpleType = $name;
 					//$this->currentElement = false;
 					$this->simpleTypes[$this->currentSimpleType] = $attrs;
 					$this->simpleTypes[$this->currentSimpleType]['phpType'] = 'scalar';
@@ -2347,7 +2381,15 @@ class soap_transport_http extends nusoap_base {
 		$hostURL .= $this->path;
 		$this->setCurlOption(CURLOPT_URL, $hostURL);
 		// follow location headers (re-directs)
-		$this->setCurlOption(CURLOPT_FOLLOWLOCATION, 1);
+		if (ini_get('safe_mode') || ini_get('open_basedir')) {
+			$this->debug('safe_mode or open_basedir set, so do not set CURLOPT_FOLLOWLOCATION');
+			$this->debug('safe_mode = ');
+			$this->appendDebug($this->varDump(ini_get('safe_mode')));
+			$this->debug('open_basedir = ');
+			$this->appendDebug($this->varDump(ini_get('open_basedir')));
+		} else {
+			$this->setCurlOption(CURLOPT_FOLLOWLOCATION, 1);
+		}
 		// ask for headers in the response output
 		$this->setCurlOption(CURLOPT_HEADER, 1);
 		// ask for the response output as the return value
@@ -2572,7 +2614,12 @@ class soap_transport_http extends nusoap_base {
 	
 				$hashedDigest = md5($unhashedDigest);
 	
-				$this->setHeader('Authorization', 'Digest username="' . $username . '", realm="' . $digestRequest['realm'] . '", nonce="' . $nonce . '", uri="' . $this->digest_uri . '", cnonce="' . $cnonce . '", nc=' . sprintf("%08x", $digestRequest['nc']) . ', qop="' . $digestRequest['qop'] . '", response="' . $hashedDigest . '"');
+				$opaque = '';	
+				if (isset($digestRequest['opaque'])) {
+					$opaque = ', opaque="' . $digestRequest['opaque'] . '"';
+				}
+
+				$this->setHeader('Authorization', 'Digest username="' . $username . '", realm="' . $digestRequest['realm'] . '", nonce="' . $nonce . '", uri="' . $this->digest_uri . $opaque . '", cnonce="' . $cnonce . '", nc=' . sprintf("%08x", $digestRequest['nc']) . ', qop="' . $digestRequest['qop'] . '", response="' . $hashedDigest . '"');
 			}
 		} elseif ($authtype == 'certificate') {
 			$this->certRequest = $certRequest;
@@ -2646,6 +2693,32 @@ class soap_transport_http extends nusoap_base {
 		}
 	}
 	
+
+	/**
+	 * Test if the given string starts with a header that is to be skipped.
+	 * Skippable headers result from chunked transfer and proxy requests.
+	 *
+	 * @param	string $data The string to check.
+	 * @returns	boolean	Whether a skippable header was found.
+	 * @access	private
+	 */
+	function isSkippableCurlHeader(&$data) {
+		$skipHeaders = array(	'HTTP/1.1 100',
+								'HTTP/1.0 301',
+								'HTTP/1.1 301',
+								'HTTP/1.0 302',
+								'HTTP/1.1 302',
+								'HTTP/1.0 401',
+								'HTTP/1.1 401',
+								'HTTP/1.0 200 Connection established');
+		foreach ($skipHeaders as $hd) {
+			$prefix = substr($data, 0, strlen($hd));
+			if ($prefix == $hd) return true;
+		}
+
+		return false;
+	}
+
 	/**
 	* decode a string that is encoded w/ "chunked' transfer encoding
  	* as defined in RFC2068 19.4.6
@@ -2856,8 +2929,8 @@ class soap_transport_http extends nusoap_base {
 					$lb = "\n";
 				}
 			}
-			// remove 100 header
-			if(isset($lb) && ereg('^HTTP/1.1 100',$data)){
+			// remove 100 headers
+			if (isset($lb) && ereg('^HTTP/1.1 100',$data)) {
 				unset($lb);
 				$data = '';
 			}//
@@ -3009,10 +3082,10 @@ class soap_transport_http extends nusoap_base {
 		$this->debug('No cURL error, closing cURL');
 		curl_close($this->ch);
 		
-		// try removing 100, 301, 401 header(s)
+		// try removing skippable headers
 		$savedata = $data;
-		while (ereg('^HTTP/1.1 100',$data) || ereg('^HTTP/1.1 301',$data) || ereg('^HTTP/1.1 401',$data)) {
-			$this->debug("Found HTTP/1.1 header to skip");
+		while (isSkippableCurlHeader($data)) {
+			$this->debug("Found HTTP header to skip");
 			if ($pos = strpos($data,"\r\n\r\n")) {
 				$data = ltrim(substr($data,$pos));
 			} elseif($pos = strpos($data,"\n\n") ) {
@@ -3021,7 +3094,7 @@ class soap_transport_http extends nusoap_base {
 		}
 
 		if ($data == '') {
-			// just remove 100 header(s)
+			// have nothing left; just remove 100 header(s)
 			$data = $savedata;
 			while (ereg('^HTTP/1.1 100',$data)) {
 				if ($pos = strpos($data,"\r\n\r\n")) {
@@ -3077,8 +3150,8 @@ class soap_transport_http extends nusoap_base {
 		$http_reason = count($arr) > 2 ? $arr[2] : '';
 
  		// see if we need to resend the request with http digest authentication
- 		if (isset($this->incoming_headers['location']) && $http_status == 301) {
- 			$this->debug("Got 301 $http_reason with Location: " . $this->incoming_headers['location']);
+ 		if (isset($this->incoming_headers['location']) && ($http_status == 301 || $http_status == 302)) {
+ 			$this->debug("Got $http_status $http_reason with Location: " . $this->incoming_headers['location']);
  			$this->setURL($this->incoming_headers['location']);
 			$this->tryagain = true;
 			return false;
@@ -3188,10 +3261,23 @@ class soap_transport_http extends nusoap_base {
 		return $data;
 	}
 
+	/**
+	 * sets the content-type for the SOAP message to be sent
+	 *
+	 * @param	string $type the content type, MIME style
+	 * @param	mixed $charset character set used for encoding (or false)
+	 * @access	public
+	 */
 	function setContentType($type, $charset = false) {
 		$this->setHeader('Content-Type', $type . ($charset ? '; charset=' . $charset : ''));
 	}
 
+	/**
+	 * specifies that an HTTP persistent connection should be used
+	 *
+	 * @return	boolean whether the request was honored by this method.
+	 * @access	public
+	 */
 	function usePersistentConnection(){
 		if (isset($this->outgoing_headers['Accept-Encoding'])) {
 			return false;
@@ -7590,7 +7676,11 @@ class nusoap_client extends nusoap_base  {
 	function getProxy() {
 		$r = rand();
 		$evalStr = $this->_getProxyClassCode($r);
-		//$this->debug("proxy class: $evalStr";
+		//$this->debug("proxy class: $evalStr");
+		if ($this->getError()) {
+			$this->debug("Error from _getProxyClassCode, so return NULL");
+			return null;
+		}
 		// eval the class
 		eval($evalStr);
 		// instantiate proxy object
@@ -7621,7 +7711,7 @@ class nusoap_client extends nusoap_base  {
 		$proxy->decode_utf8 = $this->decode_utf8;
 		$proxy->curl_options = $this->curl_options;
 		$proxy->bindingType = $this->bindingType;
-		$proxy->useCURL = $this->useCURL;
+		$proxy->use_curl = $this->use_curl;
 		return $proxy;
 	}
 
@@ -7637,10 +7727,14 @@ class nusoap_client extends nusoap_base  {
 		if ($this->endpointType != 'wsdl') {
 			$evalStr = 'A proxy can only be created for a WSDL client';
 			$this->setError($evalStr);
+			$evalStr = "echo \"$evalStr\";";
 			return $evalStr;
 		}
 		if ($this->endpointType == 'wsdl' && is_null($this->wsdl)) {
 			$this->loadWSDL();
+			if ($this->getError()) {
+				return "echo \"" . $this->getError() . "\";";
+			}
 		}
 		$evalStr = '';
 		foreach ($this->operations as $operation => $opData) {
