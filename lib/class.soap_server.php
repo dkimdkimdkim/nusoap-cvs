@@ -620,11 +620,15 @@ class nusoap_server extends nusoap_base {
 			$this->debug('got a(n) '.gettype($this->methodreturn).' from method');
 			$this->debug('serializing return value');
 			if($this->wsdl){
-				// weak attempt at supporting multiple output params
-				if(sizeof($this->opData['output']['parts']) > 1){
+				if (sizeof($this->opData['output']['parts']) > 1) {
+					$this->debug('more than one output part, so use the method return unchanged');
 			    	$opParams = $this->methodreturn;
-			    } else {
-			    	// TODO: is this really necessary?
+			    } elseif (sizeof($this->opData['output']['parts']) == 1) {
+					$this->debug('exactly one output part, so wrap the method return in a simple array');
+					// TODO: verify that it is not already wrapped!
+			    	//foreach ($this->opData['output']['parts'] as $name => $type) {
+					//	$this->debug('wrap in element named ' . $name);
+			    	//}
 			    	$opParams = array($this->methodreturn);
 			    }
 			    $return_val = $this->wsdl->serializeRPCParameters($this->methodname,'output',$opParams);

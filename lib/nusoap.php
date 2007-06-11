@@ -4023,11 +4023,15 @@ class nusoap_server extends nusoap_base {
 			$this->debug('got a(n) '.gettype($this->methodreturn).' from method');
 			$this->debug('serializing return value');
 			if($this->wsdl){
-				// weak attempt at supporting multiple output params
-				if(sizeof($this->opData['output']['parts']) > 1){
+				if (sizeof($this->opData['output']['parts']) > 1) {
+					$this->debug('more than one output part, so use the method return unchanged');
 			    	$opParams = $this->methodreturn;
-			    } else {
-			    	// TODO: is this really necessary?
+			    } elseif (sizeof($this->opData['output']['parts']) == 1) {
+					$this->debug('exactly one output part, so wrap the method return in a simple array');
+					// TODO: verify that it is not already wrapped!
+			    	//foreach ($this->opData['output']['parts'] as $name => $type) {
+					//	$this->debug('wrap in element named ' . $name);
+			    	//}
 			    	$opParams = array($this->methodreturn);
 			    }
 			    $return_val = $this->wsdl->serializeRPCParameters($this->methodname,'output',$opParams);
@@ -5168,8 +5172,8 @@ class wsdl extends nusoap_base {
 			for ($i = 0; $i < count($this->schemas[$ns]); $i++) {
 				$xs = &$this->schemas[$ns][$i];
 				$t = $xs->getTypeDef($type);
-				$this->appendDebug($xs->getDebug());
-				$xs->clearDebug();
+				//$this->appendDebug($xs->getDebug());
+				//$xs->clearDebug();
 				if ($t) {
 					if (!isset($t['phpType'])) {
 						// get info for type to tack onto the element
@@ -5476,7 +5480,7 @@ class wsdl extends nusoap_base {
 	 * @return boolean whether they parameters are unwrapped (and should be wrapped)
 	 * @accees private
 	 */
-	function parametersMatchWrapped($type, $parameters) {
+	function parametersMatchWrapped($type, &$parameters) {
 		$this->debug("in parametersMatchWrapped type=$type, parameters=");
 		$this->appendDebug($this->varDump($parameters));
 
@@ -5521,17 +5525,27 @@ class wsdl extends nusoap_base {
 		if (isset($typeDef['elements']) && is_array($typeDef['elements'])) {
 			$elements = 0;
 			$matches = 0;
+			$change = false;
+			if ($this->isArraySimpleOrStruct($parameters) == 'arraySimple' && count($parameters) == count($typeDef['elements'])) {
+				$this->debug("in parametersMatchWrapped: (wrapped return value kludge) correct number of elements in simple array, so change array and wrap");
+				$change = true;
+			}
 			foreach ($typeDef['elements'] as $name => $attrs) {
-				$elements++;
-				if (isset($parameters[$name])) {
-					$this->debug("have parameter named $name");
+				if ($change) {
+					$this->debug("in parametersMatchWrapped: change parameter $element to name $name");
+					$parameters[$name] = $parameters[$elements];
+					unset($paramters[$elements]);
+					$matches++;
+				} elseif (isset($parameters[$name])) {
+					$this->debug("in parametersMatchWrapped: have parameter named $name");
 					$matches++;
 				} else {
-					$this->debug("do not have parameter named $name");
+					$this->debug("in parametersMatchWrapped: do not have parameter named $name");
 				}
+				$elements++;
 			}
 
-			$this->debug("$matches parameter names match $elements wrapped parameter names");
+			$this->debug("in parametersMatchWrapped: $matches parameter names match $elements wrapped parameter names");
 			if ($matches == 0) {
 				return false;
 			}
@@ -5540,7 +5554,7 @@ class wsdl extends nusoap_base {
 
 		// since there are no elements for the type, if the user passed no
 		// parameters, the parameters match wrapped.
-		$this->debug("no elements type $ns:$uqType");
+		$this->debug("in parametersMatchWrapped: no elements type $ns:$uqType");
 		return count($parameters) == 0;
 	}
 
@@ -5597,11 +5611,11 @@ class wsdl extends nusoap_base {
 				$this->debug("have $parameter_count parameter(s) provided as $parametersArrayType to serialize");
 				// check for Microsoft-style wrapped parameters
 				if ($style == 'document' && $use == 'literal' && $part_count == 1 && isset($parts['parameters'])) {
-					// check whether the caller has wrapped the parameters
-					if (($parametersArrayType == 'arrayStruct' || $parameter_count == 0) && !isset($parameters['parameters'])) {
-						// check whether caller's parameters match the wrapped ones
+					$this->debug('check whether the caller has wrapped the parameters');
+					if ((($parametersArrayType == 'arrayStruct' || $parameter_count == 0) && !isset($parameters['parameters'])) || ($direction == 'output' && $parametersArrayType == 'arraySimple' && $parameter_count == 1)) {
+						$this->debug('check whether caller\'s parameters match the wrapped ones');
 						if ($this->parametersMatchWrapped($parts['parameters'], $parameters)) {
-							$this->debug("wrap the parameters for the caller");
+							$this->debug('wrap the parameters for the caller');
 							$parameters = array('parameters' => $parameters);
 							$parameter_count = 1;
 						}

@@ -554,3 +554,6 @@
 - nusoap_client: improve handling when getProxy is called and WSDL is not being used
 - nusoap_base: add comments about which specifications are used/implemented by NuSOAP
 - nusoap_xmlschema: create names for unnamed types that are unique by scope within XML Schema
+
+2007-06-11, version 0.7.2
+- wsdl: wrap return value if unwrapped value is supplied and WSDL specifies Microsoft-style wrapping
