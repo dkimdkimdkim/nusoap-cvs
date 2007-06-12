@@ -3084,7 +3084,7 @@ class soap_transport_http extends nusoap_base {
 		
 		// try removing skippable headers
 		$savedata = $data;
-		while (isSkippableCurlHeader($data)) {
+		while ($this->isSkippableCurlHeader($data)) {
 			$this->debug("Found HTTP header to skip");
 			if ($pos = strpos($data,"\r\n\r\n")) {
 				$data = ltrim(substr($data,$pos));

@@ -828,7 +828,7 @@ class soap_transport_http extends nusoap_base {
 					$lb = "\n";
 				}
 			}
-			// remove skippable headers
+			// remove 100 headers
 			if (isset($lb) && ereg('^HTTP/1.1 100',$data)) {
 				unset($lb);
 				$data = '';
@@ -983,7 +983,7 @@ class soap_transport_http extends nusoap_base {
 		
 		// try removing skippable headers
 		$savedata = $data;
-		while (isSkippableCurlHeader($data)) {
+		while ($this->isSkippableCurlHeader($data)) {
 			$this->debug("Found HTTP header to skip");
 			if ($pos = strpos($data,"\r\n\r\n")) {
 				$data = ltrim(substr($data,$pos));
