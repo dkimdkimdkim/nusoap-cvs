@@ -1661,7 +1661,7 @@ class nusoap_xmlschema extends nusoap_base  {
 		// simple types
 		if(isset($this->simpleTypes) && count($this->simpleTypes) > 0){
 			foreach($this->simpleTypes as $typeName => $eParts){
-				$xml .= " <$schemaPrefix:simpleType name=\"$typeName\">\n  <$schemaPrefix:restriction base=\"".$this->contractQName($eParts['type'])."\"/>\n";
+				$xml .= " <$schemaPrefix:simpleType name=\"$typeName\">\n  <$schemaPrefix:restriction base=\"".$this->contractQName($eParts['type'])."\">\n";
 				if (isset($eParts['enumeration'])) {
 					foreach ($eParts['enumeration'] as $e) {
 						$xml .= "  <$schemaPrefix:enumeration value=\"$e\"/>\n";

@@ -557,3 +557,6 @@
 
 2007-06-11, version 0.7.2
 - wsdl: wrap return value if unwrapped value is supplied and WSDL specifies Microsoft-style wrapping
+
+2007-06-22, version 0.7.2
+- nusoap_xmlschema: fix serialization of simpleType restriction (thanks Rizwan Tejpar)
