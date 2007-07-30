@@ -4060,7 +4060,8 @@ class nusoap_server extends nusoap_base {
 			if ($this->opData['style'] == 'rpc') {
 				$this->debug('style is rpc for serialization: use is ' . $this->opData['output']['use']);
 				if ($this->opData['output']['use'] == 'literal') {
-					$payload = '<'.$this->methodname.'Response xmlns="'.$this->methodURI.'">'.$return_val.'</'.$this->methodname."Response>";
+					// http://www.ws-i.org/Profiles/BasicProfile-1.1-2004-08-24.html R2735 says no namespace here
+					$payload = '<'.$this->methodname.'Response>'.$return_val.'</'.$this->methodname."Response>";
 				} else {
 					$payload = '<ns1:'.$this->methodname.'Response xmlns:ns1="'.$this->methodURI.'">'.$return_val.'</ns1:'.$this->methodname."Response>";
 				}
@@ -7266,7 +7267,8 @@ class nusoap_client extends nusoap_base  {
 			if ($use == 'literal') {
 				$this->debug("wrapping RPC request with literal method element");
 				if ($namespace) {
-					$payload = "<$operation xmlns=\"$namespace\">" . $payload . "</$operation>";
+					// http://www.ws-i.org/Profiles/BasicProfile-1.1-2004-08-24.html R2735 says no namespace here
+					$payload = "<$operation>" . $payload . "</$operation>";
 				} else {
 					$payload = "<$operation>" . $payload . "</$operation>";
 				}
