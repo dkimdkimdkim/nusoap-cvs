@@ -564,3 +564,7 @@
 2007-07-30, version 0.7.2
 - nusoap_server: Per http://www.ws-i.org/Profiles/BasicProfile-1.1-2004-08-24.html R2735, rpc/literal accessor elements should not be in a namespace (thanks Kostas Kalevras)
 - nusoap_client: Per http://www.ws-i.org/Profiles/BasicProfile-1.1-2004-08-24.html R2735, rpc/literal accessor elements should not be in a namespace (thanks Kostas Kalevras)
+
+2007-10-21, version 0.7.2
+- nusoap_server: Per http://www.ws-i.org/Profiles/BasicProfile-1.1-2004-08-24.html R2735, rpc/literal accessor elements should not be in a namespace (thanks Kostas Kalevras)
+- nusoap_client: Per http://www.ws-i.org/Profiles/BasicProfile-1.1-2004-08-24.html R2735, rpc/literal accessor elements should not be in a namespace (thanks Kostas Kalevras)

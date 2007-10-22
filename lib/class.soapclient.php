@@ -260,8 +260,10 @@ class nusoap_client extends nusoap_base  {
 			if ($use == 'literal') {
 				$this->debug("wrapping RPC request with literal method element");
 				if ($namespace) {
-					// http://www.ws-i.org/Profiles/BasicProfile-1.1-2004-08-24.html R2735 says no namespace here
-					$payload = "<$operation>" . $payload . "</$operation>";
+					// http://www.ws-i.org/Profiles/BasicProfile-1.1-2004-08-24.html R2735 says rpc/literal accessor elements should not be in a namespace
+					$payload = "<$nsPrefix:$operation xmlns:$nsPrefix=\"$namespace\">" .
+								$payload .
+								"</$nsPrefix:$operation>";
 				} else {
 					$payload = "<$operation>" . $payload . "</$operation>";
 				}
