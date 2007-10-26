@@ -329,9 +329,9 @@ class nusoap_server extends nusoap_base {
 			$this->debug("In parse_http_headers, use _SERVER");
 			foreach ($_SERVER as $k => $v) {
 				if (substr($k, 0, 5) == 'HTTP_') {
-					$k = str_replace(' ', '-', strtolower(str_replace('_', ' ', substr($k, 5)))); 	                                         $k = strtolower(substr($k, 5));
+					$k = str_replace(' ', '-', strtolower(str_replace('_', ' ', substr($k, 5))));
 				} else {
-					$k = str_replace(' ', '-', strtolower(str_replace('_', ' ', $k))); 	                                         $k = strtolower($k);
+					$k = str_replace(' ', '-', strtolower(str_replace('_', ' ', $k)));
 				}
 				if ($k == 'soapaction') {
 					// get SOAPAction header
