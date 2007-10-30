@@ -571,3 +571,10 @@
 
 2007-10-26, version 0.7.2
 - nusoap_server: Fix munging of _SERVER variables that start with HTTP_ (thanks Thomas Wieczorek)
+
+2007-10-26, version 0.7.2
+- nusoap_xmlschema: Serialize values for elementFormDefault, attributeFormDefault
+- wsdl: Improve consistency between doc/lit schema auto-wrapping and client's parsed schema
+- nusoap_server: Correct bug that placed encodingType in Envelope for doc/lit
+- nusoap_server: Specify elementFormDefault for schema within doc/lit wsdl
+

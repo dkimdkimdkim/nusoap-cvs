@@ -1837,15 +1837,15 @@ class wsdl extends nusoap_base {
 			}
 			$this->addComplexType($name . 'RequestType', 'complexType', 'struct', 'all', '', $elements);
 			$this->addElement(array('name' => $name, 'type' => $name . 'RequestType'));
-			$in = array('parameters' => 'tns:' . $name);
+			$in = array('parameters' => 'tns:' . $name . '^');
 
 			$elements = array();
 			foreach ($out as $n => $t) {
 				$elements[$n] = array('name' => $n, 'type' => $t);
 			}
 			$this->addComplexType($name . 'ResponseType', 'complexType', 'struct', 'all', '', $elements);
-			$this->addElement(array('name' => $name . 'Response', 'type' => $name . 'ResponseType'));
-			$out = array('parameters' => 'tns:' . $name . 'Response');
+			$this->addElement(array('name' => $name . 'Response', 'type' => $name . 'ResponseType', 'form' => 'qualified'));
+			$out = array('parameters' => 'tns:' . $name . 'Response' . '^');
 		}
 
 		// get binding

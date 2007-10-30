@@ -615,7 +615,13 @@ class nusoap_xmlschema extends nusoap_base  {
 			}
 		}
 		// finish 'er up
-		$el = "<$schemaPrefix:schema targetNamespace=\"$this->schemaTargetNamespace\"\n";
+		$attr = '';
+		foreach ($this->schemaInfo as $k => $v) {
+			if ($k == 'elementFormDefault' || $k == 'attributeFormDefault') {
+				$attr .= " $k=\"$v\"";
+			}
+		}
+		$el = "<$schemaPrefix:schema$attr targetNamespace=\"$this->schemaTargetNamespace\"\n";
 		foreach (array_diff($this->usedNamespaces, $this->enclosingNamespaces) as $nsp => $ns) {
 			$el .= " xmlns:$nsp=\"$ns\"";
 		}

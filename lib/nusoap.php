@@ -1683,7 +1683,13 @@ class nusoap_xmlschema extends nusoap_base  {
 			}
 		}
 		// finish 'er up
-		$el = "<$schemaPrefix:schema targetNamespace=\"$this->schemaTargetNamespace\"\n";
+		$attr = '';
+		foreach ($this->schemaInfo as $k => $v) {
+			if ($k == 'elementFormDefault' || $k == 'attributeFormDefault') {
+				$attr .= " $k=\"$v\"";
+			}
+		}
+		$el = "<$schemaPrefix:schema$attr targetNamespace=\"$this->schemaTargetNamespace\"\n";
 		foreach (array_diff($this->usedNamespaces, $this->enclosingNamespaces) as $nsp => $ns) {
 			$el .= " xmlns:$nsp=\"$ns\"";
 		}
@@ -4084,7 +4090,7 @@ class nusoap_server extends nusoap_base {
 				$encodingStyle = '';
 			}
 			// Added: In case we use a WSDL, return a serialized env. WITH the usedNamespaces.
-			$this->responseSOAP = $this->serializeEnvelope($payload,$this->responseHeaders,$this->wsdl->usedNamespaces,$this->opData['style'],$encodingStyle);
+			$this->responseSOAP = $this->serializeEnvelope($payload,$this->responseHeaders,$this->wsdl->usedNamespaces,$this->opData['style'],$this->opData['output']['use'],$encodingStyle);
 		} else {
 			$this->responseSOAP = $this->serializeEnvelope($payload,$this->responseHeaders);
 		}
@@ -4448,6 +4454,9 @@ class nusoap_server extends nusoap_base {
 			$this->wsdl->namespaces['types'] = $schemaTargetNamespace;
 		}
         $this->wsdl->schemas[$schemaTargetNamespace][0] = new nusoap_xmlschema('', '', $this->wsdl->namespaces);
+        if ($style == 'document') {
+	        $this->wsdl->schemas[$schemaTargetNamespace][0]->schemaInfo['elementFormDefault'] = 'qualified';
+        }
         $this->wsdl->schemas[$schemaTargetNamespace][0]->schemaTargetNamespace = $schemaTargetNamespace;
         $this->wsdl->schemas[$schemaTargetNamespace][0]->imports['http://schemas.xmlsoap.org/soap/encoding/'][0] = array('location' => '', 'loaded' => true);
         $this->wsdl->schemas[$schemaTargetNamespace][0]->imports['http://schemas.xmlsoap.org/wsdl/'][0] = array('location' => '', 'loaded' => true);
@@ -6307,15 +6316,15 @@ class wsdl extends nusoap_base {
 			}
 			$this->addComplexType($name . 'RequestType', 'complexType', 'struct', 'all', '', $elements);
 			$this->addElement(array('name' => $name, 'type' => $name . 'RequestType'));
-			$in = array('parameters' => 'tns:' . $name);
+			$in = array('parameters' => 'tns:' . $name . '^');
 
 			$elements = array();
 			foreach ($out as $n => $t) {
 				$elements[$n] = array('name' => $n, 'type' => $t);
 			}
 			$this->addComplexType($name . 'ResponseType', 'complexType', 'struct', 'all', '', $elements);
-			$this->addElement(array('name' => $name . 'Response', 'type' => $name . 'ResponseType'));
-			$out = array('parameters' => 'tns:' . $name . 'Response');
+			$this->addElement(array('name' => $name . 'Response', 'type' => $name . 'ResponseType', 'form' => 'qualified'));
+			$out = array('parameters' => 'tns:' . $name . 'Response' . '^');
 		}
 
 		// get binding
