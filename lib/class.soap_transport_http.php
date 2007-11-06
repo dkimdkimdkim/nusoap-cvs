@@ -578,9 +578,9 @@ class soap_transport_http extends nusoap_base {
 			$this->proxy = array(
 				'host' => $proxyhost,
 				'port' => $proxyport,
-				'username' => $username,
-				'password' => $password,
-				'authtype' => $authtype
+				'username' => $proxyusername,
+				'password' => $proxypassword,
+				'authtype' => $proxyauthtype
 			);
 			if ($proxyusername != '' && $proxypassword != '' && $proxyauthtype = 'basic') {
 				$this->setHeader('Proxy-Authorization', ' Basic '.base64_encode($proxyusername.':'.$proxypassword));

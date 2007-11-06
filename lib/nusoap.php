@@ -1833,7 +1833,7 @@ class nusoap_xmlschema extends nusoap_base  {
 	if($typeDef = $this->getTypeDef($type)){
 		$str .= '<'.$type;
 	    if(is_array($typeDef['attrs'])){
-		foreach($attrs as $attName => $data){
+		foreach($typeDef['attrs'] as $attName => $data){
 		    $str .= " $attName=\"{type = ".$data['type']."}\"";
 		}
 	    }
@@ -2685,9 +2685,9 @@ class soap_transport_http extends nusoap_base {
 			$this->proxy = array(
 				'host' => $proxyhost,
 				'port' => $proxyport,
-				'username' => $username,
-				'password' => $password,
-				'authtype' => $authtype
+				'username' => $proxyusername,
+				'password' => $proxypassword,
+				'authtype' => $proxyauthtype
 			);
 			if ($proxyusername != '' && $proxypassword != '' && $proxyauthtype = 'basic') {
 				$this->setHeader('Proxy-Authorization', ' Basic '.base64_encode($proxyusername.':'.$proxypassword));
@@ -5544,7 +5544,7 @@ class wsdl extends nusoap_base {
 				if ($change) {
 					$this->debug("in parametersMatchWrapped: change parameter $element to name $name");
 					$parameters[$name] = $parameters[$elements];
-					unset($paramters[$elements]);
+					unset($parameters[$elements]);
 					$matches++;
 				} elseif (isset($parameters[$name])) {
 					$this->debug("in parametersMatchWrapped: have parameter named $name");
