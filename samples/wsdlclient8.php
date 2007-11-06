@@ -16,9 +16,7 @@ $proxyusername = isset($_POST['proxyusername']) ? $_POST['proxyusername'] : '';
 $proxypassword = isset($_POST['proxypassword']) ? $_POST['proxypassword'] : '';
 echo 'You must set your username and password in the source';
 exit();
-$username = '';
-$password = '';
-$client = new soapclient("http://staging.mappoint.net/standard-30/mappoint.wsdl", true,
+$client = new nusoap_client("http://staging.mappoint.net/standard-30/mappoint.wsdl", 'wsdl',
 						$proxyhost, $proxyport, $proxyusername, $proxypassword);
 $err = $client->getError();
 if ($err) {

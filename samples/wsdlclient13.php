@@ -9,13 +9,13 @@
  *	Transport: http
  *	Authentication: none
  */
-require_once('f:/nusoap/lib/nusoap.php');
+require_once('../lib/nusoap.php');
 $proxyhost = isset($_POST['proxyhost']) ? $_POST['proxyhost'] : '';
 $proxyport = isset($_POST['proxyport']) ? $_POST['proxyport'] : '';
 $proxyusername = isset($_POST['proxyusername']) ? $_POST['proxyusername'] : '';
 $proxypassword = isset($_POST['proxypassword']) ? $_POST['proxypassword'] : '';
 echo '<h2>Constructor</h2>';
-$client = new soapclient('http://www.scottnichol.com/samples/session.php?wsdl', true,
+$client = new nusoap_client('http://www.scottnichol.com/samples/session.php?wsdl', true,
 						$proxyhost, $proxyport, $proxyusername, $proxypassword);
 $err = $client->getError();
 if ($err) {

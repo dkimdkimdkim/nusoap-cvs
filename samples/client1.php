@@ -20,6 +20,8 @@ $client = new nusoap_client("http://soap.amazon.com/onca/soap2", false,
 $err = $client->getError();
 if ($err) {
 	echo '<h2>Constructor error</h2><pre>' . $err . '</pre>';
+	echo '<h2>Debug</h2><pre>' . htmlspecialchars($client->getDebug(), ENT_QUOTES) . '</pre>';
+	exit();
 }
 $client->setUseCurl($useCURL);
 // This is an archaic parameter list
@@ -29,12 +31,12 @@ $params = array(
     'mode'         => 'books',
     'tag'          => 'trachtenberg-20',
     'type'         => 'lite',
-    'devtag'       => 'D35PWRR0R0URC3',
+    'devtag'       => 'Your tag here',
     'sort'         => '+title'
 );
 $result = $client->call('ManufacturerSearchRequest', $params, 'http://soap.amazon.com', 'http://soap.amazon.com');
 if ($client->fault) {
-	echo '<h2>Fault (This is expected)</h2><pre>'; print_r($result); echo '</pre>';
+	echo '<h2>Fault (Expect - The request contains an invalid SOAP body)</h2><pre>'; print_r($result); echo '</pre>';
 } else {
 	$err = $client->getError();
 	if ($err) {
@@ -45,5 +47,5 @@ if ($client->fault) {
 }
 echo '<h2>Request</h2><pre>' . htmlspecialchars($client->request, ENT_QUOTES) . '</pre>';
 echo '<h2>Response</h2><pre>' . htmlspecialchars($client->response, ENT_QUOTES) . '</pre>';
-echo '<h2>Debug</h2><pre>' . htmlspecialchars($client->debug_str, ENT_QUOTES) . '</pre>';
+echo '<h2>Debug</h2><pre>' . htmlspecialchars($client->getDebug(), ENT_QUOTES) . '</pre>';
 ?>

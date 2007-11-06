@@ -14,12 +14,15 @@ $proxyhost = isset($_POST['proxyhost']) ? $_POST['proxyhost'] : '';
 $proxyport = isset($_POST['proxyport']) ? $_POST['proxyport'] : '';
 $proxyusername = isset($_POST['proxyusername']) ? $_POST['proxyusername'] : '';
 $proxypassword = isset($_POST['proxypassword']) ? $_POST['proxypassword'] : '';
-$client = new soapclient("http://soap.amazon.com/schemas2/AmazonWebServices.wsdl", true,
+$useCURL = isset($_POST['usecurl']) ? $_POST['usecurl'] : '0';
+$client = new nusoap_client("http://soap.amazon.com/schemas2/AmazonWebServices.wsdl", 'wsdl',
 						$proxyhost, $proxyport, $proxyusername, $proxypassword);
 $err = $client->getError();
 if ($err) {
 	echo '<h2>Constructor error</h2><pre>' . $err . '</pre>';
+	exit();
 }
+$client->setUseCurl($useCURL);
 $proxy = $client->getProxy();
 $param = array(
 	'browse_node' => 18,
@@ -27,7 +30,7 @@ $param = array(
 	'mode' => 'books',
 	'tag' =>'melonfire-20',
 	'type' => 'lite',
-	'devtag' => 'My token is here'
+	'devtag' => 'Your dev tag'
 );
 $result = $proxy->BrowseNodeSearchRequest($param);
 // Check for a fault

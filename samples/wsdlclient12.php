@@ -18,7 +18,6 @@ $proxypassword = isset($_POST['proxypassword']) ? $_POST['proxypassword'] : '';
 
 $method = isset($_GET['method']) ? $_GET['method'] : 'ItemSearch';
 
-echo 'You must set your own Amazon E-Commerce Services subscription id in the source code to run this client!'; exit();
 $SubscriptionId = 'Your AWS subscription id';
 
 $wsdlurl = 'http://webservices.amazon.com/AWSECommerceService/US/AWSECommerceService.wsdl';
@@ -32,7 +31,7 @@ if (is_null($wsdl)) {
 	$wsdl->debug_str = '';
 	$wsdl->debug('Retrieved from cache');
 }
-$client = new soapclient($wsdl, true,
+$client = new nusoap_client($wsdl, true,
 						$proxyhost, $proxyport, $proxyusername, $proxypassword);
 $err = $client->getError();
 if ($err) {
@@ -64,6 +63,32 @@ function GetCartCreateParams() {
 					 	);
 
 	return $cartCreate;
+}
+
+function GetItemLookupParams() {
+	global $SubscriptionId;
+
+	$itemLookupRequest[] = array(
+		'ItemId' => 'B0002IQML6',
+		'IdType' => 'ASIN',
+		'Condition' => 'All',
+		'ResponseGroup' => 'Large'
+	);
+	
+	$itemLookupRequest[] = array(
+		'ItemId' => '0486411214',
+		'IdType' => 'ASIN',
+		'Condition' => 'New',
+		'ResponseGroup' => 'Small'
+	);
+
+	$itemLookup = array(
+		'SubscriptionId' => $SubscriptionId,
+	//	'AssociateTag' => '',
+		'Request' => $itemLookupRequest,
+	);
+	
+	return $itemLookup;
 }
 
 function GetItemSearchParams() {
@@ -105,17 +130,77 @@ function GetItemSearchParams2() {
 	return $itemSearch;
 }
 
-if ($method == 'ItemSearch') {
+function GetListLookupParams() {
+	global $SubscriptionId;
+
+	$listLookupRequest[] = array(
+		'ListId' => '1L0ZL7Y9FL4U0',
+		'ListType' => 'WishList',
+		'ProductPage' => 1,
+		'ResponseGroup' => 'ListFull',
+		'Sort' => 'LastUpdated'
+	);
+	
+	$listLookupRequest[] = array(
+		'ListId' => '1L0ZL7Y9FL4U0',
+		'ListType' => 'WishList',
+		'ProductPage' => 2,
+		'ResponseGroup' => 'ListFull',
+		'Sort' => 'LastUpdated'
+	);
+/*
+// two lookup maximum
+	$listLookupRequest[] = array(
+		'ListId' => '1L0ZL7Y9FL4U0',
+		'ListType' => 'WishList',
+		'ProductPage' => 3,
+		'ResponseGroup' => 'ListFull',
+		'Sort' => 'LastUpdated'
+	);
+*/	
+	$listLookup = array(
+		'SubscriptionId' => $SubscriptionId,
+	//	'AssociateTag' => '',
+		'Request' => $listLookupRequest,
+	);
+	
+	return $listLookup;
+}
+
+function GetListSearchParams() {
+	global $SubscriptionId;
+
+	$listSearchRequest[] = array(
+		'FirstName' => 'Scott',
+		'LastName' => 'Nichol',
+		'ListType' => 'WishList'
+	);
+	
+	$listSearch = array(
+		'SubscriptionId' => $SubscriptionId,
+	//	'AssociateTag' => '',
+		'Request' => $listSearchRequest,
+	);
+	
+	return $listSearch;
+}
+
+if ($method == 'ItemLookup') {
+	$result = $client->call('ItemLookup', array('body' => GetItemLookupParams()));
+} elseif ($method == 'ItemSearch') {
 	$result = $client->call('ItemSearch', array('body' => GetItemSearchParams()));
 } elseif ($method == 'ItemSearch2') {
 	$result = $client->call('ItemSearch', array('body' => GetItemSearchParams2()));
+} elseif ($method == 'ListLookup') {
+	$result = $client->call('ListLookup', array('body' => GetListLookupParams()));
+} elseif ($method == 'ListSearch') {
+	$result = $client->call('ListSearch', array('body' => GetListSearchParams()));
 } elseif ($method == 'CartCreate') {
 	$result = $client->call('CartCreate', array('body' => GetCartCreateParams()));
 } else {
 	echo "Unsupported method $method";
 	exit;
 }
-
 // Check for a fault
 if ($client->fault) {
 	echo '<h2>Fault</h2><pre>';

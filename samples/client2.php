@@ -20,6 +20,8 @@ $client = new nusoap_client("http://soap.amazon.com/onca/soap2", false,
 $err = $client->getError();
 if ($err) {
 	echo '<h2>Constructor error</h2><pre>' . $err . '</pre>';
+	echo '<h2>Debug</h2><pre>' . htmlspecialchars($client->getDebug(), ENT_QUOTES) . '</pre>';
+	exit();
 }
 $client->setUseCurl($useCURL);
 $client->useHTTPPersistentConnection();
@@ -29,7 +31,7 @@ $param = array(
     'mode'         => 'books',
     'tag'          => 'trachtenberg-20',
     'type'         => 'lite',
-    'devtag'       => 'My tag goes here'
+    'devtag'       => 'Your tag here'
 );
 $params = array('ManufacturerSearchRequest' =>
 				new soapval('ManufacturerSearchRequest',
@@ -51,5 +53,5 @@ if ($client->fault) {
 }
 echo '<h2>Request</h2><pre>' . htmlspecialchars($client->request, ENT_QUOTES) . '</pre>';
 echo '<h2>Response</h2><pre>' . htmlspecialchars($client->response, ENT_QUOTES) . '</pre>';
-echo '<h2>Debug</h2><pre>' . htmlspecialchars($client->debug_str, ENT_QUOTES) . '</pre>';
+echo '<h2>Debug</h2><pre>' . htmlspecialchars($client->getDebug(), ENT_QUOTES) . '</pre>';
 ?>

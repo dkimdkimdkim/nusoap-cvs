@@ -20,13 +20,15 @@ $client = new nusoap_client("http://api.google.com/search/beta2", false,
 $err = $client->getError();
 if ($err) {
 	echo '<h2>Constructor error</h2><pre>' . $err . '</pre>';
+	echo '<h2>Debug</h2><pre>' . htmlspecialchars($client->getDebug(), ENT_QUOTES) . '</pre>';
+	exit();
 }
 $client->setUseCurl($useCURL);
 $client->soap_defencoding = 'UTF-8';
 
 //echo 'You must set your own Google key in the source code to run this client!'; exit();
 $params = array(
-	'Googlekey'=>'set your own Google key',
+	'Googlekey'=>'Your Google key',
 	'queryStr'=>'robotics',
 	'startFrom'=>0,
 	'maxResults'=>10,
@@ -50,5 +52,5 @@ if ($client->fault) {
 }
 echo '<h2>Request</h2><pre>' . htmlspecialchars($client->request, ENT_QUOTES) . '</pre>';
 echo '<h2>Response</h2><pre>' . htmlspecialchars($client->response, ENT_QUOTES) . '</pre>';
-echo '<h2>Debug</h2><pre>' . htmlspecialchars($client->debug_str, ENT_QUOTES) . '</pre>';
+echo '<h2>Debug</h2><pre>' . htmlspecialchars($client->getDebug(), ENT_QUOTES) . '</pre>';
 ?>
