@@ -1009,7 +1009,7 @@ class wsdl extends nusoap_base {
 	 * @param string $type the type (element name) of the wrapper
 	 * @param array $parameters the parameter values for the SOAP call
 	 * @return boolean whether they parameters are unwrapped (and should be wrapped)
-	 * @accees private
+	 * @access private
 	 */
 	function parametersMatchWrapped($type, &$parameters) {
 		$this->debug("in parametersMatchWrapped type=$type, parameters=");
