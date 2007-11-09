@@ -1056,18 +1056,8 @@ class wsdl extends nusoap_base {
 		if (isset($typeDef['elements']) && is_array($typeDef['elements'])) {
 			$elements = 0;
 			$matches = 0;
-			$change = false;
-			if ($this->isArraySimpleOrStruct($parameters) == 'arraySimple' && count($parameters) == count($typeDef['elements'])) {
-				$this->debug("in parametersMatchWrapped: (wrapped return value kludge) correct number of elements in simple array, so change array and wrap");
-				$change = true;
-			}
 			foreach ($typeDef['elements'] as $name => $attrs) {
-				if ($change) {
-					$this->debug("in parametersMatchWrapped: change parameter $element to name $name");
-					$parameters[$name] = $parameters[$elements];
-					unset($parameters[$elements]);
-					$matches++;
-				} elseif (isset($parameters[$name])) {
+				if (isset($parameters[$name])) {
 					$this->debug("in parametersMatchWrapped: have parameter named $name");
 					$matches++;
 				} else {
@@ -1143,7 +1133,14 @@ class wsdl extends nusoap_base {
 				// check for Microsoft-style wrapped parameters
 				if ($style == 'document' && $use == 'literal' && $part_count == 1 && isset($parts['parameters'])) {
 					$this->debug('check whether the caller has wrapped the parameters');
-					if ((($parametersArrayType == 'arrayStruct' || $parameter_count == 0) && !isset($parameters['parameters'])) || ($direction == 'output' && $parametersArrayType == 'arraySimple' && $parameter_count == 1)) {
+					if ($direction == 'output' && $parametersArrayType == 'arraySimple' && $parameter_count == 1) {
+						// TODO: consider checking here for double-wrapping, when
+						// service function wraps, then NuSOAP wraps again
+						$this->debug("change simple array to associative with 'parameters' element");
+						$parameters['parameters'] = $parameters[0];
+						unset($parameters[0]);
+					}
+					if (($parametersArrayType == 'arrayStruct' || $parameter_count == 0) && !isset($parameters['parameters'])) {
 						$this->debug('check whether caller\'s parameters match the wrapped ones');
 						if ($this->parametersMatchWrapped($parts['parameters'], $parameters)) {
 							$this->debug('wrap the parameters for the caller');

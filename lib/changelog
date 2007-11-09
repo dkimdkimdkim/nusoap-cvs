@@ -582,3 +582,7 @@
 - wsdl: Fix typo in parametersMatchWrapped (thanks Sam Stepanyan)
 - soap_transport_http: Fix three typos in setProxy (thanks Sam Stepanyan)
 - nusoap_xmlschema: Fix typo in serializeTypeDef (thanks Sam Stepanyan)
+
+2007-11-06, version 1.0rc1
+- wsdl: Improve handling of return values from doc/lit methods
+- nusoap_server: Handle case when method is not in a namespace

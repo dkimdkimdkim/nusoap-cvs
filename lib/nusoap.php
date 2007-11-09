@@ -97,7 +97,7 @@ class nusoap_base {
 	 * @var string
 	 * @access private
 	 */
-	var $version = '0.7.3';
+	var $version = '1.0rc1';
 	/**
 	 * CVS revision for HTTP headers.
 	 *
@@ -4067,9 +4067,17 @@ class nusoap_server extends nusoap_base {
 				$this->debug('style is rpc for serialization: use is ' . $this->opData['output']['use']);
 				if ($this->opData['output']['use'] == 'literal') {
 					// http://www.ws-i.org/Profiles/BasicProfile-1.1-2004-08-24.html R2735 says rpc/literal accessor elements should not be in a namespace
-					$payload = '<ns1:'.$this->methodname.'Response xmlns:ns1="'.$this->methodURI.'">'.$return_val.'</ns1:'.$this->methodname."Response>";
+					if ($this->methodURI) {
+						$payload = '<ns1:'.$this->methodname.'Response xmlns:ns1="'.$this->methodURI.'">'.$return_val.'</ns1:'.$this->methodname."Response>";
+					} else {
+						$payload = '<'.$this->methodname.'Response>'.$return_val.'</'.$this->methodname.'Response>';
+					}
 				} else {
-					$payload = '<ns1:'.$this->methodname.'Response xmlns:ns1="'.$this->methodURI.'">'.$return_val.'</ns1:'.$this->methodname."Response>";
+					if ($this->methodURI) {
+						$payload = '<ns1:'.$this->methodname.'Response xmlns:ns1="'.$this->methodURI.'">'.$return_val.'</ns1:'.$this->methodname."Response>";
+					} else {
+						$payload = '<'.$this->methodname.'Response>'.$return_val.'</'.$this->methodname.'Response>';
+					}
 				}
 			} else {
 				$this->debug('style is not rpc for serialization: assume document');
@@ -5535,18 +5543,8 @@ class wsdl extends nusoap_base {
 		if (isset($typeDef['elements']) && is_array($typeDef['elements'])) {
 			$elements = 0;
 			$matches = 0;
-			$change = false;
-			if ($this->isArraySimpleOrStruct($parameters) == 'arraySimple' && count($parameters) == count($typeDef['elements'])) {
-				$this->debug("in parametersMatchWrapped: (wrapped return value kludge) correct number of elements in simple array, so change array and wrap");
-				$change = true;
-			}
 			foreach ($typeDef['elements'] as $name => $attrs) {
-				if ($change) {
-					$this->debug("in parametersMatchWrapped: change parameter $element to name $name");
-					$parameters[$name] = $parameters[$elements];
-					unset($parameters[$elements]);
-					$matches++;
-				} elseif (isset($parameters[$name])) {
+				if (isset($parameters[$name])) {
 					$this->debug("in parametersMatchWrapped: have parameter named $name");
 					$matches++;
 				} else {
@@ -5622,7 +5620,14 @@ class wsdl extends nusoap_base {
 				// check for Microsoft-style wrapped parameters
 				if ($style == 'document' && $use == 'literal' && $part_count == 1 && isset($parts['parameters'])) {
 					$this->debug('check whether the caller has wrapped the parameters');
-					if ((($parametersArrayType == 'arrayStruct' || $parameter_count == 0) && !isset($parameters['parameters'])) || ($direction == 'output' && $parametersArrayType == 'arraySimple' && $parameter_count == 1)) {
+					if ($direction == 'output' && $parametersArrayType == 'arraySimple' && $parameter_count == 1) {
+						// TODO: consider checking here for double-wrapping, when
+						// service function wraps, then NuSOAP wraps again
+						$this->debug("change simple array to associative with 'parameters' element");
+						$parameters['parameters'] = $parameters[0];
+						unset($parameters[0]);
+					}
+					if (($parametersArrayType == 'arrayStruct' || $parameter_count == 0) && !isset($parameters['parameters'])) {
 						$this->debug('check whether caller\'s parameters match the wrapped ones');
 						if ($this->parametersMatchWrapped($parts['parameters'], $parameters)) {
 							$this->debug('wrap the parameters for the caller');
