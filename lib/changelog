@@ -586,3 +586,11 @@
 2007-11-06, version 1.0rc1
 - wsdl: Improve handling of return values from doc/lit methods
 - nusoap_server: Handle case when method is not in a namespace
+
+2007-11-27, version 1.0rc1
+- nusoap_server: always try to invoke service for a POST
+- nusoap_server: only return Location: for WSDL at http://...
+- nusoap_base: change some syntax associated with globalDebugLevel
+
+2008-01-08, version 1.0rc1
+- nusoap_server: fix a typo where = was used instead of == (thanks J. (Johan) Bosma)

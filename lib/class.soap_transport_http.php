@@ -691,7 +691,9 @@ class soap_transport_http extends nusoap_base {
 		// debugging guides.
 
 		// add content-length header
-		$this->setHeader('Content-Length', strlen($data));
+		if ($this->request_method != 'GET') {
+			$this->setHeader('Content-Length', strlen($data));
+		}
 
 		// start building outgoing payload:
 		if ($this->proxy) {
