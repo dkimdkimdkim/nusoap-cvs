@@ -244,6 +244,7 @@ class nusoap_xmlschema extends nusoap_base  {
             	$this->xdebug("parsing attribute:");
             	$this->appendDebug($this->varDump($attrs));
 				if (!isset($attrs['form'])) {
+					// TODO: handle globals
 					$attrs['form'] = $this->schemaInfo['attributeFormDefault'];
 				}
             	if (isset($attrs['http://schemas.xmlsoap.org/wsdl/:arrayType'])) {
@@ -342,7 +343,12 @@ class nusoap_xmlschema extends nusoap_base  {
 			case 'element':
 				array_push($this->elementStack, $this->currentElement);
 				if (!isset($attrs['form'])) {
-					$attrs['form'] = $this->schemaInfo['elementFormDefault'];
+					if ($this->currentComplexType) {
+						$attrs['form'] = $this->schemaInfo['elementFormDefault'];
+					} else {
+						// global
+						$attrs['form'] = 'qualified';
+					}
 				}
 				if(isset($attrs['type'])){
 					$this->xdebug("processing typed element ".$attrs['name']." of type ".$attrs['type']);
@@ -731,6 +737,9 @@ class nusoap_xmlschema extends nusoap_base  {
 					}
 					if (isset($etype['elements'])) {
 						$this->elements[$type]['elements'] = $etype['elements'];
+					}
+					if (isset($etype['extensionBase'])) {
+						$this->elements[$type]['extensionBase'] = $etype['extensionBase'];
 					}
 				} elseif ($ns == 'http://www.w3.org/2001/XMLSchema') {
 					$this->xdebug("in getTypeDef, element $type is an XSD type");

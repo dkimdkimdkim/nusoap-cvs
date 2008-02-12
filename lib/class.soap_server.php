@@ -827,7 +827,12 @@ class nusoap_server extends nusoap_base {
 	* @access   private
 	*/
     function parseRequest($headers, $data) {
-		$this->debug('Entering parseRequest() for data of length ' . strlen($data) . ' and type ' . $headers['content-type']);
+		$this->debug('Entering parseRequest() for data of length ' . strlen($data) . ' headers:');
+		$this->appendDebug($this->varDump($headers));
+    	if (!isset($headers['content-type'])) {
+			$this->setError('Request not of type text/xml (no content-type header)');
+			return false;
+    	}
 		if (!strstr($headers['content-type'], 'text/xml')) {
 			$this->setError('Request not of type text/xml');
 			return false;

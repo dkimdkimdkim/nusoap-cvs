@@ -594,3 +594,15 @@
 
 2008-01-08, version 1.0rc1
 - nusoap_server: fix a typo where = was used instead of == (thanks J. (Johan) Bosma)
+
+2008-01-10, version 1.0rc1
+- nusoap_client: handle case where request or response has no content-type header (thanks Ingo Fischer)
+- nusoap_server: handle case where request or response has no content-type header (thanks Ingo Fischer)
+- wsdl: change CSS for .title in webDescription (thanks Marcus Uy)
+
+2008-01-25, version 1.0rc1
+- nusoap_xmlschema: when an element is of a complexType that is an extension, copy extensionBase from the type
+- nusoap_xmlschema: do not apply elementFormDefault to globally defined elements
+
+2008-02-11, version 1.0rc1
+- wsdl: internally set form of wrapped parameter elements to unqualified (so server handles correctly)

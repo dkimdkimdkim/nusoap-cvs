@@ -1312,6 +1312,7 @@ class nusoap_xmlschema extends nusoap_base  {
             	$this->xdebug("parsing attribute:");
             	$this->appendDebug($this->varDump($attrs));
 				if (!isset($attrs['form'])) {
+					// TODO: handle globals
 					$attrs['form'] = $this->schemaInfo['attributeFormDefault'];
 				}
             	if (isset($attrs['http://schemas.xmlsoap.org/wsdl/:arrayType'])) {
@@ -1410,7 +1411,12 @@ class nusoap_xmlschema extends nusoap_base  {
 			case 'element':
 				array_push($this->elementStack, $this->currentElement);
 				if (!isset($attrs['form'])) {
-					$attrs['form'] = $this->schemaInfo['elementFormDefault'];
+					if ($this->currentComplexType) {
+						$attrs['form'] = $this->schemaInfo['elementFormDefault'];
+					} else {
+						// global
+						$attrs['form'] = 'qualified';
+					}
 				}
 				if(isset($attrs['type'])){
 					$this->xdebug("processing typed element ".$attrs['name']." of type ".$attrs['type']);
@@ -1799,6 +1805,9 @@ class nusoap_xmlschema extends nusoap_base  {
 					}
 					if (isset($etype['elements'])) {
 						$this->elements[$type]['elements'] = $etype['elements'];
+					}
+					if (isset($etype['extensionBase'])) {
+						$this->elements[$type]['extensionBase'] = $etype['extensionBase'];
 					}
 				} elseif ($ns == 'http://www.w3.org/2001/XMLSchema') {
 					$this->xdebug("in getTypeDef, element $type is an XSD type");
@@ -4238,7 +4247,12 @@ class nusoap_server extends nusoap_base {
 	* @access   private
 	*/
     function parseRequest($headers, $data) {
-		$this->debug('Entering parseRequest() for data of length ' . strlen($data) . ' and type ' . $headers['content-type']);
+		$this->debug('Entering parseRequest() for data of length ' . strlen($data) . ' headers:');
+		$this->appendDebug($this->varDump($headers));
+    	if (!isset($headers['content-type'])) {
+			$this->setError('Request not of type text/xml (no content-type header)');
+			return false;
+    	}
 		if (!strstr($headers['content-type'], 'text/xml')) {
 			$this->setError('Request not of type text/xml');
 			return false;
@@ -5277,8 +5291,9 @@ class wsdl extends nusoap_base {
 			background-color: #ccccff; width: 20%; margin-left: 20px; margin-top: 20px; }
 		    .title {
 			font-family: arial; font-size: 26px; color: #ffffff;
-			background-color: #999999; width: 105%; margin-left: 0px;
-			padding-top: 10px; padding-bottom: 10px; padding-left: 15px;}
+			background-color: #999999; width: 100%;
+			margin-left: 0px; margin-right: 0px;
+			padding-top: 10px; padding-bottom: 10px;}
 		    .hidden {
 			position: absolute; visibility: hidden; z-index: 200; left: 250px; top: 100px;
 			font-family: arial; overflow: hidden; width: 600;
@@ -6341,7 +6356,7 @@ class wsdl extends nusoap_base {
 		if ($style == 'document') {
 			$elements = array();
 			foreach ($in as $n => $t) {
-				$elements[$n] = array('name' => $n, 'type' => $t);
+				$elements[$n] = array('name' => $n, 'type' => $t, 'form' => 'unqualified');
 			}
 			$this->addComplexType($name . 'RequestType', 'complexType', 'struct', 'all', '', $elements);
 			$this->addElement(array('name' => $name, 'type' => $name . 'RequestType'));
@@ -6349,7 +6364,7 @@ class wsdl extends nusoap_base {
 
 			$elements = array();
 			foreach ($out as $n => $t) {
-				$elements[$n] = array('name' => $n, 'type' => $t);
+				$elements[$n] = array('name' => $n, 'type' => $t, 'form' => 'unqualified');
 			}
 			$this->addComplexType($name . 'ResponseType', 'complexType', 'struct', 'all', '', $elements);
 			$this->addElement(array('name' => $name . 'Response', 'type' => $name . 'ResponseType', 'form' => 'qualified'));
@@ -7528,6 +7543,10 @@ class nusoap_client extends nusoap_base  {
     function parseResponse($headers, $data) {
 		$this->debug('Entering parseResponse() for data of length ' . strlen($data) . ' headers:');
 		$this->appendDebug($this->varDump($headers));
+    	if (!isset($headers['content-type'])) {
+			$this->setError('Response not of type text/xml (no content-type header)');
+			return false;
+    	}
 		if (!strstr($headers['content-type'], 'text/xml')) {
 			$this->setError('Response not of type text/xml: ' . $headers['content-type']);
 			return false;

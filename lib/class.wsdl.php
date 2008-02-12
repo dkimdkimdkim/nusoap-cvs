@@ -766,8 +766,9 @@ class wsdl extends nusoap_base {
 			background-color: #ccccff; width: 20%; margin-left: 20px; margin-top: 20px; }
 		    .title {
 			font-family: arial; font-size: 26px; color: #ffffff;
-			background-color: #999999; width: 105%; margin-left: 0px;
-			padding-top: 10px; padding-bottom: 10px; padding-left: 15px;}
+			background-color: #999999; width: 100%;
+			margin-left: 0px; margin-right: 0px;
+			padding-top: 10px; padding-bottom: 10px;}
 		    .hidden {
 			position: absolute; visibility: hidden; z-index: 200; left: 250px; top: 100px;
 			font-family: arial; overflow: hidden; width: 600;
@@ -1830,7 +1831,7 @@ class wsdl extends nusoap_base {
 		if ($style == 'document') {
 			$elements = array();
 			foreach ($in as $n => $t) {
-				$elements[$n] = array('name' => $n, 'type' => $t);
+				$elements[$n] = array('name' => $n, 'type' => $t, 'form' => 'unqualified');
 			}
 			$this->addComplexType($name . 'RequestType', 'complexType', 'struct', 'all', '', $elements);
 			$this->addElement(array('name' => $name, 'type' => $name . 'RequestType'));
@@ -1838,7 +1839,7 @@ class wsdl extends nusoap_base {
 
 			$elements = array();
 			foreach ($out as $n => $t) {
-				$elements[$n] = array('name' => $n, 'type' => $t);
+				$elements[$n] = array('name' => $n, 'type' => $t, 'form' => 'unqualified');
 			}
 			$this->addComplexType($name . 'ResponseType', 'complexType', 'struct', 'all', '', $elements);
 			$this->addElement(array('name' => $name . 'Response', 'type' => $name . 'ResponseType', 'form' => 'qualified'));
