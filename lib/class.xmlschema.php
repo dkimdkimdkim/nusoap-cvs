@@ -294,6 +294,7 @@ class nusoap_xmlschema extends nusoap_base  {
 				}
 			break;
 			case 'complexContent':	// (optional) content for a complexType
+				$this->xdebug("do nothing for element $name");
 			break;
 			case 'complexType':
 				array_push($this->complexTypeStack, $this->currentComplexType);
@@ -402,22 +403,36 @@ class nusoap_xmlschema extends nusoap_base  {
 			case 'extension':	// simpleContent or complexContent type extension
 				$this->xdebug('extension ' . $attrs['base']);
 				if ($this->currentComplexType) {
-					$this->complexTypes[$this->currentComplexType]['extensionBase'] = $attrs['base'];
+					$ns = $this->getPrefix($attrs['base']);
+					if ($ns == '') {
+						$this->complexTypes[$this->currentComplexType]['extensionBase'] = $this->schemaTargetNamespace . ':' . $attrs['base'];
+					} elseif ($this->getNamespaceFromPrefix($ns)) {
+						$this->complexTypes[$this->currentComplexType]['extensionBase'] = $attrs['base'];
+					}
 				}
 			break;
 			case 'import':
 			    if (isset($attrs['schemaLocation'])) {
-					//$this->xdebug('import namespace ' . $attrs['namespace'] . ' from ' . $attrs['schemaLocation']);
+					$this->xdebug('import namespace ' . $attrs['namespace'] . ' from ' . $attrs['schemaLocation']);
                     $this->imports[$attrs['namespace']][] = array('location' => $attrs['schemaLocation'], 'loaded' => false);
 				} else {
-					//$this->xdebug('import namespace ' . $attrs['namespace']);
+					$this->xdebug('import namespace ' . $attrs['namespace']);
                     $this->imports[$attrs['namespace']][] = array('location' => '', 'loaded' => true);
 					if (! $this->getPrefixFromNamespace($attrs['namespace'])) {
 						$this->namespaces['ns'.(count($this->namespaces)+1)] = $attrs['namespace'];
 					}
 				}
 			break;
+			case 'include':
+			    if (isset($attrs['schemaLocation'])) {
+					$this->xdebug('include into namespace ' . $this->schemaTargetNamespace . ' from ' . $attrs['schemaLocation']);
+                    $this->imports[$this->schemaTargetNamespace][] = array('location' => $attrs['schemaLocation'], 'loaded' => false);
+				} else {
+					$this->xdebug('ignoring invalid XML Schema construct: include without schemaLocation attribute');
+				}
+			break;
 			case 'list':	// simpleType value list
+				$this->xdebug("do nothing for element $name");
 			break;
 			case 'restriction':	// simpleType, simpleContent or complexContent value restriction
 				$this->xdebug('restriction ' . $attrs['base']);
@@ -444,6 +459,7 @@ class nusoap_xmlschema extends nusoap_base  {
 				}
 			break;
 			case 'simpleContent':	// (optional) content for a complexType
+				$this->xdebug("do nothing for element $name");
 			break;
 			case 'simpleType':
 				array_push($this->simpleTypeStack, $this->currentSimpleType);
@@ -463,9 +479,10 @@ class nusoap_xmlschema extends nusoap_base  {
 				}
 			break;
 			case 'union':	// simpleType type list
+				$this->xdebug("do nothing for element $name");
 			break;
 			default:
-				//$this->xdebug("do not have anything to do for element $name");
+				$this->xdebug("do not have any logic to process element $name");
 		}
 	}
 

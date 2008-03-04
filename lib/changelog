@@ -606,3 +606,8 @@
 
 2008-02-11, version 1.0rc1
 - wsdl: internally set form of wrapped parameter elements to unqualified (so server handles correctly)
+
+2008-03-03, version 1.0.rc1
+- nusoap_xmlschema: fix extension when base type has no explicit prefix
+- nusoap_xmlschema: support XML Schema include
+- wsdl: improve support for sequence by serializing inherited attributes and elements first

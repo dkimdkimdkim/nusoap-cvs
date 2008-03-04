@@ -223,7 +223,7 @@ class wsdl extends nusoap_base {
 			$this->appendDebug($tr->getDebug());
 			// catch errors
 			if($err = $tr->getError() ){
-				$errstr = 'HTTP ERROR: '.$err;
+				$errstr = 'Getting ' . $wsdl . ' - HTTP ERROR: '.$err;
 				$this->debug($errstr);
 	            $this->setError($errstr);
 				unset($tr);
@@ -703,9 +703,10 @@ class wsdl extends nusoap_base {
 			for ($i = 0; $i < count($this->schemas[$ns]); $i++) {
 				$xs = &$this->schemas[$ns][$i];
 				$t = $xs->getTypeDef($type);
-				//$this->appendDebug($xs->getDebug());
-				//$xs->clearDebug();
+				$this->appendDebug($xs->getDebug());
+				$xs->clearDebug();
 				if ($t) {
+					$this->debug("in getTypeDef: found type $type");
 					if (!isset($t['phpType'])) {
 						// get info for type to tack onto the element
 						$uqType = substr($t['type'], strrpos($t['type'], ':') + 1);
@@ -723,11 +724,14 @@ class wsdl extends nusoap_base {
 							if (isset($etype['attrs'])) {
 								$t['attrs'] = $etype['attrs'];
 							}
+						} else {
+							$this->debug("did not find type for [element] $type");
 						}
 					}
 					return $t;
 				}
 			}
+			$this->debug("in getTypeDef: did not find type $type");
 		} else {
 			$this->debug("in getTypeDef: do not have schema for namespace $ns");
 		}
@@ -1426,6 +1430,11 @@ class wsdl extends nusoap_base {
 				$uqType = substr($uqType, 0, -1);
 			}
 		}
+		if (!isset($typeDef['phpType'])) {
+			$this->setError("$type ($uqType) has no phpType.");
+			$this->debug("in serializeType: $type ($uqType) has no phpType.");
+			return false;
+		}
 		$phpType = $typeDef['phpType'];
 		$this->debug("in serializeType: uqType: $uqType, ns: $ns, phptype: $phpType, arrayType: " . (isset($typeDef['arrayType']) ? $typeDef['arrayType'] : '') ); 
 		// if php type == struct, map value to the <all> element names
@@ -1580,7 +1589,21 @@ class wsdl extends nusoap_base {
 	 * @access private
 	 */
 	function serializeComplexTypeAttributes($typeDef, $value, $ns, $uqType) {
+		$this->debug("serializeComplexTypeAttributes for XML Schema type $ns:$uqType");
 		$xml = '';
+		if (isset($typeDef['extensionBase'])) {
+			$nsx = $this->getPrefix($typeDef['extensionBase']);
+			$uqTypex = $this->getLocalPart($typeDef['extensionBase']);
+			if ($this->getNamespaceFromPrefix($nsx)) {
+				$nsx = $this->getNamespaceFromPrefix($nsx);
+			}
+			if ($typeDefx = $this->getTypeDef($uqTypex, $nsx)) {
+				$this->debug("serialize attributes for extension base $nsx:$uqTypex");
+				$xml .= $this->serializeComplexTypeAttributes($typeDefx, $value, $nsx, $uqTypex);
+			} else {
+				$this->debug("extension base $nsx:$uqTypex is not a supported type");
+			}
+		}
 		if (isset($typeDef['attrs']) && is_array($typeDef['attrs'])) {
 			$this->debug("serialize attributes for XML Schema type $ns:$uqType");
 			if (is_array($value)) {
@@ -1613,19 +1636,6 @@ class wsdl extends nusoap_base {
 		} else {
 			$this->debug("no attributes to serialize for XML Schema type $ns:$uqType");
 		}
-		if (isset($typeDef['extensionBase'])) {
-			$ns = $this->getPrefix($typeDef['extensionBase']);
-			$uqType = $this->getLocalPart($typeDef['extensionBase']);
-			if ($this->getNamespaceFromPrefix($ns)) {
-				$ns = $this->getNamespaceFromPrefix($ns);
-			}
-			if ($typeDef = $this->getTypeDef($uqType, $ns)) {
-				$this->debug("serialize attributes for extension base $ns:$uqType");
-				$xml .= $this->serializeComplexTypeAttributes($typeDef, $value, $ns, $uqType);
-			} else {
-				$this->debug("extension base $ns:$uqType is not a supported type");
-			}
-		}
 		return $xml;
 	}
 
@@ -1642,7 +1652,21 @@ class wsdl extends nusoap_base {
 	 * @access private
 	 */
 	function serializeComplexTypeElements($typeDef, $value, $ns, $uqType, $use='encoded', $encodingStyle=false) {
+		$this->debug("in serializeComplexTypeElements for XML Schema type $ns:$uqType");
 		$xml = '';
+		if (isset($typeDef['extensionBase'])) {
+			$nsx = $this->getPrefix($typeDef['extensionBase']);
+			$uqTypex = $this->getLocalPart($typeDef['extensionBase']);
+			if ($this->getNamespaceFromPrefix($nsx)) {
+				$nsx = $this->getNamespaceFromPrefix($nsx);
+			}
+			if ($typeDefx = $this->getTypeDef($uqTypex, $nsx)) {
+				$this->debug("serialize elements for extension base $nsx:$uqTypex");
+				$xml .= $this->serializeComplexTypeElements($typeDefx, $value, $nsx, $uqTypex, $use, $encodingStyle);
+			} else {
+				$this->debug("extension base $nsx:$uqTypex is not a supported type");
+			}
+		}
 		if (isset($typeDef['elements']) && is_array($typeDef['elements'])) {
 			$this->debug("in serializeComplexTypeElements, serialize elements for XML Schema type $ns:$uqType");
 			if (is_array($value)) {
@@ -1712,19 +1736,6 @@ class wsdl extends nusoap_base {
 			} 
 		} else {
 			$this->debug("no elements to serialize for XML Schema type $ns:$uqType");
-		}
-		if (isset($typeDef['extensionBase'])) {
-			$ns = $this->getPrefix($typeDef['extensionBase']);
-			$uqType = $this->getLocalPart($typeDef['extensionBase']);
-			if ($this->getNamespaceFromPrefix($ns)) {
-				$ns = $this->getNamespaceFromPrefix($ns);
-			}
-			if ($typeDef = $this->getTypeDef($uqType, $ns)) {
-				$this->debug("serialize elements for extension base $ns:$uqType");
-				$xml .= $this->serializeComplexTypeElements($typeDef, $value, $ns, $uqType, $use, $encodingStyle);
-			} else {
-				$this->debug("extension base $ns:$uqType is not a supported type");
-			}
 		}
 		return $xml;
 	}
