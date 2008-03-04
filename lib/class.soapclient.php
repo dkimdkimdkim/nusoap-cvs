@@ -39,6 +39,7 @@ class nusoap_client extends nusoap_base  {
     var $proxyport = '';
 	var $proxyusername = '';
 	var $proxypassword = '';
+	var $portName = '';				// port name to use in WSDL
     var $xml_encoding = '';			// character set encoding of incoming (response) messages
 	var $http_encoding = false;
 	var $timeout = 0;				// HTTP connection timeout
@@ -85,16 +86,16 @@ class nusoap_client extends nusoap_base  {
 	*
 	* @param    mixed $endpoint SOAP server or WSDL URL (string), or wsdl instance (object)
 	* @param    bool $wsdl optional, set to true if using WSDL
-	* @param	int $portName optional portName in WSDL document
-	* @param    string $proxyhost
-	* @param    string $proxyport
-	* @param	string $proxyusername
-	* @param	string $proxypassword
+	* @param    string $proxyhost optional
+	* @param    string $proxyport optional
+	* @param	string $proxyusername optional
+	* @param	string $proxypassword optional
 	* @param	integer $timeout set the connection timeout
 	* @param	integer $response_timeout set the response timeout
+	* @param	string $portName optional portName in WSDL document
 	* @access   public
 	*/
-	function nusoap_client($endpoint,$wsdl = false,$proxyhost = false,$proxyport = false,$proxyusername = false, $proxypassword = false, $timeout = 0, $response_timeout = 30){
+	function nusoap_client($endpoint,$wsdl = false,$proxyhost = false,$proxyport = false,$proxyusername = false, $proxypassword = false, $timeout = 0, $response_timeout = 30, $portName = ''){
 		parent::nusoap_base();
 		$this->endpoint = $endpoint;
 		$this->proxyhost = $proxyhost;
@@ -103,6 +104,7 @@ class nusoap_client extends nusoap_base  {
 		$this->proxypassword = $proxypassword;
 		$this->timeout = $timeout;
 		$this->response_timeout = $response_timeout;
+		$this->portName = $portName;
 
 		$this->debug("ctor wsdl=$wsdl timeout=$timeout response_timeout=$response_timeout");
 		$this->appendDebug('endpoint=' . $this->varDump($endpoint));
@@ -340,16 +342,24 @@ class nusoap_client extends nusoap_base  {
 		$this->debug('checkWSDL');
 		// catch errors
 		if ($errstr = $this->wsdl->getError()) {
+			$this->appendDebug($this->wsdl->getDebug());
+			$this->wsdl->clearDebug();
 			$this->debug('got wsdl error: '.$errstr);
 			$this->setError('wsdl error: '.$errstr);
-		} elseif ($this->operations = $this->wsdl->getOperations('soap')) {
+		} elseif ($this->operations = $this->wsdl->getOperations($this->portName, 'soap')) {
+			$this->appendDebug($this->wsdl->getDebug());
+			$this->wsdl->clearDebug();
 			$this->bindingType = 'soap';
 			$this->debug('got '.count($this->operations).' operations from wsdl '.$this->wsdlFile.' for binding type '.$this->bindingType);
-		} elseif ($this->operations = $this->wsdl->getOperations('soap12')) {
+		} elseif ($this->operations = $this->wsdl->getOperations($this->portName, 'soap12')) {
+			$this->appendDebug($this->wsdl->getDebug());
+			$this->wsdl->clearDebug();
 			$this->bindingType = 'soap12';
 			$this->debug('got '.count($this->operations).' operations from wsdl '.$this->wsdlFile.' for binding type '.$this->bindingType);
 			$this->debug('**************** WARNING: SOAP 1.2 BINDING *****************');
 		} else {
+			$this->appendDebug($this->wsdl->getDebug());
+			$this->wsdl->clearDebug();
 			$this->debug('getOperations returned false');
 			$this->setError('no operations defined in the WSDL document!');
 		}

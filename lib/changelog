@@ -611,3 +611,7 @@
 - nusoap_xmlschema: fix extension when base type has no explicit prefix
 - nusoap_xmlschema: support XML Schema include
 - wsdl: improve support for sequence by serializing inherited attributes and elements first
+
+2008-03-04, version 1.0.rc1
+- wsdl: allow WSDL port name to be specified in getOperations
+- nusoap_client: allow WSDL port name to be specified in ctor

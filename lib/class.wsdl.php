@@ -578,30 +578,37 @@ class wsdl extends nusoap_base {
 	/**
 	 * returns an assoc array of operation names => operation data
 	 * 
+	 * @param string $portName WSDL port name
 	 * @param string $bindingType eg: soap, smtp, dime (only soap and soap12 are currently supported)
 	 * @return array 
 	 * @access public 
 	 */
-	function getOperations($bindingType = 'soap') {
+	function getOperations($portName = '', $bindingType = 'soap') {
 		$ops = array();
 		if ($bindingType == 'soap') {
 			$bindingType = 'http://schemas.xmlsoap.org/wsdl/soap/';
 		} elseif ($bindingType == 'soap12') {
 			$bindingType = 'http://schemas.xmlsoap.org/wsdl/soap12/';
 		}
+		$this->debug("getOperations for port $port bindingType $bindingType");
 		// loop thru ports
 		foreach($this->ports as $port => $portData) {
-			// binding type of port matches parameter
-			if ($portData['bindingType'] == $bindingType) {
-				//$this->debug("getOperations for port $port");
-				//$this->debug("port data: " . $this->varDump($portData));
-				//$this->debug("bindings: " . $this->varDump($this->bindings[ $portData['binding'] ]));
-				// merge bindings
-				if (isset($this->bindings[ $portData['binding'] ]['operations'])) {
-					$ops = array_merge ($ops, $this->bindings[ $portData['binding'] ]['operations']);
+			if ($portName == '' || $port == $portName) {
+				// binding type of port matches parameter
+				if ($portData['bindingType'] == $bindingType) {
+					$this->debug("getOperations found port $port bindingType $bindingType");
+					//$this->debug("port data: " . $this->varDump($portData));
+					//$this->debug("bindings: " . $this->varDump($this->bindings[ $portData['binding'] ]));
+					// merge bindings
+					if (isset($this->bindings[ $portData['binding'] ]['operations'])) {
+						$ops = array_merge ($ops, $this->bindings[ $portData['binding'] ]['operations']);
+					}
 				}
 			}
-		} 
+		}
+		if (count($ops) == 0) {
+			$this->debug("getOperations found no operations for port $port bindingType $bindingType");
+		}
 		return $ops;
 	} 
 	
