@@ -615,3 +615,8 @@
 2008-03-04, version 1.0.rc1
 - wsdl: allow WSDL port name to be specified in getOperations
 - nusoap_client: allow WSDL port name to be specified in ctor
+
+2008-03-06, version 1.0rc1
+- wsdl: fix some port name variable references
+- nusoap_base: change comments regarding preferred mode of support
+- wsdl2nusoap: initial revision
