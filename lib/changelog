@@ -620,3 +620,6 @@
 - wsdl: fix some port name variable references
 - nusoap_base: change comments regarding preferred mode of support
 - wsdl2nusoap: initial revision
+
+2008-03-14, version 1.0rc1
+- nusoap_base: fix timezone offset in timestamp_to_iso8601 (thanks Mario Trojan)

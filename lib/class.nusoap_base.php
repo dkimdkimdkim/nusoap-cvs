@@ -896,12 +896,22 @@ class nusoap_base {
 /**
 * convert unix timestamp to ISO 8601 compliant date string
 *
-* @param    string $timestamp Unix time stamp
+* @param    int $timestamp Unix time stamp
 * @param	boolean $utc Whether the time stamp is UTC or local
+* @return	mixed ISO 8601 date string or false
 * @access   public
 */
 function timestamp_to_iso8601($timestamp,$utc=true){
 	$datestr = date('Y-m-d\TH:i:sO',$timestamp);
+	$pos = strrpos($datestr, "+");
+	if ($pos === FALSE) {
+		$pos = strrpos($datestr, "-");
+	}
+	if ($pos !== FALSE) {
+		if (strlen($datestr) == $pos + 5) {
+			$datestr = substr($datestr, 0, $pos + 3) . ':' . substr($datestr, -2);
+		}
+	}
 	if($utc){
 		$eregStr =
 		'([0-9]{4})-'.	// centuries & years CCYY-
@@ -926,6 +936,7 @@ function timestamp_to_iso8601($timestamp,$utc=true){
 * convert ISO 8601 compliant date string to unix timestamp
 *
 * @param    string $datestr ISO 8601 compliant date string
+* @return	mixed Unix timestamp (int) or false
 * @access   public
 */
 function iso8601_to_timestamp($datestr){

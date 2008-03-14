@@ -85,7 +85,7 @@ class nusoap_client extends nusoap_base  {
 	* constructor
 	*
 	* @param    mixed $endpoint SOAP server or WSDL URL (string), or wsdl instance (object)
-	* @param    bool $wsdl optional, set to true if using WSDL
+	* @param    mixed $wsdl optional, set to 'wsdl' or true if using WSDL
 	* @param    string $proxyhost optional
 	* @param    string $proxyport optional
 	* @param	string $proxyusername optional
