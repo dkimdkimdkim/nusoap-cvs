@@ -19,341 +19,226 @@
 	<div class="info-box-title">Description</div>
 	<div class="nav-bar">
 					<span class="disabled">Description</span> |
-													<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
-						|											<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+													<a href="#sec-vars">Vars</a>
+						|											<a href="#sec-methods">Methods</a>
 						
 					</div>
 	<div class="info-box-body">
         		<!-- ========== Info from phpDoc block ========= -->
-<p class="short-description">soapclientmime client supporting  &lt;a href=&quot;http://www.w3.org/TR/SOAP-attachments&quot;&gt;MIME attachments&lt;/a&gt;.</p>
+<p class="short-description">nusoap_client_mime client supporting MIME attachments defined at  http://www.w3.org/TR/SOAP-attachments.  It depends on the PEAR Mail_MIME library.</p>
 	<ul class="tags">
-				<li><span class="field">access:</span> public</li>
 				<li><span class="field">version:</span> $Id$</li>
-				<li><span class="field">author:</span> Scott Nichol &lt;<a href="mailto:snichol@sourceforge.net">snichol@sourceforge.net</a>&gt;</li>
+				<li><span class="field">author:</span> Scott Nichol &lt;<a href="mailto:snichol@users.sourceforge.net">snichol@users.sourceforge.net</a>&gt;</li>
 				<li><span class="field">author:</span> Thanks to Guillaume and Henning Reich for posting great attachment code to the mail list</li>
 			</ul>
 		<p class="notes">
-			Located in <a class="field" href="_nusoapmime_php.html">/nusoapmime.php</a> (line <span class="field"><a href="..//__filesource/fsource_nusoap__nusoapmime.php.html#a49">49</a></span>)
+			Located in <a class="field" href="_nusoapmime_php.html">/nusoapmime.php</a> (line <span class="field"><a href="..//__filesource/fsource_nusoap__nusoapmime.php.html#a271">271</a></span>)
 		</p>
 		
 				
 		<pre><a href="../nusoap/nusoap_base.html">nusoap_base</a>
    |
-   --<a href="../nusoap/soapclient.html">soapclient</a>
+   --<a href="../nusoap/nusoap_client.html">nusoap_client</a>
       |
-      --soapclientmime</pre>
+      --<a href="../nusoap/nusoap_client_mime.html">nusoap_client_mime</a>
+         |
+         --soapclientmime</pre>
 	
 			</div>
 </div>
 
 
 
-	<a name="sec-var-summary"></a>
-	<div class="info-box">
-		<div class="info-box-title">Variable Summary</span></div>
-		<div class="nav-bar">
-			<a href="#sec-description">Description</a> |
-						<span class="disabled">Vars</span> (<a href="#sec-vars">details</a>)
-							| 
-									<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
-							
-								</div>
-		<div class="info-box-body">
-			<div class="var-summary">
-								<div class="var-title">
-					<img src="../media/images/Variable.png" alt=" " />
-					<span class="var-type">mixed</span>
-					<a href="#$mimeContentType" title="details" class="var-name">$mimeContentType</a>
-				</div>
-								<div class="var-title">
-					<img src="../media/images/Variable.png" alt=" " />
-					<span class="var-type">mixed</span>
-					<a href="#$requestAttachments" title="details" class="var-name">$requestAttachments</a>
-				</div>
-								<div class="var-title">
-					<img src="../media/images/Variable.png" alt=" " />
-					<span class="var-type">mixed</span>
-					<a href="#$responseAttachments" title="details" class="var-name">$responseAttachments</a>
-				</div>
-							</div>
-		</div>
-	</div>
 
-	<a name="sec-method-summary"></a>
-	<div class="info-box">
-		<div class="info-box-title">Method Summary</span></div>
-		<div class="nav-bar">
-			<a href="#sec-description">Description</a> |
-																		<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
-				 
-				|
-						<span class="disabled">Methods</span> (<a href="#sec-methods">details</a>)
-		</div>
-		<div class="info-box-body">			
-			<div class="method-summary">
-								
-				<div class="method-definition">
-					<img src="../media/images/Method.png" alt=" "/>
-											<span class="method-result">string</span>
-										<a href="#addAttachment" title="details" class="method-name">addAttachment</a>
-											(<span class="var-type">string</span>&nbsp;<span class="var-name">$data</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$filename</span> = <span class="var-default">''</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$contenttype</span> = <span class="var-default">'application/octet-stream'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$cid</span> = <span class="var-default">false</span>])
-									</div>
-								
-				<div class="method-definition">
-					<img src="../media/images/Method.png" alt=" "/>
-											<span class="method-result">void</span>
-										<a href="#clearAttachments" title="details" class="method-name">clearAttachments</a>
-										()
-									</div>
-								
-				<div class="method-definition">
-					<img src="../media/images/Method.png" alt=" "/>
-											<span class="method-result">array</span>
-										<a href="#getAttachments" title="details" class="method-name">getAttachments</a>
-										()
-									</div>
-								
-				<div class="method-definition">
-					<img src="../media/images/Method.png" alt=" "/>
-											<span class="method-result">string</span>
-										<a href="#getHTTPBody" title="details" class="method-name">getHTTPBody</a>
-											(<span class="var-type">string</span>&nbsp;<span class="var-name">$soapmsg</span>)
-									</div>
-								
-				<div class="method-definition">
-					<img src="../media/images/Method.png" alt=" "/>
-											<span class="method-result">string</span>
-										<a href="#getHTTPContentType" title="details" class="method-name">getHTTPContentType</a>
-										()
-									</div>
-								
-				<div class="method-definition">
-					<img src="../media/images/Method.png" alt=" "/>
-											<span class="method-result">string</span>
-										<a href="#getHTTPContentTypeCharset" title="details" class="method-name">getHTTPContentTypeCharset</a>
-										()
-									</div>
-								
-				<div class="method-definition">
-					<img src="../media/images/Method.png" alt=" "/>
-											<span class="method-result">mixed</span>
-										<a href="#parseResponse" title="details" class="method-name">parseResponse</a>
-											(<span class="var-type">array</span>&nbsp;<span class="var-name">$headers</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$data</span>)
-									</div>
-							</div>
-		</div>
-	</div>		
 
 	<a name="sec-vars"></a>
 	<div class="info-box">
 		<div class="info-box-title">Variables</div>
 		<div class="nav-bar">
 			<a href="#sec-description">Description</a> |
-										<a href="#sec-var-summary">Vars</a> (<span class="disabled">details</span>)
+										<span class="disabled">Vars</span>
 						
 			
 										| 
-									<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+									<a href="#sec-methods">Methods</a>
 							
 					</div>
 		<div class="info-box-body">
-			<a name="var$mimeContentType" id="$mimeContentType"><!-- --></A>
-<div class="evenrow">
-
-	<div class="var-header">
-		<img src="../media/images/Variable.png" />
-		<span class="var-title">
-			<span class="var-type">mixed</span>
-			<span class="var-name">$mimeContentType</span>
-						(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoapmime.php.html#a52">52</a></span>)
-		</span>
-	</div>
-
-	<!-- ========== Info from phpDoc block ========= -->
-	
-	
-		
-		
-
-</div>
-<a name="var$requestAttachments" id="$requestAttachments"><!-- --></A>
-<div class="oddrow">
-
-	<div class="var-header">
-		<img src="../media/images/Variable.png" />
-		<span class="var-title">
-			<span class="var-type">mixed</span>
-			<span class="var-name">$requestAttachments</span>
-			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoapmime.php.html#a50">50</a></span>)
-		</span>
-	</div>
-
-	<!-- ========== Info from phpDoc block ========= -->
-	
-	
-		
-		
-
-</div>
-<a name="var$responseAttachments" id="$responseAttachments"><!-- --></A>
-<div class="evenrow">
-
-	<div class="var-header">
-		<img src="../media/images/Variable.png" />
-		<span class="var-title">
-			<span class="var-type">mixed</span>
-			<span class="var-name">$responseAttachments</span>
-						(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoapmime.php.html#a51">51</a></span>)
-		</span>
-	</div>
-
-	<!-- ========== Info from phpDoc block ========= -->
-	
-	
-		
-		
-
-</div>
-							<h4>Inherited Variables</h4>
+										<h4>Inherited Variables</h4>
 				<A NAME='inherited_vars'><!-- --></A>
-									<p>Inherited from <span class="classname"><a href="../nusoap/soapclient.html">soapclient</a></span></p>
+									<p>Inherited from <span class="classname"><a href="../nusoap/nusoap_client_mime.html">nusoap_client_mime</a></span></p>
+					<blockquote>
+													<img src="../media/images/PrivateVariable.png" />
+							<span class="var-title">
+								<span class="var-name"><a href="../nusoap/nusoap_client_mime.html#var$mimeContentType">nusoap_client_mime::$mimeContentType</a></span><br>
+							</span>
+													<img src="../media/images/PrivateVariable.png" />
+							<span class="var-title">
+								<span class="var-name"><a href="../nusoap/nusoap_client_mime.html#var$requestAttachments">nusoap_client_mime::$requestAttachments</a></span><br>
+							</span>
+													<img src="../media/images/PrivateVariable.png" />
+							<span class="var-title">
+								<span class="var-name"><a href="../nusoap/nusoap_client_mime.html#var$responseAttachments">nusoap_client_mime::$responseAttachments</a></span><br>
+							</span>
+											</blockquote> 
+									<p>Inherited from <span class="classname"><a href="../nusoap/nusoap_client.html">nusoap_client</a></span></p>
 					<blockquote>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$authtype">soapclient::$authtype</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$authtype">nusoap_client::$authtype</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$certRequest">soapclient::$certRequest</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$bindingType">nusoap_client::$bindingType</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$cookies">soapclient::$cookies</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$certRequest">nusoap_client::$certRequest</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$decode_utf8">soapclient::$decode_utf8</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$cookies">nusoap_client::$cookies</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$defaultRpcParams">soapclient::$defaultRpcParams</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$curl_options">nusoap_client::$curl_options</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$document">soapclient::$document</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$decode_utf8">nusoap_client::$decode_utf8</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$endpoint">soapclient::$endpoint</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$defaultRpcParams">nusoap_client::$defaultRpcParams</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$endpointType">soapclient::$endpointType</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$document">nusoap_client::$document</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$fault">soapclient::$fault</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$endpoint">nusoap_client::$endpoint</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$faultcode">soapclient::$faultcode</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$endpointType">nusoap_client::$endpointType</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$faultdetail">soapclient::$faultdetail</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$fault">nusoap_client::$fault</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$faultstring">soapclient::$faultstring</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$faultcode">nusoap_client::$faultcode</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$forceEndpoint">soapclient::$forceEndpoint</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$faultdetail">nusoap_client::$faultdetail</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$http_encoding">soapclient::$http_encoding</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$faultstring">nusoap_client::$faultstring</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$operations">soapclient::$operations</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$forceEndpoint">nusoap_client::$forceEndpoint</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$password">soapclient::$password</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$http_encoding">nusoap_client::$http_encoding</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$persistentConnection">soapclient::$persistentConnection</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$operations">nusoap_client::$operations</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$proxyhost">soapclient::$proxyhost</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$password">nusoap_client::$password</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$proxypassword">soapclient::$proxypassword</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$persistentConnection">nusoap_client::$persistentConnection</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$proxyport">soapclient::$proxyport</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$portName">nusoap_client::$portName</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$proxyusername">soapclient::$proxyusername</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$proxyhost">nusoap_client::$proxyhost</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$request">soapclient::$request</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$proxypassword">nusoap_client::$proxypassword</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$requestHeaders">soapclient::$requestHeaders</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$proxyport">nusoap_client::$proxyport</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$response">soapclient::$response</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$proxyusername">nusoap_client::$proxyusername</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$responseData">soapclient::$responseData</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$request">nusoap_client::$request</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$responseHeaders">soapclient::$responseHeaders</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$requestHeaders">nusoap_client::$requestHeaders</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$response_timeout">soapclient::$response_timeout</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$response">nusoap_client::$response</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$timeout">soapclient::$timeout</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$responseData">nusoap_client::$responseData</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$username">soapclient::$username</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$responseHeader">nusoap_client::$responseHeader</a></span><br>
 							</span>
 													<img src="../media/images/Variable.png" />
 							<span class="var-title">
-								<span class="var-name"><a href="../nusoap/soapclient.html#var$xml_encoding">soapclient::$xml_encoding</a></span><br>
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$responseHeaders">nusoap_client::$responseHeaders</a></span><br>
+							</span>
+													<img src="../media/images/Variable.png" />
+							<span class="var-title">
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$response_timeout">nusoap_client::$response_timeout</a></span><br>
+							</span>
+													<img src="../media/images/Variable.png" />
+							<span class="var-title">
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$timeout">nusoap_client::$timeout</a></span><br>
+							</span>
+													<img src="../media/images/Variable.png" />
+							<span class="var-title">
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$username">nusoap_client::$username</a></span><br>
+							</span>
+													<img src="../media/images/Variable.png" />
+							<span class="var-title">
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$use_curl">nusoap_client::$use_curl</a></span><br>
+							</span>
+													<img src="../media/images/Variable.png" />
+							<span class="var-title">
+								<span class="var-name"><a href="../nusoap/nusoap_client.html#var$xml_encoding">nusoap_client::$xml_encoding</a></span><br>
 							</span>
 											</blockquote> 
 									<p>Inherited from <span class="classname"><a href="../nusoap/nusoap_base.html">nusoap_base</a></span></p>
 					<blockquote>
-													<img src="../media/images/Variable.png" />
+													<img src="../media/images/PrivateVariable.png" />
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$charencoding">nusoap_base::$charencoding</a></span><br>
 							</span>
-													<img src="../media/images/Variable.png" />
+													<img src="../media/images/PrivateVariable.png" />
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$debugLevel">nusoap_base::$debugLevel</a></span><br>
 							</span>
-													<img src="../media/images/Variable.png" />
+													<img src="../media/images/PrivateVariable.png" />
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$debug_str">nusoap_base::$debug_str</a></span><br>
 							</span>
-													<img src="../media/images/Variable.png" />
+													<img src="../media/images/PrivateVariable.png" />
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$error_str">nusoap_base::$error_str</a></span><br>
 							</span>
@@ -361,7 +246,7 @@
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$namespaces">nusoap_base::$namespaces</a></span><br>
 							</span>
-													<img src="../media/images/Variable.png" />
+													<img src="../media/images/PrivateVariable.png" />
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$revision">nusoap_base::$revision</a></span><br>
 							</span>
@@ -369,7 +254,7 @@
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$soap_defencoding">nusoap_base::$soap_defencoding</a></span><br>
 							</span>
-													<img src="../media/images/Variable.png" />
+													<img src="../media/images/PrivateVariable.png" />
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$title">nusoap_base::$title</a></span><br>
 							</span>
@@ -377,11 +262,11 @@
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$typemap">nusoap_base::$typemap</a></span><br>
 							</span>
-													<img src="../media/images/Variable.png" />
+													<img src="../media/images/PrivateVariable.png" />
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$usedNamespaces">nusoap_base::$usedNamespaces</a></span><br>
 							</span>
-													<img src="../media/images/Variable.png" />
+													<img src="../media/images/PrivateVariable.png" />
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$version">nusoap_base::$version</a></span><br>
 							</span>
@@ -403,306 +288,102 @@
 		<div class="info-box-title">Methods</div>
 		<div class="nav-bar">
 			<a href="#sec-description">Description</a> |
-															<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
-														<a href="#sec-method-summary">Methods</a> (<span class="disabled">details</span>)
+															<a href="#sec-vars">Vars</a>
+														<span class="disabled">Methods</span>
 						
 		</div>
 		<div class="info-box-body">
 			<A NAME='method_detail'></A>
-<a name="methodaddAttachment" id="addAttachment"><!-- --></a>
-<div class="oddrow">
-	
-	<div class="method-header">
-		<img src="../media/images/Method.png" />
-		<span class="method-title">addAttachment</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoapmime.php.html#a69">69</a></span>)
-	</div> 
-	
-	<!-- ========== Info from phpDoc block ========= -->
-<p class="short-description">adds a MIME attachment to the current request.</p>
-<p class="description"><p>If the $data parameter contains an empty string, this method will read  the contents of the file named by the $filename parameter.</p><p>If the $cid parameter is false, this method will generate the cid.</p></p>
-	<ul class="tags">
-				<li><span class="field">return:</span> The content-id (cid) of the attachment</li>
-				<li><span class="field">access:</span> public</li>
-			</ul>
-	
-	<div class="method-signature">
-		<span class="method-result">string</span>
-		<span class="method-name">
-			addAttachment
-		</span>
-					(<span class="var-type">string</span>&nbsp;<span class="var-name">$data</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$filename</span> = <span class="var-default">''</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$contenttype</span> = <span class="var-default">'application/octet-stream'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$cid</span> = <span class="var-default">false</span>])
-			</div>
-	
-			<ul class="parameters">
-					<li>
-				<span class="var-type">string</span>
-				<span class="var-name">$data</span><span class="var-description">: The data of the attachment</span>			</li>
-					<li>
-				<span class="var-type">string</span>
-				<span class="var-name">$filename</span><span class="var-description">: The filename of the attachment (default is empty string)</span>			</li>
-					<li>
-				<span class="var-type">string</span>
-				<span class="var-name">$contenttype</span><span class="var-description">: The MIME Content-Type of the attachment (default is application/octet-stream)</span>			</li>
-					<li>
-				<span class="var-type">string</span>
-				<span class="var-name">$cid</span><span class="var-description">: The content-id (cid) of the attachment (default is false)</span>			</li>
-				</ul>
-		
-		
-	</div>
-<a name="methodclearAttachments" id="clearAttachments"><!-- --></a>
-<div class="evenrow">
-	
-	<div class="method-header">
-		<img src="../media/images/Method.png" />
-		<span class="method-title">clearAttachments</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoapmime.php.html#a89">89</a></span>)
-	</div> 
-	
-	<!-- ========== Info from phpDoc block ========= -->
-<p class="short-description">clears the MIME attachments for the current request.</p>
-	<ul class="tags">
-				<li><span class="field">access:</span> public</li>
-			</ul>
-	
-	<div class="method-signature">
-		<span class="method-result">void</span>
-		<span class="method-name">
-			clearAttachments
-		</span>
-				()
-			</div>
-	
-		
-		
-	</div>
-<a name="methodgetAttachments" id="getAttachments"><!-- --></a>
-<div class="oddrow">
-	
-	<div class="method-header">
-		<img src="../media/images/Method.png" />
-		<span class="method-title">getAttachments</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoapmime.php.html#a103">103</a></span>)
-	</div> 
-	
-	<!-- ========== Info from phpDoc block ========= -->
-<p class="short-description">gets the MIME attachments from the current response.</p>
-<p class="description"><p>Each array element in the return is an associative array with keys  data, filename, contenttype, cid.  These keys correspond to the parameters  for addAttachment.</p></p>
-	<ul class="tags">
-				<li><span class="field">return:</span> The attachments.</li>
-				<li><span class="field">access:</span> public</li>
-			</ul>
-	
-	<div class="method-signature">
-		<span class="method-result">array</span>
-		<span class="method-name">
-			getAttachments
-		</span>
-				()
-			</div>
-	
-		
-		
-	</div>
-<a name="methodgetHTTPBody" id="getHTTPBody"><!-- --></a>
-<div class="evenrow">
-	
-	<div class="method-header">
-		<img src="../media/images/Method.png" />
-		<span class="method-title">getHTTPBody</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoapmime.php.html#a114">114</a></span>)
-	</div> 
-	
-	<!-- ========== Info from phpDoc block ========= -->
-<p class="short-description">gets the HTTP body for the current request.</p>
-	<ul class="tags">
-				<li><span class="field">return:</span> The HTTP body, which includes the SOAP payload</li>
-				<li><span class="field">access:</span> protected</li>
-			</ul>
-	
-	<div class="method-signature">
-		<span class="method-result">string</span>
-		<span class="method-name">
-			getHTTPBody
-		</span>
-					(<span class="var-type">string</span>&nbsp;<span class="var-name">$soapmsg</span>)
-			</div>
-	
-			<ul class="parameters">
-					<li>
-				<span class="var-type">string</span>
-				<span class="var-name">$soapmsg</span><span class="var-description">: The SOAP payload</span>			</li>
-				</ul>
-		
-			<hr class="separator" />
-		<div class="notes">Redefinition of:</div>
-		<dl>
-			<dt><a href="../nusoap/soapclient.html#methodgetHTTPBody">soapclient::getHTTPBody()</a></dt>
-						<dd>gets the HTTP body for the current request.</dd>
-					</dl>
-		
-	</div>
-<a name="methodgetHTTPContentType" id="getHTTPContentType"><!-- --></a>
-<div class="oddrow">
-	
-	<div class="method-header">
-		<img src="../media/images/Method.png" />
-		<span class="method-title">getHTTPContentType</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoapmime.php.html#a173">173</a></span>)
-	</div> 
-	
-	<!-- ========== Info from phpDoc block ========= -->
-<p class="short-description">gets the HTTP content type for the current request.</p>
-<p class="description"><p>Note: getHTTPBody must be called before this.</p></p>
-	<ul class="tags">
-				<li><span class="field">return:</span> the HTTP content type for the current request.</li>
-				<li><span class="field">access:</span> protected</li>
-			</ul>
-	
-	<div class="method-signature">
-		<span class="method-result">string</span>
-		<span class="method-name">
-			getHTTPContentType
-		</span>
-				()
-			</div>
-	
-		
-			<hr class="separator" />
-		<div class="notes">Redefinition of:</div>
-		<dl>
-			<dt><a href="../nusoap/soapclient.html#methodgetHTTPContentType">soapclient::getHTTPContentType()</a></dt>
-						<dd>gets the HTTP content type for the current request.</dd>
-					</dl>
-		
-	</div>
-<a name="methodgetHTTPContentTypeCharset" id="getHTTPContentTypeCharset"><!-- --></a>
-<div class="evenrow">
-	
-	<div class="method-header">
-		<img src="../media/images/Method.png" />
-		<span class="method-title">getHTTPContentTypeCharset</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoapmime.php.html#a189">189</a></span>)
-	</div> 
-	
-	<!-- ========== Info from phpDoc block ========= -->
-<p class="short-description">gets the HTTP content type charset for the current request.</p>
-<p class="description"><p>returns false for non-text content types.</p><p>Note: getHTTPBody must be called before this.</p></p>
-	<ul class="tags">
-				<li><span class="field">return:</span> the HTTP content type charset for the current request.</li>
-				<li><span class="field">access:</span> protected</li>
-			</ul>
-	
-	<div class="method-signature">
-		<span class="method-result">string</span>
-		<span class="method-name">
-			getHTTPContentTypeCharset
-		</span>
-				()
-			</div>
-	
-		
-			<hr class="separator" />
-		<div class="notes">Redefinition of:</div>
-		<dl>
-			<dt><a href="../nusoap/soapclient.html#methodgetHTTPContentTypeCharset">soapclient::getHTTPContentTypeCharset()</a></dt>
-						<dd>gets the HTTP content type charset for the current request.</dd>
-					</dl>
-		
-	</div>
-<a name="methodparseResponse" id="parseResponse"><!-- --></a>
-<div class="oddrow">
-	
-	<div class="method-header">
-		<img src="../media/images/Method.png" />
-		<span class="method-title">parseResponse</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoapmime.php.html#a204">204</a></span>)
-	</div> 
-	
-	<!-- ========== Info from phpDoc block ========= -->
-<p class="short-description">processes SOAP message returned from server</p>
-	<ul class="tags">
-				<li><span class="field">return:</span> value of the message, decoded into a PHP type</li>
-				<li><span class="field">access:</span> protected</li>
-			</ul>
-	
-	<div class="method-signature">
-		<span class="method-result">mixed</span>
-		<span class="method-name">
-			parseResponse
-		</span>
-					(<span class="var-type">array</span>&nbsp;<span class="var-name">$headers</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$data</span>)
-			</div>
-	
-			<ul class="parameters">
-					<li>
-				<span class="var-type">array</span>
-				<span class="var-name">$headers</span><span class="var-description">: The HTTP headers</span>			</li>
-					<li>
-				<span class="var-type">string</span>
-				<span class="var-name">$data</span><span class="var-description">: unprocessed response data from server</span>			</li>
-				</ul>
-		
-			<hr class="separator" />
-		<div class="notes">Redefinition of:</div>
-		<dl>
-			<dt><a href="../nusoap/soapclient.html#methodparseResponse">soapclient::parseResponse()</a></dt>
-						<dd>processes SOAP message returned from server</dd>
-					</dl>
-		
-	</div>
 							<h4>Inherited Methods</h4>
 				<a name='inherited_methods'><!-- --></a>	
 									<!-- =========== Summary =========== -->
-					<p>Inherited From <span class="classname"><a href="../nusoap/soapclient.html">soapclient</a></span></p>
+					<p>Inherited From <span class="classname"><a href="../nusoap/nusoap_client_mime.html">nusoap_client_mime</a></span></p>
+					<blockquote>
+													<img src="../media/images/Method.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client_mime.html#methodaddAttachment">nusoap_client_mime::addAttachment()</a></span><br>
+													<img src="../media/images/Method.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client_mime.html#methodclearAttachments">nusoap_client_mime::clearAttachments()</a></span><br>
+													<img src="../media/images/Method.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client_mime.html#methodgetAttachments">nusoap_client_mime::getAttachments()</a></span><br>
+													<img src="../media/images/PrivateMethod.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client_mime.html#methodgetHTTPBody">nusoap_client_mime::getHTTPBody()</a></span><br>
+													<img src="../media/images/PrivateMethod.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client_mime.html#methodgetHTTPContentType">nusoap_client_mime::getHTTPContentType()</a></span><br>
+													<img src="../media/images/PrivateMethod.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client_mime.html#methodgetHTTPContentTypeCharset">nusoap_client_mime::getHTTPContentTypeCharset()</a></span><br>
+													<img src="../media/images/PrivateMethod.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client_mime.html#methodparseResponse">nusoap_client_mime::parseResponse()</a></span><br>
+											</blockquote>
+									<!-- =========== Summary =========== -->
+					<p>Inherited From <span class="classname"><a href="../nusoap/nusoap_client.html">nusoap_client</a></span></p>
 					<blockquote>
 													<img src="../media/images/Constructor.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodsoapclient">soapclient::soapclient()</a></span><br>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodnusoap_client">nusoap_client::nusoap_client()</a></span><br>
 													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodcall">soapclient::call()</a></span><br>
-													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodcheckCookies">soapclient::checkCookies()</a></span><br>
-													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methoddecodeUTF8">soapclient::decodeUTF8()</a></span><br>
-													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodgetCookies">soapclient::getCookies()</a></span><br>
-													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodgetDefaultRpcParams">soapclient::getDefaultRpcParams()</a></span><br>
-													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodgetHeaders">soapclient::getHeaders()</a></span><br>
-													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodgetHTTPBody">soapclient::getHTTPBody()</a></span><br>
-													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodgetHTTPContentType">soapclient::getHTTPContentType()</a></span><br>
-													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodgetHTTPContentTypeCharset">soapclient::getHTTPContentTypeCharset()</a></span><br>
-													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodgetOperationData">soapclient::getOperationData()</a></span><br>
-													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodgetProxy">soapclient::getProxy()</a></span><br>
-													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodparseResponse">soapclient::parseResponse()</a></span><br>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodcall">nusoap_client::call()</a></span><br>
 													<img src="../media/images/PrivateMethod.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodsend">soapclient::send()</a></span><br>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodcheckCookies">nusoap_client::checkCookies()</a></span><br>
+													<img src="../media/images/PrivateMethod.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodcheckWSDL">nusoap_client::checkWSDL()</a></span><br>
 													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodsetCookie">soapclient::setCookie()</a></span><br>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methoddecodeUTF8">nusoap_client::decodeUTF8()</a></span><br>
 													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodsetCredentials">soapclient::setCredentials()</a></span><br>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodgetCookies">nusoap_client::getCookies()</a></span><br>
 													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodsetDefaultRpcParams">soapclient::setDefaultRpcParams()</a></span><br>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodgetDefaultRpcParams">nusoap_client::getDefaultRpcParams()</a></span><br>
 													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodsetEndpoint">soapclient::setEndpoint()</a></span><br>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodgetHeader">nusoap_client::getHeader()</a></span><br>
 													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodsetHeaders">soapclient::setHeaders()</a></span><br>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodgetHeaders">nusoap_client::getHeaders()</a></span><br>
+													<img src="../media/images/PrivateMethod.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodgetHTTPBody">nusoap_client::getHTTPBody()</a></span><br>
+													<img src="../media/images/PrivateMethod.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodgetHTTPContentType">nusoap_client::getHTTPContentType()</a></span><br>
+													<img src="../media/images/PrivateMethod.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodgetHTTPContentTypeCharset">nusoap_client::getHTTPContentTypeCharset()</a></span><br>
 													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodsetHTTPEncoding">soapclient::setHTTPEncoding()</a></span><br>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodgetOperationData">nusoap_client::getOperationData()</a></span><br>
 													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodsetHTTPProxy">soapclient::setHTTPProxy()</a></span><br>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodgetProxy">nusoap_client::getProxy()</a></span><br>
 													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methodUpdateCookies">soapclient::UpdateCookies()</a></span><br>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodgetProxyClassCode">nusoap_client::getProxyClassCode()</a></span><br>
 													<img src="../media/images/Method.png" alt=" "/>
-							<span class="method-name"><a href="../nusoap/soapclient.html#methoduseHTTPPersistentConnection">soapclient::useHTTPPersistentConnection()</a></span><br>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodloadWSDL">nusoap_client::loadWSDL()</a></span><br>
+													<img src="../media/images/PrivateMethod.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodparseResponse">nusoap_client::parseResponse()</a></span><br>
+													<img src="../media/images/PrivateMethod.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodsend">nusoap_client::send()</a></span><br>
+													<img src="../media/images/Method.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodsetCookie">nusoap_client::setCookie()</a></span><br>
+													<img src="../media/images/Method.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodsetCredentials">nusoap_client::setCredentials()</a></span><br>
+													<img src="../media/images/Method.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodsetCurlOption">nusoap_client::setCurlOption()</a></span><br>
+													<img src="../media/images/Method.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodsetDefaultRpcParams">nusoap_client::setDefaultRpcParams()</a></span><br>
+													<img src="../media/images/Method.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodsetEndpoint">nusoap_client::setEndpoint()</a></span><br>
+													<img src="../media/images/Method.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodsetHeaders">nusoap_client::setHeaders()</a></span><br>
+													<img src="../media/images/Method.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodsetHTTPEncoding">nusoap_client::setHTTPEncoding()</a></span><br>
+													<img src="../media/images/Method.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodsetHTTPProxy">nusoap_client::setHTTPProxy()</a></span><br>
+													<img src="../media/images/Method.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodsetUseCURL">nusoap_client::setUseCURL()</a></span><br>
+													<img src="../media/images/PrivateMethod.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methodUpdateCookies">nusoap_client::UpdateCookies()</a></span><br>
+													<img src="../media/images/Method.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#methoduseHTTPPersistentConnection">nusoap_client::useHTTPPersistentConnection()</a></span><br>
+													<img src="../media/images/PrivateMethod.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_client.html#method_getProxyClassCode">nusoap_client::_getProxyClassCode()</a></span><br>
 											</blockquote>
 									<!-- =========== Summary =========== -->
 					<p>Inherited From <span class="classname"><a href="../nusoap/nusoap_base.html">nusoap_base</a></span></p>
 					<blockquote>
 													<img src="../media/images/Constructor.png" alt=" "/>
 							<span class="method-name"><a href="../nusoap/nusoap_base.html#methodnusoap_base">nusoap_base::nusoap_base()</a></span><br>
-													<img src="../media/images/PrivateMethod.png" alt=" "/>
+													<img src="../media/images/Method.png" alt=" "/>
 							<span class="method-name"><a href="../nusoap/nusoap_base.html#methodappendDebug">nusoap_base::appendDebug()</a></span><br>
 													<img src="../media/images/Method.png" alt=" "/>
 							<span class="method-name"><a href="../nusoap/nusoap_base.html#methodclearDebug">nusoap_base::clearDebug()</a></span><br>
@@ -750,6 +431,8 @@
 							<span class="method-name"><a href="../nusoap/nusoap_base.html#methodsetGlobalDebugLevel">nusoap_base::setGlobalDebugLevel()</a></span><br>
 													<img src="../media/images/Method.png" alt=" "/>
 							<span class="method-name"><a href="../nusoap/nusoap_base.html#methodvarDump">nusoap_base::varDump()</a></span><br>
+													<img src="../media/images/Method.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_base.html#method__toString">nusoap_base::__toString()</a></span><br>
 											</blockquote>
 										
 		</div>
@@ -757,7 +440,7 @@
 
 	
 	<p class="notes" id="credit">
-		Documentation generated on Fri, 20 May 2005 13:13:59 -0400 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.3.0RC3</a>
+		Documentation generated on Mon, 26 Apr 2010 16:17:11 -0400 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.3.0RC3</a>
 	</p>
 	</div></body>
 </html>

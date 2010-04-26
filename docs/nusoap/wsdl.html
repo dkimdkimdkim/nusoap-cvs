@@ -25,14 +25,16 @@
 					</div>
 	<div class="info-box-body">
         		<!-- ========== Info from phpDoc block ========= -->
-<p class="short-description">parses a WSDL file, allows access to it's data, other utility methods</p>
+<p class="short-description">parses a WSDL file, allows access to it's data, other utility methods.</p>
+<p class="description"><p>also builds WSDL structures programmatically.</p></p>
 	<ul class="tags">
 				<li><span class="field">access:</span> public</li>
 				<li><span class="field">version:</span> $Id$</li>
 				<li><span class="field">author:</span> Dietrich Ayala &lt;<a href="mailto:dietrich@ganx4.com">dietrich@ganx4.com</a>&gt;</li>
+				<li><span class="field">author:</span> Scott Nichol &lt;<a href="mailto:snichol@users.sourceforge.net">snichol@users.sourceforge.net</a>&gt;</li>
 			</ul>
 		<p class="notes">
-			Located in <a class="field" href="_nusoap_php.html">/nusoap.php</a> (line <span class="field"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3602">3602</a></span>)
+			Located in <a class="field" href="_nusoap_php.html">/nusoap.php</a> (line <span class="field"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4596">4596</a></span>)
 		</p>
 		
 				
@@ -60,12 +62,27 @@
 								<div class="var-title">
 					<img src="../media/images/Variable.png" alt=" " />
 					<span class="var-type">mixed</span>
+					<a href="#$authtype" title="details" class="var-name">$authtype</a>
+				</div>
+								<div class="var-title">
+					<img src="../media/images/Variable.png" alt=" " />
+					<span class="var-type">mixed</span>
 					<a href="#$bindings" title="details" class="var-name">$bindings</a>
 				</div>
 								<div class="var-title">
 					<img src="../media/images/Variable.png" alt=" " />
 					<span class="var-type">mixed</span>
+					<a href="#$certRequest" title="details" class="var-name">$certRequest</a>
+				</div>
+								<div class="var-title">
+					<img src="../media/images/Variable.png" alt=" " />
+					<span class="var-type">mixed</span>
 					<a href="#$complexTypes" title="details" class="var-name">$complexTypes</a>
+				</div>
+								<div class="var-title">
+					<img src="../media/images/Variable.png" alt=" " />
+					<span class="var-type">mixed</span>
+					<a href="#$curl_options" title="details" class="var-name">$curl_options</a>
 				</div>
 								<div class="var-title">
 					<img src="../media/images/Variable.png" alt=" " />
@@ -145,6 +162,11 @@
 								<div class="var-title">
 					<img src="../media/images/Variable.png" alt=" " />
 					<span class="var-type">mixed</span>
+					<a href="#$password" title="details" class="var-name">$password</a>
+				</div>
+								<div class="var-title">
+					<img src="../media/images/Variable.png" alt=" " />
+					<span class="var-type">mixed</span>
 					<a href="#$ports" title="details" class="var-name">$ports</a>
 				</div>
 								<div class="var-title">
@@ -200,6 +222,16 @@
 								<div class="var-title">
 					<img src="../media/images/Variable.png" alt=" " />
 					<span class="var-type">mixed</span>
+					<a href="#$username" title="details" class="var-name">$username</a>
+				</div>
+								<div class="var-title">
+					<img src="../media/images/Variable.png" alt=" " />
+					<span class="var-type">mixed</span>
+					<a href="#$use_curl" title="details" class="var-name">$use_curl</a>
+				</div>
+								<div class="var-title">
+					<img src="../media/images/Variable.png" alt=" " />
+					<span class="var-type">mixed</span>
 					<a href="#$wsdl" title="details" class="var-name">$wsdl</a>
 				</div>
 							</div>
@@ -223,35 +255,35 @@
 					<img src="../media/images/Constructor.png" alt=" "/>
 											<span class="method-result">wsdl</span>
 										<a href="#wsdl" title="details" class="method-name">wsdl</a>
-											([<span class="var-type">string</span>&nbsp;<span class="var-name">$wsdl</span> = <span class="var-default">''</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$proxyhost</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$proxyport</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$proxyusername</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$proxypassword</span> = <span class="var-default">false</span>], <span class="var-type">integer</span>&nbsp;<span class="var-name">$timeout</span>, [<span class="var-type">integer</span>&nbsp;<span class="var-name">$response_timeout</span> = <span class="var-default">30</span>])
+											([<span class="var-type">string</span>&nbsp;<span class="var-name">$wsdl</span> = <span class="var-default">''</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$proxyhost</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$proxyport</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$proxyusername</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$proxypassword</span> = <span class="var-default">false</span>], <span class="var-type">integer</span>&nbsp;<span class="var-name">$timeout</span>, [<span class="var-type">integer</span>&nbsp;<span class="var-name">$response_timeout</span> = <span class="var-default">30</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$curl_options</span> = <span class="var-default">null</span>], [<span class="var-type">boolean</span>&nbsp;<span class="var-name">$use_curl</span> = <span class="var-default">false</span>])
 									</div>
 								
 				<div class="method-definition">
 					<img src="../media/images/Method.png" alt=" "/>
 											<span class="method-result">void</span>
 										<a href="#addComplexType" title="details" class="method-name">addComplexType</a>
-											(<span class="var-type">name</span>&nbsp;<span class="var-name">$name</span>, [<span class="var-type">typeClass</span>&nbsp;<span class="var-name">$typeClass</span> = <span class="var-default">'complexType'</span>], [<span class="var-type">phpType:</span>&nbsp;<span class="var-name">$phpType</span> = <span class="var-default">'array'</span>], [<span class="var-type">compositor</span>&nbsp;<span class="var-name">$compositor</span> = <span class="var-default">''</span>], [<span class="var-type">restrictionBase</span>&nbsp;<span class="var-name">$restrictionBase</span> = <span class="var-default">''</span>], [<span class="var-type">elements</span>&nbsp;<span class="var-name">$elements</span> = <span class="var-default">array()</span>], [<span class="var-type">attrs</span>&nbsp;<span class="var-name">$attrs</span> = <span class="var-default">array()</span>], [<span class="var-type">arrayType:</span>&nbsp;<span class="var-name">$arrayType</span> = <span class="var-default">''</span>])
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$name</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$typeClass</span> = <span class="var-default">'complexType'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$phpType</span> = <span class="var-default">'array'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$compositor</span> = <span class="var-default">''</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$restrictionBase</span> = <span class="var-default">''</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$elements</span> = <span class="var-default">array()</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$attrs</span> = <span class="var-default">array()</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$arrayType</span> = <span class="var-default">''</span>])
 									</div>
 								
 				<div class="method-definition">
 					<img src="../media/images/Method.png" alt=" "/>
 											<span class="method-result">void</span>
 										<a href="#addElement" title="details" class="method-name">addElement</a>
-											(<span class="var-type">name</span>&nbsp;<span class="var-name">$attrs</span>)
+											(<span class="var-type">array</span>&nbsp;<span class="var-name">$attrs</span>)
 									</div>
 								
 				<div class="method-definition">
 					<img src="../media/images/Method.png" alt=" "/>
 											<span class="method-result">void</span>
 										<a href="#addOperation" title="details" class="method-name">addOperation</a>
-											(<span class="var-type">mixed</span>&nbsp;<span class="var-name">$name</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$in</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$out</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$namespace</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$soapaction</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$style</span> = <span class="var-default">'rpc'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$use</span> = <span class="var-default">'encoded'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$documentation</span> = <span class="var-default">''</span>], <span class="var-type">string</span>&nbsp;<span class="var-name">$methodname</span>)
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$name</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$in</span> = <span class="var-default">false</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$out</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$namespace</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$soapaction</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$style</span> = <span class="var-default">'rpc'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$use</span> = <span class="var-default">'encoded'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$documentation</span> = <span class="var-default">''</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$encodingStyle</span> = <span class="var-default">''</span>])
 									</div>
 								
 				<div class="method-definition">
 					<img src="../media/images/Method.png" alt=" "/>
 											<span class="method-result">void</span>
 										<a href="#addSimpleType" title="details" class="method-name">addSimpleType</a>
-											(<span class="var-type">name</span>&nbsp;<span class="var-name">$name</span>, [<span class="var-type">restrictionBase</span>&nbsp;<span class="var-name">$restrictionBase</span> = <span class="var-default">''</span>], [<span class="var-type">typeClass</span>&nbsp;<span class="var-name">$typeClass</span> = <span class="var-default">'simpleType'</span>], [<span class="var-type">phpType:</span>&nbsp;<span class="var-name">$phpType</span> = <span class="var-default">'scalar'</span>])
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$name</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$restrictionBase</span> = <span class="var-default">''</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$typeClass</span> = <span class="var-default">'simpleType'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$phpType</span> = <span class="var-default">'scalar'</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$enumeration</span> = <span class="var-default">array()</span>])
 									</div>
 								
 				<div class="method-definition">
@@ -271,6 +303,13 @@
 				<div class="method-definition">
 					<img src="../media/images/Method.png" alt=" "/>
 											<span class="method-result">void</span>
+										<a href="#fetchWSDL" title="details" class="method-name">fetchWSDL</a>
+											(<span class="var-type">mixed</span>&nbsp;<span class="var-name">$wsdl</span>)
+									</div>
+								
+				<div class="method-definition">
+					<img src="../media/images/Method.png" alt=" "/>
+											<span class="method-result">void</span>
 										<a href="#getBindingData" title="details" class="method-name">getBindingData</a>
 											(<span class="var-type">mixed</span>&nbsp;<span class="var-name">$binding</span>)
 									</div>
@@ -285,15 +324,29 @@
 				<div class="method-definition">
 					<img src="../media/images/Method.png" alt=" "/>
 											<span class="method-result">array</span>
+										<a href="#getOperationDataForSoapAction" title="details" class="method-name">getOperationDataForSoapAction</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$soapAction</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$bindingType</span> = <span class="var-default">'soap'</span>])
+									</div>
+								
+				<div class="method-definition">
+					<img src="../media/images/Method.png" alt=" "/>
+											<span class="method-result">array</span>
 										<a href="#getOperations" title="details" class="method-name">getOperations</a>
-											([<span class="var-type">string</span>&nbsp;<span class="var-name">$bindingType</span> = <span class="var-default">'soap'</span>])
+											([<span class="var-type">string</span>&nbsp;<span class="var-name">$portName</span> = <span class="var-default">''</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$bindingType</span> = <span class="var-default">'soap'</span>])
 									</div>
 								
 				<div class="method-definition">
 					<img src="../media/images/Method.png" alt=" "/>
 											<span class="method-result">mixed</span>
 										<a href="#getTypeDef" title="details" class="method-name">getTypeDef</a>
-											(<span class="var-type">$type</span>&nbsp;<span class="var-name">$type</span>, <span class="var-type">$ns</span>&nbsp;<span class="var-name">$ns</span>)
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$type</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$ns</span>)
+									</div>
+								
+				<div class="method-definition">
+					<img src="../media/images/PrivateMethod.png" alt=" "/>
+											<span class="method-result">boolean</span>
+										<a href="#parametersMatchWrapped" title="details" class="method-name">parametersMatchWrapped</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$type</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">&$parameters</span>)
 									</div>
 								
 				<div class="method-definition">
@@ -307,18 +360,18 @@
 					<img src="../media/images/Method.png" alt=" "/>
 											<span class="method-result">string</span>
 										<a href="#serialize" title="details" class="method-name">serialize</a>
-											(<span class="var-type">$debug</span>&nbsp;<span class="var-name">$debug</span>)
+											(<span class="var-type">mixed</span>&nbsp;<span class="var-name">$debug</span>)
 									</div>
 								
 				<div class="method-definition">
-					<img src="../media/images/Method.png" alt=" "/>
+					<img src="../media/images/PrivateMethod.png" alt=" "/>
 											<span class="method-result">string</span>
 										<a href="#serializeComplexTypeAttributes" title="details" class="method-name">serializeComplexTypeAttributes</a>
 											(<span class="var-type">array</span>&nbsp;<span class="var-name">$typeDef</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$ns</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$uqType</span>)
 									</div>
 								
 				<div class="method-definition">
-					<img src="../media/images/Method.png" alt=" "/>
+					<img src="../media/images/PrivateMethod.png" alt=" "/>
 											<span class="method-result">string</span>
 										<a href="#serializeComplexTypeElements" title="details" class="method-name">serializeComplexTypeElements</a>
 											(<span class="var-type">array</span>&nbsp;<span class="var-name">$typeDef</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$ns</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$uqType</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$use</span> = <span class="var-default">'encoded'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$encodingStyle</span> = <span class="var-default">false</span>])
@@ -328,21 +381,28 @@
 					<img src="../media/images/Method.png" alt=" "/>
 											<span class="method-result">mixed</span>
 										<a href="#serializeParameters" title="details" class="method-name">serializeParameters</a>
-											(<span class="var-type">mixed</span>&nbsp;<span class="var-name">$operation</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$direction</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$parameters</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$</span>)
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$operation</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$direction</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$parameters</span>)
 									</div>
 								
 				<div class="method-definition">
 					<img src="../media/images/Method.png" alt=" "/>
 											<span class="method-result">mixed</span>
 										<a href="#serializeRPCParameters" title="details" class="method-name">serializeRPCParameters</a>
-											(<span class="var-type">mixed</span>&nbsp;<span class="var-name">$operation</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$direction</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$parameters</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$</span>)
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$operation</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$direction</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$parameters</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$bindingType</span> = <span class="var-default">'soap'</span>])
+									</div>
+								
+				<div class="method-definition">
+					<img src="../media/images/PrivateMethod.png" alt=" "/>
+											<span class="method-result">string</span>
+										<a href="#serializeType" title="details" class="method-name">serializeType</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$name</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$type</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$value</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$use</span> = <span class="var-default">'encoded'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$encodingStyle</span> = <span class="var-default">false</span>], [<span class="var-type">boolean</span>&nbsp;<span class="var-name">$unqualified</span> = <span class="var-default">false</span>])
 									</div>
 								
 				<div class="method-definition">
 					<img src="../media/images/Method.png" alt=" "/>
-											<span class="method-result">string</span>
-										<a href="#serializeType" title="details" class="method-name">serializeType</a>
-											(<span class="var-type">string</span>&nbsp;<span class="var-name">$name</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$type</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$value</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$use</span> = <span class="var-default">'encoded'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$encodingStyle</span> = <span class="var-default">false</span>], [<span class="var-type">boolean</span>&nbsp;<span class="var-name">$unqualified</span> = <span class="var-default">false</span>])
+											<span class="method-result">void</span>
+										<a href="#setCredentials" title="details" class="method-name">setCredentials</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$username</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$password</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$authtype</span> = <span class="var-default">'basic'</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$certRequest</span> = <span class="var-default">array()</span>])
 									</div>
 								
 				<div class="method-definition">
@@ -375,7 +435,26 @@
 							
 					</div>
 		<div class="info-box-body">
-			<a name="var$bindings" id="$bindings"><!-- --></A>
+			<a name="var$authtype" id="$authtype"><!-- --></A>
+<div class="evenrow">
+
+	<div class="var-header">
+		<img src="../media/images/Variable.png" />
+		<span class="var-title">
+			<span class="var-type">mixed</span>
+			<span class="var-name">$authtype</span>
+			 = <span class="var-default"> ''</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4636">4636</a></span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+	
+	
+		
+		
+
+</div>
+<a name="var$bindings" id="$bindings"><!-- --></A>
 <div class="oddrow">
 
 	<div class="var-header">
@@ -383,7 +462,26 @@
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$bindings</span>
-			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3615">3615</a></span>)
+			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4609">4609</a></span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+	
+	
+		
+		
+
+</div>
+<a name="var$certRequest" id="$certRequest"><!-- --></A>
+<div class="evenrow">
+
+	<div class="var-header">
+		<img src="../media/images/Variable.png" />
+		<span class="var-title">
+			<span class="var-type">mixed</span>
+			<span class="var-name">$certRequest</span>
+			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4637">4637</a></span>)
 		</span>
 	</div>
 
@@ -395,14 +493,33 @@
 
 </div>
 <a name="var$complexTypes" id="$complexTypes"><!-- --></A>
-<div class="evenrow">
+<div class="oddrow">
 
 	<div class="var-header">
 		<img src="../media/images/Variable.png" />
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$complexTypes</span>
-			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3609">3609</a></span>)
+			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4603">4603</a></span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+	
+	
+		
+		
+
+</div>
+<a name="var$curl_options" id="$curl_options"><!-- --></A>
+<div class="evenrow">
+
+	<div class="var-header">
+		<img src="../media/images/Variable.png" />
+		<span class="var-title">
+			<span class="var-type">mixed</span>
+			<span class="var-name">$curl_options</span>
+			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4631">4631</a></span>)
 		</span>
 	</div>
 
@@ -421,7 +538,7 @@
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$currentBinding</span>
-						(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3616">3616</a></span>)
+						(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4610">4610</a></span>)
 		</span>
 	</div>
 
@@ -440,7 +557,7 @@
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$currentMessage</span>
-						(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3611">3611</a></span>)
+						(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4605">4605</a></span>)
 		</span>
 	</div>
 
@@ -459,7 +576,7 @@
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$currentOperation</span>
-						(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3612">3612</a></span>)
+						(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4606">4606</a></span>)
 		</span>
 	</div>
 
@@ -478,7 +595,7 @@
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$currentPort</span>
-						(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3618">3618</a></span>)
+						(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4612">4612</a></span>)
 		</span>
 	</div>
 
@@ -497,7 +614,7 @@
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$currentPortType</span>
-						(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3614">3614</a></span>)
+						(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4608">4608</a></span>)
 		</span>
 	</div>
 
@@ -516,7 +633,7 @@
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$currentSchema</span>
-						(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3607">3607</a></span>)
+						(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4601">4601</a></span>)
 		</span>
 	</div>
 
@@ -535,7 +652,7 @@
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$depth</span>
-			 = <span class="var-default"> 0</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3628">3628</a></span>)
+			 = <span class="var-default"> 0</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4622">4622</a></span>)
 		</span>
 	</div>
 
@@ -554,7 +671,7 @@
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$depth_array</span>
-			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3629">3629</a></span>)
+			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4623">4623</a></span>)
 		</span>
 	</div>
 
@@ -573,7 +690,7 @@
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$documentation</span>
-			 = <span class="var-default"> false</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3621">3621</a></span>)
+			 = <span class="var-default"> false</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4615">4615</a></span>)
 		</span>
 	</div>
 
@@ -592,7 +709,7 @@
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$endpoint</span>
-			 = <span class="var-default"> ''</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3622">3622</a></span>)
+			 = <span class="var-default"> ''</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4616">4616</a></span>)
 		</span>
 	</div>
 
@@ -611,7 +728,7 @@
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$import</span>
-			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3624">3624</a></span>)
+			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4618">4618</a></span>)
 		</span>
 	</div>
 
@@ -630,7 +747,7 @@
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$message</span>
-			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3608">3608</a></span>)
+			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4602">4602</a></span>)
 		</span>
 	</div>
 
@@ -649,7 +766,7 @@
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$messages</span>
-			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3610">3610</a></span>)
+			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4604">4604</a></span>)
 		</span>
 	</div>
 
@@ -668,7 +785,7 @@
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$opData</span>
-			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3619">3619</a></span>)
+			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4613">4613</a></span>)
 		</span>
 	</div>
 
@@ -687,7 +804,26 @@
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$parser</span>
-						(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3626">3626</a></span>)
+						(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4620">4620</a></span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+	
+	
+		
+		
+
+</div>
+<a name="var$password" id="$password"><!-- --></A>
+<div class="evenrow">
+
+	<div class="var-header">
+		<img src="../media/images/Variable.png" />
+		<span class="var-title">
+			<span class="var-type">mixed</span>
+			<span class="var-name">$password</span>
+			 = <span class="var-default"> ''</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4635">4635</a></span>)
 		</span>
 	</div>
 
@@ -699,14 +835,14 @@
 
 </div>
 <a name="var$ports" id="$ports"><!-- --></A>
-<div class="evenrow">
+<div class="oddrow">
 
 	<div class="var-header">
 		<img src="../media/images/Variable.png" />
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$ports</span>
-			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3617">3617</a></span>)
+			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4611">4611</a></span>)
 		</span>
 	</div>
 
@@ -718,14 +854,14 @@
 
 </div>
 <a name="var$portTypes" id="$portTypes"><!-- --></A>
-<div class="oddrow">
+<div class="evenrow">
 
 	<div class="var-header">
 		<img src="../media/images/Variable.png" />
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$portTypes</span>
-			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3613">3613</a></span>)
+			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4607">4607</a></span>)
 		</span>
 	</div>
 
@@ -737,14 +873,14 @@
 
 </div>
 <a name="var$position" id="$position"><!-- --></A>
-<div class="evenrow">
+<div class="oddrow">
 
 	<div class="var-header">
 		<img src="../media/images/Variable.png" />
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$position</span>
-			 = <span class="var-default"> 0</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3627">3627</a></span>)
+			 = <span class="var-default"> 0</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4621">4621</a></span>)
 		</span>
 	</div>
 
@@ -756,14 +892,14 @@
 
 </div>
 <a name="var$proxyhost" id="$proxyhost"><!-- --></A>
-<div class="oddrow">
+<div class="evenrow">
 
 	<div class="var-header">
 		<img src="../media/images/Variable.png" />
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$proxyhost</span>
-			 = <span class="var-default"> ''</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3631">3631</a></span>)
+			 = <span class="var-default"> ''</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4625">4625</a></span>)
 		</span>
 	</div>
 
@@ -775,14 +911,14 @@
 
 </div>
 <a name="var$proxypassword" id="$proxypassword"><!-- --></A>
-<div class="evenrow">
+<div class="oddrow">
 
 	<div class="var-header">
 		<img src="../media/images/Variable.png" />
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$proxypassword</span>
-			 = <span class="var-default"> ''</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3634">3634</a></span>)
+			 = <span class="var-default"> ''</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4628">4628</a></span>)
 		</span>
 	</div>
 
@@ -794,14 +930,14 @@
 
 </div>
 <a name="var$proxyport" id="$proxyport"><!-- --></A>
-<div class="oddrow">
+<div class="evenrow">
 
 	<div class="var-header">
 		<img src="../media/images/Variable.png" />
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$proxyport</span>
-			 = <span class="var-default"> ''</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3632">3632</a></span>)
+			 = <span class="var-default"> ''</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4626">4626</a></span>)
 		</span>
 	</div>
 
@@ -813,14 +949,14 @@
 
 </div>
 <a name="var$proxyusername" id="$proxyusername"><!-- --></A>
-<div class="evenrow">
+<div class="oddrow">
 
 	<div class="var-header">
 		<img src="../media/images/Variable.png" />
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$proxyusername</span>
-			 = <span class="var-default"> ''</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3633">3633</a></span>)
+			 = <span class="var-default"> ''</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4627">4627</a></span>)
 		</span>
 	</div>
 
@@ -832,14 +968,14 @@
 
 </div>
 <a name="var$response_timeout" id="$response_timeout"><!-- --></A>
-<div class="oddrow">
+<div class="evenrow">
 
 	<div class="var-header">
 		<img src="../media/images/Variable.png" />
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$response_timeout</span>
-			 = <span class="var-default"> 30</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3636">3636</a></span>)
+			 = <span class="var-default"> 30</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4630">4630</a></span>)
 		</span>
 	</div>
 
@@ -851,14 +987,14 @@
 
 </div>
 <a name="var$schemas" id="$schemas"><!-- --></A>
-<div class="evenrow">
+<div class="oddrow">
 
 	<div class="var-header">
 		<img src="../media/images/Variable.png" />
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$schemas</span>
-			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3606">3606</a></span>)
+			 = <span class="var-default">array()</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4600">4600</a></span>)
 		</span>
 	</div>
 
@@ -870,14 +1006,14 @@
 
 </div>
 <a name="var$status" id="$status"><!-- --></A>
-<div class="oddrow">
+<div class="evenrow">
 
 	<div class="var-header">
 		<img src="../media/images/Variable.png" />
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$status</span>
-			 = <span class="var-default"> ''</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3620">3620</a></span>)
+			 = <span class="var-default"> ''</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4614">4614</a></span>)
 		</span>
 	</div>
 
@@ -889,14 +1025,52 @@
 
 </div>
 <a name="var$timeout" id="$timeout"><!-- --></A>
-<div class="evenrow">
+<div class="oddrow">
 
 	<div class="var-header">
 		<img src="../media/images/Variable.png" />
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$timeout</span>
-			 = <span class="var-default"> 0</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3635">3635</a></span>)
+			 = <span class="var-default"> 0</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4629">4629</a></span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+	
+	
+		
+		
+
+</div>
+<a name="var$username" id="$username"><!-- --></A>
+<div class="evenrow">
+
+	<div class="var-header">
+		<img src="../media/images/Variable.png" />
+		<span class="var-title">
+			<span class="var-type">mixed</span>
+			<span class="var-name">$username</span>
+			 = <span class="var-default"> ''</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4634">4634</a></span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+	
+	
+		
+		
+
+</div>
+<a name="var$use_curl" id="$use_curl"><!-- --></A>
+<div class="oddrow">
+
+	<div class="var-header">
+		<img src="../media/images/Variable.png" />
+		<span class="var-title">
+			<span class="var-type">mixed</span>
+			<span class="var-name">$use_curl</span>
+			 = <span class="var-default"> false</span>			(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4632">4632</a></span>)
 		</span>
 	</div>
 
@@ -908,14 +1082,14 @@
 
 </div>
 <a name="var$wsdl" id="$wsdl"><!-- --></A>
-<div class="oddrow">
+<div class="evenrow">
 
 	<div class="var-header">
 		<img src="../media/images/Variable.png" />
 		<span class="var-title">
 			<span class="var-type">mixed</span>
 			<span class="var-name">$wsdl</span>
-						(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3604">3604</a></span>)
+						(line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4598">4598</a></span>)
 		</span>
 	</div>
 
@@ -930,19 +1104,19 @@
 				<A NAME='inherited_vars'><!-- --></A>
 									<p>Inherited from <span class="classname"><a href="../nusoap/nusoap_base.html">nusoap_base</a></span></p>
 					<blockquote>
-													<img src="../media/images/Variable.png" />
+													<img src="../media/images/PrivateVariable.png" />
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$charencoding">nusoap_base::$charencoding</a></span><br>
 							</span>
-													<img src="../media/images/Variable.png" />
+													<img src="../media/images/PrivateVariable.png" />
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$debugLevel">nusoap_base::$debugLevel</a></span><br>
 							</span>
-													<img src="../media/images/Variable.png" />
+													<img src="../media/images/PrivateVariable.png" />
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$debug_str">nusoap_base::$debug_str</a></span><br>
 							</span>
-													<img src="../media/images/Variable.png" />
+													<img src="../media/images/PrivateVariable.png" />
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$error_str">nusoap_base::$error_str</a></span><br>
 							</span>
@@ -950,7 +1124,7 @@
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$namespaces">nusoap_base::$namespaces</a></span><br>
 							</span>
-													<img src="../media/images/Variable.png" />
+													<img src="../media/images/PrivateVariable.png" />
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$revision">nusoap_base::$revision</a></span><br>
 							</span>
@@ -958,7 +1132,7 @@
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$soap_defencoding">nusoap_base::$soap_defencoding</a></span><br>
 							</span>
-													<img src="../media/images/Variable.png" />
+													<img src="../media/images/PrivateVariable.png" />
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$title">nusoap_base::$title</a></span><br>
 							</span>
@@ -966,11 +1140,11 @@
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$typemap">nusoap_base::$typemap</a></span><br>
 							</span>
-													<img src="../media/images/Variable.png" />
+													<img src="../media/images/PrivateVariable.png" />
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$usedNamespaces">nusoap_base::$usedNamespaces</a></span><br>
 							</span>
-													<img src="../media/images/Variable.png" />
+													<img src="../media/images/PrivateVariable.png" />
 							<span class="var-title">
 								<span class="var-name"><a href="../nusoap/nusoap_base.html#var$version">nusoap_base::$version</a></span><br>
 							</span>
@@ -999,11 +1173,11 @@
 		<div class="info-box-body">
 			<A NAME='method_detail'></A>
 <a name="methodwsdl" id="wsdl"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Constructor.png" />
-		<span class="method-title">Constructor wsdl</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3650">3650</a></span>)
+		<span class="method-title">Constructor wsdl</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4653">4653</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1017,7 +1191,7 @@
 		<span class="method-name">
 			wsdl
 		</span>
-					([<span class="var-type">string</span>&nbsp;<span class="var-name">$wsdl</span> = <span class="var-default">''</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$proxyhost</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$proxyport</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$proxyusername</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$proxypassword</span> = <span class="var-default">false</span>], <span class="var-type">integer</span>&nbsp;<span class="var-name">$timeout</span>, [<span class="var-type">integer</span>&nbsp;<span class="var-name">$response_timeout</span> = <span class="var-default">30</span>])
+					([<span class="var-type">string</span>&nbsp;<span class="var-name">$wsdl</span> = <span class="var-default">''</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$proxyhost</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$proxyport</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$proxyusername</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$proxypassword</span> = <span class="var-default">false</span>], <span class="var-type">integer</span>&nbsp;<span class="var-name">$timeout</span>, [<span class="var-type">integer</span>&nbsp;<span class="var-name">$response_timeout</span> = <span class="var-default">30</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$curl_options</span> = <span class="var-default">null</span>], [<span class="var-type">boolean</span>&nbsp;<span class="var-name">$use_curl</span> = <span class="var-default">false</span>])
 			</div>
 	
 			<ul class="parameters">
@@ -1042,22 +1216,29 @@
 					<li>
 				<span class="var-type">integer</span>
 				<span class="var-name">$response_timeout</span><span class="var-description">: set the response timeout</span>			</li>
+					<li>
+				<span class="var-type">array</span>
+				<span class="var-name">$curl_options</span><span class="var-description">: user-specified cURL options</span>			</li>
+					<li>
+				<span class="var-type">boolean</span>
+				<span class="var-name">$use_curl</span><span class="var-description">: try to use cURL</span>			</li>
 				</ul>
 		
 		
 	</div>
 <a name="methodaddComplexType" id="addComplexType"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">addComplexType</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4991">4991</a></span>)
+		<span class="method-title">addComplexType</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a6278">6278</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
 <p class="short-description">adds an XML Schema complex type to the WSDL types</p>
 	<ul class="tags">
-				<li><span class="field">see:</span> xmlschema</li>
+				<li><span class="field">access:</span> public</li>
+				<li><span class="field">see:</span> <a href="../nusoap/nusoap_xmlschema.html">nusoap_xmlschema</a></li>
 			</ul>
 	
 	<div class="method-signature">
@@ -1065,50 +1246,51 @@
 		<span class="method-name">
 			addComplexType
 		</span>
-					(<span class="var-type">name</span>&nbsp;<span class="var-name">$name</span>, [<span class="var-type">typeClass</span>&nbsp;<span class="var-name">$typeClass</span> = <span class="var-default">'complexType'</span>], [<span class="var-type">phpType:</span>&nbsp;<span class="var-name">$phpType</span> = <span class="var-default">'array'</span>], [<span class="var-type">compositor</span>&nbsp;<span class="var-name">$compositor</span> = <span class="var-default">''</span>], [<span class="var-type">restrictionBase</span>&nbsp;<span class="var-name">$restrictionBase</span> = <span class="var-default">''</span>], [<span class="var-type">elements</span>&nbsp;<span class="var-name">$elements</span> = <span class="var-default">array()</span>], [<span class="var-type">attrs</span>&nbsp;<span class="var-name">$attrs</span> = <span class="var-default">array()</span>], [<span class="var-type">arrayType:</span>&nbsp;<span class="var-name">$arrayType</span> = <span class="var-default">''</span>])
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$name</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$typeClass</span> = <span class="var-default">'complexType'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$phpType</span> = <span class="var-default">'array'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$compositor</span> = <span class="var-default">''</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$restrictionBase</span> = <span class="var-default">''</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$elements</span> = <span class="var-default">array()</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$attrs</span> = <span class="var-default">array()</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$arrayType</span> = <span class="var-default">''</span>])
 			</div>
 	
 			<ul class="parameters">
 					<li>
-				<span class="var-type">name</span>
+				<span class="var-type">string</span>
 				<span class="var-name">$name</span>			</li>
 					<li>
-				<span class="var-type">typeClass</span>
+				<span class="var-type">string</span>
 				<span class="var-name">$typeClass</span><span class="var-description">: (complexType|simpleType|attribute)</span>			</li>
 					<li>
-				<span class="var-type">phpType:</span>
+				<span class="var-type">string</span>
 				<span class="var-name">$phpType</span><span class="var-description">: currently supported are array and struct (php assoc array)</span>			</li>
 					<li>
-				<span class="var-type">compositor</span>
+				<span class="var-type">string</span>
 				<span class="var-name">$compositor</span><span class="var-description">: (all|sequence|choice)</span>			</li>
 					<li>
-				<span class="var-type">restrictionBase</span>
+				<span class="var-type">string</span>
 				<span class="var-name">$restrictionBase</span><span class="var-description">: namespace:name (http://schemas.xmlsoap.org/soap/encoding/:Array)</span>			</li>
 					<li>
-				<span class="var-type">elements</span>
-				<span class="var-name">$elements</span><span class="var-description">: = array ( name = array(name=&gt;'',type=&gt;'') )</span>			</li>
+				<span class="var-type">array</span>
+				<span class="var-name">$elements</span><span class="var-description">: e.g. array ( name =&gt; array(name=&gt;'',type=&gt;'') )</span>			</li>
 					<li>
-				<span class="var-type">attrs</span>
-				<span class="var-name">$attrs</span><span class="var-description">: = array(      array(         'ref' =&gt; &quot;http://schemas.xmlsoap.org/soap/encoding/:arrayType&quot;,         &quot;http://schemas.xmlsoap.org/wsdl/:arrayType&quot; =&gt; &quot;string[]&quot;      )  )</span>			</li>
+				<span class="var-type">array</span>
+				<span class="var-name">$attrs</span><span class="var-description">: e.g. array(array('ref'=&gt;'SOAP-ENC:arrayType','wsdl:arrayType'=&gt;'xsd:string[]'))</span>			</li>
 					<li>
-				<span class="var-type">arrayType:</span>
-				<span class="var-name">$arrayType</span><span class="var-description">: namespace:name (http://www.w3.org/2001/XMLSchema:string)</span>			</li>
+				<span class="var-type">string</span>
+				<span class="var-name">$arrayType</span><span class="var-description">: as namespace:name (xsd:string)</span>			</li>
 				</ul>
 		
 		
 	</div>
 <a name="methodaddElement" id="addElement"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">addElement</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a5049">5049</a></span>)
+		<span class="method-title">addElement</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a6339">6339</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
 <p class="short-description">adds an element to the WSDL types</p>
 	<ul class="tags">
-				<li><span class="field">see:</span> xmlschema</li>
+				<li><span class="field">access:</span> public</li>
+				<li><span class="field">see:</span> <a href="../nusoap/nusoap_xmlschema.html">nusoap_xmlschema</a></li>
 			</ul>
 	
 	<div class="method-signature">
@@ -1116,27 +1298,27 @@
 		<span class="method-name">
 			addElement
 		</span>
-					(<span class="var-type">name</span>&nbsp;<span class="var-name">$attrs</span>)
+					(<span class="var-type">array</span>&nbsp;<span class="var-name">$attrs</span>)
 			</div>
 	
 			<ul class="parameters">
 					<li>
-				<span class="var-type">name</span>
-				<span class="var-name">$attrs</span>			</li>
+				<span class="var-type">array</span>
+				<span class="var-name">$attrs</span><span class="var-description">: attributes that must include name and type</span>			</li>
 				</ul>
 		
 		
 	</div>
 <a name="methodaddOperation" id="addOperation"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">addOperation</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a5067">5067</a></span>)
+		<span class="method-title">addOperation</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a6358">6358</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
-<p class="short-description">register a service with the server</p>
+<p class="short-description">register an operation with the server</p>
 	<ul class="tags">
 				<li><span class="field">access:</span> public</li>
 			</ul>
@@ -1146,18 +1328,18 @@
 		<span class="method-name">
 			addOperation
 		</span>
-					(<span class="var-type">mixed</span>&nbsp;<span class="var-name">$name</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$in</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$out</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$namespace</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$soapaction</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$style</span> = <span class="var-default">'rpc'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$use</span> = <span class="var-default">'encoded'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$documentation</span> = <span class="var-default">''</span>], <span class="var-type">string</span>&nbsp;<span class="var-name">$methodname</span>)
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$name</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$in</span> = <span class="var-default">false</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$out</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$namespace</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$soapaction</span> = <span class="var-default">false</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$style</span> = <span class="var-default">'rpc'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$use</span> = <span class="var-default">'encoded'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$documentation</span> = <span class="var-default">''</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$encodingStyle</span> = <span class="var-default">''</span>])
 			</div>
 	
 			<ul class="parameters">
 					<li>
 				<span class="var-type">string</span>
-				<span class="var-name">$methodname</span>			</li>
+				<span class="var-name">$name</span><span class="var-description">: operation (method) name</span>			</li>
 					<li>
-				<span class="var-type">string</span>
+				<span class="var-type">array</span>
 				<span class="var-name">$in</span><span class="var-description">: assoc array of input values: key = param name, value = param type</span>			</li>
 					<li>
-				<span class="var-type">string</span>
+				<span class="var-type">array</span>
 				<span class="var-name">$out</span><span class="var-description">: assoc array of output values: key = param name, value = param type</span>			</li>
 					<li>
 				<span class="var-type">string</span>
@@ -1167,29 +1349,33 @@
 				<span class="var-name">$soapaction</span><span class="var-description">: optional The soapaction for the operation</span>			</li>
 					<li>
 				<span class="var-type">string</span>
-				<span class="var-name">$style</span><span class="var-description">: (rpc|document) optional The style for the operation</span>			</li>
+				<span class="var-name">$style</span><span class="var-description">: (rpc|document) optional The style for the operation Note: when 'document' is specified, parameter and return wrappers are created for you automatically</span>			</li>
 					<li>
 				<span class="var-type">string</span>
 				<span class="var-name">$use</span><span class="var-description">: (encoded|literal) optional The use for the parameters (cannot mix right now)</span>			</li>
 					<li>
 				<span class="var-type">string</span>
 				<span class="var-name">$documentation</span><span class="var-description">: optional The description to include in the WSDL</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$encodingStyle</span><span class="var-description">: optional (usually 'http://schemas.xmlsoap.org/soap/encoding/' for encoded)</span>			</li>
 				</ul>
 		
 		
 	</div>
 <a name="methodaddSimpleType" id="addSimpleType"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">addSimpleType</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a5035">5035</a></span>)
+		<span class="method-title">addSimpleType</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a6325">6325</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
 <p class="short-description">adds an XML Schema simple type to the WSDL types</p>
 	<ul class="tags">
-				<li><span class="field">see:</span> xmlschema</li>
+				<li><span class="field">access:</span> public</li>
+				<li><span class="field">see:</span> <a href="../nusoap/nusoap_xmlschema.html">nusoap_xmlschema</a></li>
 			</ul>
 	
 	<div class="method-signature">
@@ -1197,32 +1383,35 @@
 		<span class="method-name">
 			addSimpleType
 		</span>
-					(<span class="var-type">name</span>&nbsp;<span class="var-name">$name</span>, [<span class="var-type">restrictionBase</span>&nbsp;<span class="var-name">$restrictionBase</span> = <span class="var-default">''</span>], [<span class="var-type">typeClass</span>&nbsp;<span class="var-name">$typeClass</span> = <span class="var-default">'simpleType'</span>], [<span class="var-type">phpType:</span>&nbsp;<span class="var-name">$phpType</span> = <span class="var-default">'scalar'</span>])
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$name</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$restrictionBase</span> = <span class="var-default">''</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$typeClass</span> = <span class="var-default">'simpleType'</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$phpType</span> = <span class="var-default">'scalar'</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$enumeration</span> = <span class="var-default">array()</span>])
 			</div>
 	
 			<ul class="parameters">
 					<li>
-				<span class="var-type">name</span>
+				<span class="var-type">string</span>
 				<span class="var-name">$name</span>			</li>
 					<li>
-				<span class="var-type">restrictionBase</span>
+				<span class="var-type">string</span>
 				<span class="var-name">$restrictionBase</span><span class="var-description">: namespace:name (http://schemas.xmlsoap.org/soap/encoding/:Array)</span>			</li>
 					<li>
-				<span class="var-type">typeClass</span>
-				<span class="var-name">$typeClass</span><span class="var-description">: (simpleType)</span>			</li>
+				<span class="var-type">string</span>
+				<span class="var-name">$typeClass</span><span class="var-description">: (should always be simpleType)</span>			</li>
 					<li>
-				<span class="var-type">phpType:</span>
-				<span class="var-name">$phpType</span><span class="var-description">: (scalar)</span>			</li>
+				<span class="var-type">string</span>
+				<span class="var-name">$phpType</span><span class="var-description">: (should always be scalar)</span>			</li>
+					<li>
+				<span class="var-type">array</span>
+				<span class="var-name">$enumeration</span><span class="var-description">: array of values</span>			</li>
 				</ul>
 		
 		
 	</div>
 <a name="methodcharacter_data" id="character_data"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/PrivateMethod.png" />
-		<span class="method-title">character_data</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4098">4098</a></span>)
+		<span class="method-title">character_data</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a5123">5123</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1251,11 +1440,11 @@
 		
 	</div>
 <a name="methodend_element" id="end_element"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/PrivateMethod.png" />
-		<span class="method-title">end_element</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4070">4070</a></span>)
+		<span class="method-title">end_element</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a5093">5093</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1283,12 +1472,37 @@
 		
 		
 	</div>
+<a name="methodfetchWSDL" id="fetchWSDL"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<img src="../media/images/Method.png" />
+		<span class="method-title">fetchWSDL</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4673">4673</a></span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">fetches the WSDL document and parses it</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			fetchWSDL
+		</span>
+					(<span class="var-type">mixed</span>&nbsp;<span class="var-name">$wsdl</span>)
+			</div>
+	
+		
+		
+	</div>
 <a name="methodgetBindingData" id="getBindingData"><!-- --></a>
 <div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">getBindingData</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4109">4109</a></span>)
+		<span class="method-title">getBindingData</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a5152">5152</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1309,7 +1523,7 @@
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">getOperationData</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4153">4153</a></span>)
+		<span class="method-title">getOperationData</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a5207">5207</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1329,20 +1543,53 @@
 			<ul class="parameters">
 					<li>
 				<span class="var-type">string</span>
-				<span class="var-name">$operation</span><span class="var-description">: , name of operation</span>			</li>
+				<span class="var-name">$operation</span><span class="var-description">: name of operation</span>			</li>
 					<li>
 				<span class="var-type">string</span>
-				<span class="var-name">$bindingType</span><span class="var-description">: , type of binding eg: soap</span>			</li>
+				<span class="var-name">$bindingType</span><span class="var-description">: type of binding eg: soap, soap12</span>			</li>
+				</ul>
+		
+		
+	</div>
+<a name="methodgetOperationDataForSoapAction" id="getOperationDataForSoapAction"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<img src="../media/images/Method.png" />
+		<span class="method-title">getOperationDataForSoapAction</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a5239">5239</a></span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">returns an associative array of data necessary for calling an operation</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">array</span>
+		<span class="method-name">
+			getOperationDataForSoapAction
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$soapAction</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$bindingType</span> = <span class="var-default">'soap'</span>])
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$soapAction</span><span class="var-description">: soapAction for operation</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$bindingType</span><span class="var-description">: type of binding eg: soap, soap12</span>			</li>
 				</ul>
 		
 		
 	</div>
 <a name="methodgetOperations" id="getOperations"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">getOperations</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4123">4123</a></span>)
+		<span class="method-title">getOperations</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a5167">5167</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1356,30 +1603,33 @@
 		<span class="method-name">
 			getOperations
 		</span>
-					([<span class="var-type">string</span>&nbsp;<span class="var-name">$bindingType</span> = <span class="var-default">'soap'</span>])
+					([<span class="var-type">string</span>&nbsp;<span class="var-name">$portName</span> = <span class="var-default">''</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$bindingType</span> = <span class="var-default">'soap'</span>])
 			</div>
 	
 			<ul class="parameters">
 					<li>
 				<span class="var-type">string</span>
-				<span class="var-name">$bindingType</span><span class="var-description">: eg: soap, smtp, dime (only soap is currently supported)</span>			</li>
+				<span class="var-name">$portName</span><span class="var-description">: WSDL port name</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$bindingType</span><span class="var-description">: eg: soap, smtp, dime (only soap and soap12 are currently supported)</span>			</li>
 				</ul>
 		
 		
 	</div>
 <a name="methodgetTypeDef" id="getTypeDef"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">getTypeDef</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4192">4192</a></span>)
+		<span class="method-title">getTypeDef</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a5277">5277</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
 <p class="short-description">returns an array of information about a given type  returns false if no type exists by the given name</p>
 <p class="description"><p>typeDef = array( 	 'elements' =&gt; array(), // refs to elements array 	'restrictionBase' =&gt; '', 	'phpType' =&gt; '', 	'order' =&gt; '(sequence|all)', 	'attrs' =&gt; array() // refs to attributes array 	)</p></p>
 	<ul class="tags">
-				<li><span class="field">see:</span> xmlschema</li>
+				<li><span class="field">see:</span> <a href="../nusoap/nusoap_xmlschema.html">nusoap_xmlschema</a></li>
 				<li><span class="field">access:</span> public</li>
 			</ul>
 	
@@ -1388,16 +1638,50 @@
 		<span class="method-name">
 			getTypeDef
 		</span>
-					(<span class="var-type">$type</span>&nbsp;<span class="var-name">$type</span>, <span class="var-type">$ns</span>&nbsp;<span class="var-name">$ns</span>)
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$type</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$ns</span>)
 			</div>
 	
 			<ul class="parameters">
 					<li>
-				<span class="var-type">$type</span>
-				<span class="var-name">$type</span><span class="var-description">: string</span>			</li>
+				<span class="var-type">string</span>
+				<span class="var-name">$type</span><span class="var-description">: the type</span>			</li>
 					<li>
-				<span class="var-type">$ns</span>
-				<span class="var-name">$ns</span><span class="var-description">: string</span>			</li>
+				<span class="var-type">string</span>
+				<span class="var-name">$ns</span><span class="var-description">: namespace (not prefix) of the type</span>			</li>
+				</ul>
+		
+		
+	</div>
+<a name="methodparametersMatchWrapped" id="parametersMatchWrapped"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<img src="../media/images/PrivateMethod.png" />
+		<span class="method-title">parametersMatchWrapped</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a5525">5525</a></span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">determine whether a set of parameters are unwrapped  when they are expect to be wrapped, Microsoft-style.</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> whether they parameters are unwrapped (and should be wrapped)</li>
+				<li><span class="field">access:</span> private</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">boolean</span>
+		<span class="method-name">
+			parametersMatchWrapped
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$type</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">&$parameters</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$type</span><span class="var-description">: the type (element name) of the wrapper</span>			</li>
+					<li>
+				<span class="var-type">array</span>
+				<span class="var-name">$parameters</span><span class="var-description">: the parameter values for the SOAP call</span>			</li>
 				</ul>
 		
 		
@@ -1407,7 +1691,7 @@
 	
 	<div class="method-header">
 		<img src="../media/images/PrivateMethod.png" />
-		<span class="method-title">parseWSDL</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3760">3760</a></span>)
+		<span class="method-title">parseWSDL</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4776">4776</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1437,13 +1721,13 @@
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">serialize</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4273">4273</a></span>)
+		<span class="method-title">serialize</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a5386">5386</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
 <p class="short-description">serialize the parsed wsdl</p>
 	<ul class="tags">
-				<li><span class="field">return:</span> , serialization of WSDL</li>
+				<li><span class="field">return:</span> serialization of WSDL</li>
 				<li><span class="field">access:</span> public</li>
 			</ul>
 	
@@ -1452,13 +1736,13 @@
 		<span class="method-name">
 			serialize
 		</span>
-					(<span class="var-type">$debug</span>&nbsp;<span class="var-name">$debug</span>)
+					(<span class="var-type">mixed</span>&nbsp;<span class="var-name">$debug</span>)
 			</div>
 	
 			<ul class="parameters">
 					<li>
-				<span class="var-type">$debug</span>
-				<span class="var-name">$debug</span><span class="var-description">: mixed whether to put debug=1 in endpoint URL</span>			</li>
+				<span class="var-type">mixed</span>
+				<span class="var-name">$debug</span><span class="var-description">: whether to put debug=1 in endpoint URL</span>			</li>
 				</ul>
 		
 		
@@ -1467,15 +1751,15 @@
 <div class="oddrow">
 	
 	<div class="method-header">
-		<img src="../media/images/Method.png" />
-		<span class="method-title">serializeComplexTypeAttributes</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4827">4827</a></span>)
+		<img src="../media/images/PrivateMethod.png" />
+		<span class="method-title">serializeComplexTypeAttributes</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a6107">6107</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
 <p class="short-description">serializes the attributes for a complexType</p>
 	<ul class="tags">
-				<li><span class="field">return:</span> serialization</li>
-				<li><span class="field">access:</span> public</li>
+				<li><span class="field">return:</span> value serialized as an XML string</li>
+				<li><span class="field">access:</span> private</li>
 			</ul>
 	
 	<div class="method-signature">
@@ -1489,10 +1773,10 @@
 			<ul class="parameters">
 					<li>
 				<span class="var-type">array</span>
-				<span class="var-name">$typeDef</span>			</li>
+				<span class="var-name">$typeDef</span><span class="var-description">: our internal representation of an XML schema type (or element)</span>			</li>
 					<li>
 				<span class="var-type">mixed</span>
-				<span class="var-name">$value</span><span class="var-description">: , a native PHP value (parameter value)</span>			</li>
+				<span class="var-name">$value</span><span class="var-description">: a native PHP value (parameter value)</span>			</li>
 					<li>
 				<span class="var-type">string</span>
 				<span class="var-name">$ns</span><span class="var-description">: the namespace of the type</span>			</li>
@@ -1507,15 +1791,15 @@
 <div class="evenrow">
 	
 	<div class="method-header">
-		<img src="../media/images/Method.png" />
-		<span class="method-title">serializeComplexTypeElements</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4889">4889</a></span>)
+		<img src="../media/images/PrivateMethod.png" />
+		<span class="method-title">serializeComplexTypeElements</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a6170">6170</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
 <p class="short-description">serializes the elements for a complexType</p>
 	<ul class="tags">
-				<li><span class="field">return:</span> serialization</li>
-				<li><span class="field">access:</span> public</li>
+				<li><span class="field">return:</span> value serialized as an XML string</li>
+				<li><span class="field">access:</span> private</li>
 			</ul>
 	
 	<div class="method-signature">
@@ -1529,10 +1813,10 @@
 			<ul class="parameters">
 					<li>
 				<span class="var-type">array</span>
-				<span class="var-name">$typeDef</span>			</li>
+				<span class="var-name">$typeDef</span><span class="var-description">: our internal representation of an XML schema type (or element)</span>			</li>
 					<li>
 				<span class="var-type">mixed</span>
-				<span class="var-name">$value</span><span class="var-description">: , a native PHP value (parameter value)</span>			</li>
+				<span class="var-name">$value</span><span class="var-description">: a native PHP value (parameter value)</span>			</li>
 					<li>
 				<span class="var-type">string</span>
 				<span class="var-name">$ns</span><span class="var-description">: the namespace of the type</span>			</li>
@@ -1541,10 +1825,10 @@
 				<span class="var-name">$uqType</span><span class="var-description">: the local part of the type</span>			</li>
 					<li>
 				<span class="var-type">string</span>
-				<span class="var-name">$use</span><span class="var-description">: , use for part (encoded|literal)</span>			</li>
+				<span class="var-name">$use</span><span class="var-description">: use for part (encoded|literal)</span>			</li>
 					<li>
 				<span class="var-type">string</span>
-				<span class="var-name">$encodingStyle</span><span class="var-description">: , use to add encoding changes to serialisation</span>			</li>
+				<span class="var-name">$encodingStyle</span><span class="var-description">: SOAP encoding style for the value (if different than the enclosing style)</span>			</li>
 				</ul>
 		
 		
@@ -1554,14 +1838,16 @@
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">serializeParameters</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4484">4484</a></span>)
+		<span class="method-title">serializeParameters</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a5709">5709</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
 <p class="short-description">serialize a PHP value according to a WSDL message definition</p>
 <p class="description"><p>TODO <ul><li>multi-ref serialization</li><li>validate PHP values against type definitions, return errors if invalid</li></ul></p></p>
 	<ul class="tags">
-				<li><span class="field">return:</span> new param or false if initial value didn't validate</li>
+				<li><span class="field">return:</span> parameters serialized as XML or false on error (e.g. operation not found)</li>
+				<li><span class="field">deprecated:</span> </li>
+				<li><span class="field">access:</span> public</li>
 			</ul>
 	
 	<div class="method-signature">
@@ -1569,13 +1855,19 @@
 		<span class="method-name">
 			serializeParameters
 		</span>
-					(<span class="var-type">mixed</span>&nbsp;<span class="var-name">$operation</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$direction</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$parameters</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$</span>)
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$operation</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$direction</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$parameters</span>)
 			</div>
 	
 			<ul class="parameters">
 					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$operation</span><span class="var-description">: operation name</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$direction</span><span class="var-description">: (input|output)</span>			</li>
+					<li>
 				<span class="var-type">mixed</span>
-				<span class="var-name">$</span><span class="var-description">: param value</span>			</li>
+				<span class="var-name">$parameters</span><span class="var-description">: parameter value(s)</span>			</li>
 				</ul>
 		
 		
@@ -1585,14 +1877,15 @@
 	
 	<div class="method-header">
 		<img src="../media/images/Method.png" />
-		<span class="method-title">serializeRPCParameters</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4408">4408</a></span>)
+		<span class="method-title">serializeRPCParameters</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a5608">5608</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
-<p class="short-description">serialize a PHP value according to a WSDL message definition</p>
+<p class="short-description">serialize PHP values according to a WSDL message definition  contrary to the method name, this is not limited to RPC</p>
 <p class="description"><p>TODO <ul><li>multi-ref serialization</li><li>validate PHP values against type definitions, return errors if invalid</li></ul></p></p>
 	<ul class="tags">
-				<li><span class="field">return:</span> new param or false if initial value didn't validate</li>
+				<li><span class="field">return:</span> parameters serialized as XML or false on error (e.g. operation not found)</li>
+				<li><span class="field">access:</span> public</li>
 			</ul>
 	
 	<div class="method-signature">
@@ -1600,13 +1893,22 @@
 		<span class="method-name">
 			serializeRPCParameters
 		</span>
-					(<span class="var-type">mixed</span>&nbsp;<span class="var-name">$operation</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$direction</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$parameters</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$</span>)
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$operation</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$direction</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$parameters</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$bindingType</span> = <span class="var-default">'soap'</span>])
 			</div>
 	
 			<ul class="parameters">
 					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$operation</span><span class="var-description">: operation name</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$direction</span><span class="var-description">: (input|output)</span>			</li>
+					<li>
 				<span class="var-type">mixed</span>
-				<span class="var-name">$</span><span class="var-description">: param value</span>			</li>
+				<span class="var-name">$parameters</span><span class="var-description">: parameter value(s)</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$bindingType</span><span class="var-description">: (soap|soap12)</span>			</li>
 				</ul>
 		
 		
@@ -1615,15 +1917,15 @@
 <div class="oddrow">
 	
 	<div class="method-header">
-		<img src="../media/images/Method.png" />
-		<span class="method-title">serializeType</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4562">4562</a></span>)
+		<img src="../media/images/PrivateMethod.png" />
+		<span class="method-title">serializeType</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a5788">5788</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
 <p class="short-description">serializes a PHP value according a given type definition</p>
 	<ul class="tags">
-				<li><span class="field">return:</span> serialization</li>
-				<li><span class="field">access:</span> public</li>
+				<li><span class="field">return:</span> value serialized as an XML string</li>
+				<li><span class="field">access:</span> private</li>
 			</ul>
 	
 	<div class="method-signature">
@@ -1637,32 +1939,71 @@
 			<ul class="parameters">
 					<li>
 				<span class="var-type">string</span>
-				<span class="var-name">$name</span><span class="var-description">: , name of type (part)</span>			</li>
+				<span class="var-name">$name</span><span class="var-description">: name of value (part or element)</span>			</li>
 					<li>
 				<span class="var-type">string</span>
-				<span class="var-name">$type</span><span class="var-description">: , type of type, heh (type or element)</span>			</li>
+				<span class="var-name">$type</span><span class="var-description">: XML schema type of value (type or element)</span>			</li>
 					<li>
 				<span class="var-type">mixed</span>
-				<span class="var-name">$value</span><span class="var-description">: , a native PHP value (parameter value)</span>			</li>
+				<span class="var-name">$value</span><span class="var-description">: a native PHP value (parameter value)</span>			</li>
 					<li>
 				<span class="var-type">string</span>
-				<span class="var-name">$use</span><span class="var-description">: , use for part (encoded|literal)</span>			</li>
+				<span class="var-name">$use</span><span class="var-description">: use for part (encoded|literal)</span>			</li>
 					<li>
 				<span class="var-type">string</span>
-				<span class="var-name">$encodingStyle</span><span class="var-description">: , use to add encoding changes to serialisation</span>			</li>
+				<span class="var-name">$encodingStyle</span><span class="var-description">: SOAP encoding style for the value (if different than the enclosing style)</span>			</li>
 					<li>
 				<span class="var-type">boolean</span>
-				<span class="var-name">$unqualified</span><span class="var-description">: , a kludge for what should be form handling</span>			</li>
+				<span class="var-name">$unqualified</span><span class="var-description">: a kludge for what should be XML namespace form handling</span>			</li>
+				</ul>
+		
+		
+	</div>
+<a name="methodsetCredentials" id="setCredentials"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<img src="../media/images/Method.png" />
+		<span class="method-title">setCredentials</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a5143">5143</a></span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">if authenticating, set user credentials here</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			setCredentials
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$username</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$password</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$authtype</span> = <span class="var-default">'basic'</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$certRequest</span> = <span class="var-default">array()</span>])
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$username</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$password</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$authtype</span><span class="var-description">: (basic|digest|certificate|ntlm)</span>			</li>
+					<li>
+				<span class="var-type">array</span>
+				<span class="var-name">$certRequest</span><span class="var-description">: (keys must be cainfofile (optional), sslcertfile, sslkeyfile, passphrase, certpassword (optional), verifypeer (optional), verifyhost (optional): see corresponding options in cURL docs)</span>			</li>
 				</ul>
 		
 		
 	</div>
 <a name="methodstart_element" id="start_element"><!-- --></a>
-<div class="evenrow">
+<div class="oddrow">
 	
 	<div class="method-header">
 		<img src="../media/images/PrivateMethod.png" />
-		<span class="method-title">start_element</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a3860">3860</a></span>)
+		<span class="method-title">start_element</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4880">4880</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1694,11 +2035,11 @@
 		
 	</div>
 <a name="methodwebDescription" id="webDescription"><!-- --></a>
-<div class="oddrow">
+<div class="evenrow">
 	
 	<div class="method-header">
 		<img src="../media/images/PrivateMethod.png" />
-		<span class="method-title">webDescription</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a4234">4234</a></span>)
+		<span class="method-title">webDescription</span> (line <span class="line-number"><a href="..//__filesource/fsource_nusoap__nusoap.php.html#a5337">5337</a></span>)
 	</div> 
 	
 	<!-- ========== Info from phpDoc block ========= -->
@@ -1725,7 +2066,7 @@
 					<blockquote>
 													<img src="../media/images/Constructor.png" alt=" "/>
 							<span class="method-name"><a href="../nusoap/nusoap_base.html#methodnusoap_base">nusoap_base::nusoap_base()</a></span><br>
-													<img src="../media/images/PrivateMethod.png" alt=" "/>
+													<img src="../media/images/Method.png" alt=" "/>
 							<span class="method-name"><a href="../nusoap/nusoap_base.html#methodappendDebug">nusoap_base::appendDebug()</a></span><br>
 													<img src="../media/images/Method.png" alt=" "/>
 							<span class="method-name"><a href="../nusoap/nusoap_base.html#methodclearDebug">nusoap_base::clearDebug()</a></span><br>
@@ -1773,6 +2114,8 @@
 							<span class="method-name"><a href="../nusoap/nusoap_base.html#methodsetGlobalDebugLevel">nusoap_base::setGlobalDebugLevel()</a></span><br>
 													<img src="../media/images/Method.png" alt=" "/>
 							<span class="method-name"><a href="../nusoap/nusoap_base.html#methodvarDump">nusoap_base::varDump()</a></span><br>
+													<img src="../media/images/Method.png" alt=" "/>
+							<span class="method-name"><a href="../nusoap/nusoap_base.html#method__toString">nusoap_base::__toString()</a></span><br>
 											</blockquote>
 										
 		</div>
@@ -1780,7 +2123,7 @@
 
 	
 	<p class="notes" id="credit">
-		Documentation generated on Fri, 20 May 2005 13:13:56 -0400 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.3.0RC3</a>
+		Documentation generated on Mon, 26 Apr 2010 16:17:07 -0400 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.3.0RC3</a>
 	</p>
 	</div></body>
 </html>
