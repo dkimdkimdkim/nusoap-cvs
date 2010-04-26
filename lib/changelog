@@ -633,3 +633,16 @@
 2008-08-26, version 1.0rc1
 - wsdl: serialize simpleContent for complexType
 - wsdl: avoid serializing complexType elements with no value and minOccurs = 0 regardless of nillability
+
+2010-04-26, version 0.9.5
+- nusoap_xmlschema: replace regex function calls (ereg, eregi, split) with PCRE calls (preg_match, preg_split) (thanks Pier-Luc Duchaine)
+- wsdl: replace regex function calls (ereg, eregi, split) with PCRE calls (preg_match, preg_split) (thanks Pier-Luc Duchaine)
+- soap_transport_http: replace regex function calls (ereg, eregi, split) with PCRE calls (preg_match, preg_split) (thanks Pier-Luc Duchaine)
+- soap_transport_http: remove call to deprecated function set_magic_quotes_runtime
+- nusoap_server: replace regex function calls (ereg, eregi, split) with PCRE calls (preg_match, preg_split) (thanks Pier-Luc Duchaine)
+- nusoap_server: check that value is an object before calling get_class (thanks Pier-Luc Duchaine)
+- nusoap_parser: replace regex function calls (ereg, eregi, split) with PCRE calls (preg_match, preg_split) (thanks Pier-Luc Duchaine)
+- nusoap_client: replace regex function calls (ereg, eregi, split) with PCRE calls (preg_match, preg_split) (thanks Pier-Luc Duchaine)
+- nusoap_client: do not assign the return value of new by reference (it is deprecated) (thanks Pier-Luc Duchaine)
+- nusoap_base: replace regex function calls (ereg, eregi, split) with PCRE calls (preg_match, preg_split) (thanks Pier-Luc Duchaine)
+- nusoapmime: do not assign the return value of new by reference (it is deprecated)
