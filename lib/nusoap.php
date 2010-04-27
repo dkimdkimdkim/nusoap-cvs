@@ -2425,6 +2425,10 @@ class soap_transport_http extends nusoap_base {
 			$CURLAUTH_NTLM = CURLAUTH_NTLM;
 		else
 			$CURLAUTH_NTLM = 8;
+		if (defined('CURLAUTH_ANY'))
+			$CURLAUTH_NTLM = CURLAUTH_ANY;
+		else
+			$CURLAUTH_NTLM = -17;
 
 		$this->debug('connect using cURL');
 		// init CURL
