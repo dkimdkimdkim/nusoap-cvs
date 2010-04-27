@@ -646,3 +646,11 @@
 - nusoap_client: do not assign the return value of new by reference (it is deprecated) (thanks Pier-Luc Duchaine)
 - nusoap_base: replace regex function calls (ereg, eregi, split) with PCRE calls (preg_match, preg_split) (thanks Pier-Luc Duchaine)
 - nusoapmime: do not assign the return value of new by reference (it is deprecated)
+
+2010-04-27, version 0.9.6
+- soap_transport_http: fix proxy connection (the port was wrong) (thanks Marcel Berteler)
+- soap_transport_http: support authentication type 'any' using cURL (thanks Vojko Drev)
+- nusoap_client: support authentication type 'any' using cURL (thanks Vojko Drev)
+- wsdl: support authentication type 'any' using cURL (thanks Vojko Drev)
+- nusoap_server: add TODO regarding ReflectionClass
+- nusoap_base: bump version, add TODO regarding gmtime

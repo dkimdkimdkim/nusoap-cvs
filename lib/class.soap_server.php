@@ -552,6 +552,7 @@ class nusoap_server extends nusoap_base {
 		}
 
 		// does method exist?
+		// TODO: use ReflectionClass for newer PHP versions in this part of the code
 		if ($class == '') {
 			if (!function_exists($this->methodname)) {
 				$this->debug("in invoke_method, function '$this->methodname' not found!");

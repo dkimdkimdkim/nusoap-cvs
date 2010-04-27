@@ -159,9 +159,9 @@ class soap_transport_http extends nusoap_base {
 	* @access	private
 	*/
 	function io_method() {
-		if ($this->use_curl || ($this->scheme == 'https') || ($this->scheme == 'http' && $this->authtype == 'ntlm') || ($this->scheme == 'http' && is_array($this->proxy) && $this->proxy['authtype'] == 'ntlm'))
+		if ($this->use_curl || ($this->scheme == 'https') || ($this->scheme == 'http' && ($this->authtype == 'ntlm' || $this->authtype == 'any')) || ($this->scheme == 'http' && is_array($this->proxy) && ($this->proxy['authtype'] == 'ntlm' || $this->proxy['authtype'] == 'any')))
 			return 'curl';
-		if (($this->scheme == 'http' || $this->scheme == 'ssl') && $this->authtype != 'ntlm' && (!is_array($this->proxy) || $this->proxy['authtype'] != 'ntlm'))
+		if (($this->scheme == 'http' || $this->scheme == 'ssl') && $this->authtype != 'ntlm' && $this->authtype != 'any' && (!is_array($this->proxy) || ($this->proxy['authtype'] != 'ntlm' && $this->proxy['authtype'] != 'any')))
 			return 'socket';
 		return 'unknown';
 	}
@@ -372,6 +372,10 @@ class soap_transport_http extends nusoap_base {
 				$this->debug('set cURL for NTLM authentication');
 				$this->setCurlOption($CURLOPT_HTTPAUTH, $CURLAUTH_NTLM);
 			}
+			if ($this->authtype == 'any') {
+				$this->debug('set cURL for ANY authentication');
+				$this->setCurlOption($CURLOPT_HTTPAUTH, $CURLAUTH_ANY);
+			}
 		}
 		if (is_array($this->proxy)) {
 			$this->debug('set cURL proxy options');
@@ -386,8 +390,14 @@ class soap_transport_http extends nusoap_base {
 				if ($this->proxy['authtype'] == 'basic') {
 					$this->setCurlOption($CURLOPT_PROXYAUTH, $CURLAUTH_BASIC);
 				}
+				if ($this->proxy['authtype'] == 'digest') {
+					$this->setCurlOption($CURLOPT_PROXYAUTH, $CURLAUTH_DIGEST);
+				}
 				if ($this->proxy['authtype'] == 'ntlm') {
 					$this->setCurlOption($CURLOPT_PROXYAUTH, $CURLAUTH_NTLM);
+				}
+				if ($this->proxy['authtype'] == 'any') {
+					$this->setCurlOption($CURLOPT_PROXYAUTH, $CURLAUTH_ANY);
 				}
 			}
 		}
@@ -460,7 +470,7 @@ class soap_transport_http extends nusoap_base {
 	*
 	* @param    string $username
 	* @param    string $password
-	* @param	string $authtype (basic|digest|certificate|ntlm)
+	* @param	string $authtype (basic|digest|certificate|ntlm|any)
 	* @param	array $digestRequest (keys must be nonce, nc, realm, qop)
 	* @param	array $certRequest (keys must be cainfofile (optional), sslcertfile, sslkeyfile, passphrase, certpassword (optional), verifypeer (optional), verifyhost (optional): see corresponding options in cURL docs)
 	* @access   public
@@ -526,6 +536,9 @@ class soap_transport_http extends nusoap_base {
 		} elseif ($authtype == 'ntlm') {
 			// do nothing
 			$this->debug('Authorization header not set for ntlm');
+		} elseif ($authtype == 'any') {
+			// do nothing
+			$this->debug('Authorization header not set for any');
 		}
 		$this->username = $username;
 		$this->password = $password;
@@ -570,7 +583,7 @@ class soap_transport_http extends nusoap_base {
 	* @param    string $proxyport
 	* @param	string $proxyusername
 	* @param	string $proxypassword
-	* @param	string $proxyauthtype (basic|ntlm)
+	* @param	string $proxyauthtype (basic|digest|ntlm|any)
 	* @access   public
 	*/
 	function setProxy($proxyhost, $proxyport, $proxyusername = '', $proxypassword = '', $proxyauthtype = 'basic') {

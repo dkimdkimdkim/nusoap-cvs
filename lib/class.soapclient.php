@@ -616,7 +616,7 @@ class nusoap_client extends nusoap_base  {
 	*
 	* @param    string $username
 	* @param    string $password
-	* @param	string $authtype (basic|digest|certificate|ntlm)
+	* @param	string $authtype (basic|digest|certificate|ntlm|any)
 	* @param	array $certRequest (keys must be cainfofile (optional), sslcertfile, sslkeyfile, passphrase, verifypeer (optional), verifyhost (optional): see corresponding options in cURL docs)
 	* @access   public
 	*/
