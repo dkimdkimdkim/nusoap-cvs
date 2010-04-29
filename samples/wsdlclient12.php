@@ -18,10 +18,12 @@ $proxypassword = isset($_POST['proxypassword']) ? $_POST['proxypassword'] : '';
 
 $method = isset($_GET['method']) ? $_GET['method'] : 'ItemSearch';
 
-$SubscriptionId = 'Your AWS subscription id';
+$AWSAccessKeyId = 'Your AWS Access Key ID';
+$AWSSecretAccessKey = 'Your AWS Secret Access Key';
 
-$wsdlurl = 'http://webservices.amazon.com/AWSECommerceService/US/AWSECommerceService.wsdl';
-$cache = new wsdlcache('.', 120);
+//$wsdlurl = 'http://webservices.amazon.com/AWSECommerceService/US/AWSECommerceService.wsdl';
+$wsdlurl = 'http://ecs.amazonaws.com/AWSECommerceService/2009-11-01/AWSECommerceService.wsdl';
+$cache = new wsdlcache('.', 86400);
 $wsdl = $cache->get($wsdlurl);
 if (is_null($wsdl)) {
 	$wsdl = new wsdl($wsdlurl,
@@ -40,8 +42,22 @@ if ($err) {
 
 $client->soap_defencoding = 'UTF-8';
 
+function GetHeaders($action) {
+	global $AWSAccessKeyId;
+	global $AWSSecretAccessKey;
+
+	$timestamp = timestamp_to_iso8601(time(), true);
+	// Note: use of hash_hmac restricts this to PHP 5.1.2 and later
+	$signature = base64_encode(hash_hmac("sha256", $action . $timestamp, $AWSSecretAccessKey, true));
+	return
+		"<aws:AWSAccessKeyId xmlns:aws=\"http://security.amazonaws.com/doc/2007-01-01/\">$AWSAccessKeyId</aws:AWSAccessKeyId>\n" .
+		"<aws:Timestamp xmlns:aws=\"http://security.amazonaws.com/doc/2007-01-01/\">$timestamp</aws:Timestamp>\n" .
+		"<aws:Signature xmlns:aws=\"http://security.amazonaws.com/doc/2007-01-01/\">$signature</aws:Signature>";
+;
+}
+
 function GetCartCreateParams() {
-	global $SubscriptionId;
+	global $AWSAccessKeyId;
 
 	// create items to be added to the cart
 	$item = array ();
@@ -58,15 +74,16 @@ function GetCartCreateParams() {
 	$request = array("Items" => $items, "ResponseGroup" => "CartSimilarities");
 	
 	// Construct  all parameters
-	$cartCreate = array(	"SubscriptionId"  => $SubscriptionId,
-							"Request" => $request
-					 	);
+	$cartCreate = array(
+		'AWSAccessKeyId' => $AWSAccessKeyId,
+		"Request" => $request
+	);
 
 	return $cartCreate;
 }
 
 function GetItemLookupParams() {
-	global $SubscriptionId;
+	global $AWSAccessKeyId;
 
 	$itemLookupRequest[] = array(
 		'ItemId' => 'B0002IQML6',
@@ -83,16 +100,16 @@ function GetItemLookupParams() {
 	);
 
 	$itemLookup = array(
-		'SubscriptionId' => $SubscriptionId,
+		'AWSAccessKeyId' => $AWSAccessKeyId,
 	//	'AssociateTag' => '',
-		'Request' => $itemLookupRequest,
+		'Request' => $itemLookupRequest
 	);
 	
 	return $itemLookup;
 }
 
 function GetItemSearchParams() {
-	global $SubscriptionId;
+	global $AWSAccessKeyId;
 
 	$itemSearchRequest = array(
 		'BrowseNode' => '53',
@@ -103,7 +120,7 @@ function GetItemSearchParams() {
 	);
 	
 	$itemSearch = array(
-		'SubscriptionId' => $SubscriptionId,
+		'AWSAccessKeyId' => $AWSAccessKeyId,
 	//	'AssociateTag' => '',
 	//	'Validate' => '',
 	//	'XMLEscaping' => '',
@@ -115,7 +132,7 @@ function GetItemSearchParams() {
 }
 
 function GetItemSearchParams2() {
-	global $SubscriptionId;
+	global $AWSAccessKeyId;
 
 	$request = array(
 		"Keywords" => "postal stamps",
@@ -123,7 +140,7 @@ function GetItemSearchParams2() {
 	);
 
 	$itemSearch = array(
-		'SubscriptionId' => $SubscriptionId,
+		'AWSAccessKeyId' => $AWSAccessKeyId,
 		'Request' => $request
 	);
 
@@ -131,7 +148,7 @@ function GetItemSearchParams2() {
 }
 
 function GetListLookupParams() {
-	global $SubscriptionId;
+	global $AWSAccessKeyId;
 
 	$listLookupRequest[] = array(
 		'ListId' => '1L0ZL7Y9FL4U0',
@@ -159,7 +176,7 @@ function GetListLookupParams() {
 	);
 */	
 	$listLookup = array(
-		'SubscriptionId' => $SubscriptionId,
+		'AWSAccessKeyId' => $AWSAccessKeyId,
 	//	'AssociateTag' => '',
 		'Request' => $listLookupRequest,
 	);
@@ -168,7 +185,7 @@ function GetListLookupParams() {
 }
 
 function GetListSearchParams() {
-	global $SubscriptionId;
+	global $AWSAccessKeyId;
 
 	$listSearchRequest[] = array(
 		'FirstName' => 'Scott',
@@ -177,7 +194,7 @@ function GetListSearchParams() {
 	);
 	
 	$listSearch = array(
-		'SubscriptionId' => $SubscriptionId,
+		'AWSAccessKeyId' => $AWSAccessKeyId,
 	//	'AssociateTag' => '',
 		'Request' => $listSearchRequest,
 	);
@@ -186,17 +203,17 @@ function GetListSearchParams() {
 }
 
 if ($method == 'ItemLookup') {
-	$result = $client->call('ItemLookup', array('body' => GetItemLookupParams()));
+	$result = $client->call('ItemLookup', array('body' => GetItemLookupParams()), '', '', GetHeaders('ItemLookup'));
 } elseif ($method == 'ItemSearch') {
-	$result = $client->call('ItemSearch', array('body' => GetItemSearchParams()));
+	$result = $client->call('ItemSearch', array('body' => GetItemSearchParams()), '', '', GetHeaders('ItemSearch'));
 } elseif ($method == 'ItemSearch2') {
-	$result = $client->call('ItemSearch', array('body' => GetItemSearchParams2()));
+	$result = $client->call('ItemSearch', array('body' => GetItemSearchParams2()), '', '', GetHeaders('ItemSearch'));
 } elseif ($method == 'ListLookup') {
-	$result = $client->call('ListLookup', array('body' => GetListLookupParams()));
+	$result = $client->call('ListLookup', array('body' => GetListLookupParams()), '', '', GetHeaders('ListLookup'));
 } elseif ($method == 'ListSearch') {
-	$result = $client->call('ListSearch', array('body' => GetListSearchParams()));
+	$result = $client->call('ListSearch', array('body' => GetListSearchParams()), '', '', GetHeaders('ListSearch'));
 } elseif ($method == 'CartCreate') {
-	$result = $client->call('CartCreate', array('body' => GetCartCreateParams()));
+	$result = $client->call('CartCreate', array('body' => GetCartCreateParams()), '', '', GetHeaders('CartCreate'));
 } else {
 	echo "Unsupported method $method";
 	exit;

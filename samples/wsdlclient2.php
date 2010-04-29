@@ -15,7 +15,11 @@ $proxyport = isset($_POST['proxyport']) ? $_POST['proxyport'] : '';
 $proxyusername = isset($_POST['proxyusername']) ? $_POST['proxyusername'] : '';
 $proxypassword = isset($_POST['proxypassword']) ? $_POST['proxypassword'] : '';
 $useCURL = isset($_POST['usecurl']) ? $_POST['usecurl'] : '0';
-$client = new nusoap_client("http://soap.amazon.com/schemas2/AmazonWebServices.wsdl", 'wsdl',
+
+$AWSAccessKeyId = 'Your AWS Access Key ID';
+$AWSSecretAccessKey = 'Your AWS Secret Access Key';
+
+$client = new nusoap_client("http://ecs.amazonaws.com/AWSECommerceService/2009-11-01/AWSECommerceService.wsdl", 'wsdl',
 						$proxyhost, $proxyport, $proxyusername, $proxypassword);
 $err = $client->getError();
 if ($err) {
@@ -24,15 +28,24 @@ if ($err) {
 }
 $client->setUseCurl($useCURL);
 $proxy = $client->getProxy();
-$param = array(
-	'browse_node' => 18,
-	'page' => 1,
-	'mode' => 'books',
-	'tag' =>'melonfire-20',
-	'type' => 'lite',
-	'devtag' => 'Your dev tag'
+$timestamp = timestamp_to_iso8601(time(), true);
+// Note: use of hash_hmac restricts this to PHP 5.1.2 and later
+$signature = base64_encode(hash_hmac("sha256", 'BrowseNodeLookup' . $timestamp, $AWSSecretAccessKey, true));
+$proxy->setHeaders(
+	"<aws:AWSAccessKeyId xmlns:aws=\"http://security.amazonaws.com/doc/2007-01-01/\">$AWSAccessKeyId</aws:AWSAccessKeyId>\n" .
+	"<aws:Timestamp xmlns:aws=\"http://security.amazonaws.com/doc/2007-01-01/\">$timestamp</aws:Timestamp>\n" .
+	"<aws:Signature xmlns:aws=\"http://security.amazonaws.com/doc/2007-01-01/\">$signature</aws:Signature>"
 );
-$result = $proxy->BrowseNodeSearchRequest($param);
+$BrowseNodeLookupRequest[] = array(
+	'BrowseNodeId' => 18,
+//	'ResponseGroup' => 'whatever'
+);
+$BrowseNodeLookup = array(
+	'AWSAccessKeyId' => $AWSAccessKeyId,
+//	'AssociateTag' => '',
+	'Request' => $BrowseNodeLookupRequest
+);
+$result = $proxy->BrowseNodeLookup($BrowseNodeLookup);
 // Check for a fault
 if ($proxy->fault) {
 	echo '<h2>Fault</h2><pre>';
