@@ -1107,8 +1107,13 @@ class soap_transport_http extends nusoap_base {
 			($http_status >= 400 && $http_status <= 417) ||
 			($http_status >= 501 && $http_status <= 505)
 		   ) {
-			$this->setError("Unsupported HTTP response status $http_status $http_reason (soapclient->response has contents of the response)");
-			return false;
+		   	if ($http_status == 403 && isset($this->incoming_headers['content-type']) && preg_match('/^text\/xml/i', $this->incoming_headers['content-type'])) {
+		   		// Amazon returns some faults with status 403, which is not per-SOAP 1.1 (http://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383529)
+		   		$this->debug('HTTP response status $http_status $http_reason with Content-Type: ' . $this->incoming_headers['content-type'] . ' is not per SOAP 1.1 spec, but try to process anyway');
+		   	} else {
+				$this->setError("Unsupported HTTP response status $http_status $http_reason (soapclient->response has contents of the response)");
+				return false;
+			}
 		}
 
 		// decode content-encoding

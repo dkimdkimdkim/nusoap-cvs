@@ -96,7 +96,7 @@ class nusoap_base {
 	 * @var string
 	 * @access private
 	 */
-	var $version = '0.9.5';
+	var $version = '0.9.6dev';
 	/**
 	 * CVS revision for HTTP headers.
 	 *
@@ -902,6 +902,10 @@ class nusoap_base {
 * @access   public
 */
 function timestamp_to_iso8601($timestamp,$utc=true){
+	if ($utc) {
+		return gmdate("Y-m-d\TH:i:s\Z", $timestamp);
+	}
+
 	$datestr = date('Y-m-d\TH:i:sO',$timestamp);
 	$pos = strrpos($datestr, "+");
 	if ($pos === FALSE) {
@@ -912,25 +916,7 @@ function timestamp_to_iso8601($timestamp,$utc=true){
 			$datestr = substr($datestr, 0, $pos + 3) . ':' . substr($datestr, -2);
 		}
 	}
-	if($utc){
-		$pattern = '/'.
-		'([0-9]{4})-'.	// centuries & years CCYY-
-		'([0-9]{2})-'.	// months MM-
-		'([0-9]{2})'.	// days DD
-		'T'.			// separator T
-		'([0-9]{2}):'.	// hours hh:
-		'([0-9]{2}):'.	// minutes mm:
-		'([0-9]{2})(\.[0-9]*)?'. // seconds ss.ss...
-		'(Z|[+\-][0-9]{2}:?[0-9]{2})?'. // Z to indicate UTC, -/+HH:MM:SS.SS... for local tz's
-		'/';
-
-		if(preg_match($pattern,$datestr,$regs)){
-			return sprintf('%04d-%02d-%02dT%02d:%02d:%02dZ',$regs[1],$regs[2],$regs[3],$regs[4],$regs[5],$regs[6]);
-		}
-		return false;
-	} else {
-		return $datestr;
-	}
+	return $datestr;
 }
 
 /**

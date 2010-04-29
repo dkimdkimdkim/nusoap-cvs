@@ -654,3 +654,8 @@
 - wsdl: support authentication type 'any' using cURL (thanks Vojko Drev)
 - nusoap_server: add TODO regarding ReflectionClass
 - nusoap_base: bump version, add TODO regarding gmtime
+
+2010-04-28, version 0.9.6
+- nusoap_base (timestamp_to_iso8601): use gmdate for UTC
+- nusoap_xmlschema: ensure element ref attribute always includes namespace
+- soap_transport_http: if HTTP status is 403 and Content-Type is text/xml, try processing as SOAP Fault (for Amazon)

@@ -377,6 +377,14 @@ class nusoap_xmlschema extends nusoap_base  {
 					$this->xdebug("processing element as ref to ".$attrs['ref']);
 					$this->currentElement = "ref to ".$attrs['ref'];
 					$ename = $this->getLocalPart($attrs['ref']);
+					$ns = $this->getPrefix($attrs['ref']);
+					if ($ns) {
+						$ns = $this->getNamespaceFromPrefix($ns);
+					}
+					if (! $ns) {
+						$ns = $this->schemaTargetNamespace;
+					}
+					$attrs['ref'] = $ns . ':' . $ename;
 				} else {
 					$type = $this->CreateTypeName($this->currentComplexType . '_' . $attrs['name']);
 					$this->xdebug("processing untyped element " . $attrs['name'] . ' type ' . $type);

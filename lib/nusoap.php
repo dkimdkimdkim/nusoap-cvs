@@ -902,7 +902,10 @@ class nusoap_base {
 * @access   public
 */
 function timestamp_to_iso8601($timestamp,$utc=true){
-	// TODO: if $utc, why not return gmdate("Y-m-d\TH:i:s\Z", $timestamp);
+	if ($utc) {
+		return gmdate("Y-m-d\TH:i:s\Z", $timestamp);
+	}
+
 	$datestr = date('Y-m-d\TH:i:sO',$timestamp);
 	$pos = strrpos($datestr, "+");
 	if ($pos === FALSE) {
@@ -913,25 +916,7 @@ function timestamp_to_iso8601($timestamp,$utc=true){
 			$datestr = substr($datestr, 0, $pos + 3) . ':' . substr($datestr, -2);
 		}
 	}
-	if($utc){
-		$pattern = '/'.
-		'([0-9]{4})-'.	// centuries & years CCYY-
-		'([0-9]{2})-'.	// months MM-
-		'([0-9]{2})'.	// days DD
-		'T'.			// separator T
-		'([0-9]{2}):'.	// hours hh:
-		'([0-9]{2}):'.	// minutes mm:
-		'([0-9]{2})(\.[0-9]*)?'. // seconds ss.ss...
-		'(Z|[+\-][0-9]{2}:?[0-9]{2})?'. // Z to indicate UTC, -/+HH:MM:SS.SS... for local tz's
-		'/';
-
-		if(preg_match($pattern,$datestr,$regs)){
-			return sprintf('%04d-%02d-%02dT%02d:%02d:%02dZ',$regs[1],$regs[2],$regs[3],$regs[4],$regs[5],$regs[6]);
-		}
-		return false;
-	} else {
-		return $datestr;
-	}
+	return $datestr;
 }
 
 /**
@@ -1458,6 +1443,14 @@ class nusoap_xmlschema extends nusoap_base  {
 					$this->xdebug("processing element as ref to ".$attrs['ref']);
 					$this->currentElement = "ref to ".$attrs['ref'];
 					$ename = $this->getLocalPart($attrs['ref']);
+					$ns = $this->getPrefix($attrs['ref']);
+					if ($ns) {
+						$ns = $this->getNamespaceFromPrefix($ns);
+					}
+					if (! $ns) {
+						$ns = $this->schemaTargetNamespace;
+					}
+					$attrs['ref'] = $ns . ':' . $ename;
 				} else {
 					$type = $this->CreateTypeName($this->currentComplexType . '_' . $attrs['name']);
 					$this->xdebug("processing untyped element " . $attrs['name'] . ' type ' . $type);
@@ -3262,8 +3255,13 @@ class soap_transport_http extends nusoap_base {
 			($http_status >= 400 && $http_status <= 417) ||
 			($http_status >= 501 && $http_status <= 505)
 		   ) {
-			$this->setError("Unsupported HTTP response status $http_status $http_reason (soapclient->response has contents of the response)");
-			return false;
+		   	if ($http_status == 403 && isset($this->incoming_headers['content-type']) && preg_match('/^text\/xml/i', $this->incoming_headers['content-type'])) {
+		   		// Amazon returns some faults with status 403, which is not per-SOAP 1.1 (http://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383529)
+		   		$this->debug('HTTP response status $http_status $http_reason with Content-Type: ' . $this->incoming_headers['content-type'] . ' is not per SOAP 1.1 spec, but try to process anyway');
+		   	} else {
+				$this->setError("Unsupported HTTP response status $http_status $http_reason (soapclient->response has contents of the response)");
+				return false;
+			}
 		}
 
 		// decode content-encoding
