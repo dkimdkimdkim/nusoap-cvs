@@ -5219,10 +5219,11 @@ class wsdl extends nusoap_base {
 	 * 
 	 * @param string $operation name of operation
 	 * @param string $bindingType type of binding eg: soap, soap12
+	 * @param string $portName WSDL port name
 	 * @return array 
 	 * @access public 
 	 */
-	function getOperationData($operation, $bindingType = 'soap')
+	function getOperationData($operation, $bindingType = 'soap', $portName = '')
 	{
 		if ($bindingType == 'soap') {
 			$bindingType = 'http://schemas.xmlsoap.org/wsdl/soap/';
@@ -5231,6 +5232,7 @@ class wsdl extends nusoap_base {
 		}
 		// loop thru ports
 		foreach($this->ports as $port => $portData) {
+		  if ($portName == '' || $port == $portName) {
 			// binding type of port matches parameter
 			if ($portData['bindingType'] == $bindingType) {
 				// get binding
@@ -5243,6 +5245,7 @@ class wsdl extends nusoap_base {
 					} 
 				} 
 			}
+		  }
 		} 
 	}
 	
@@ -5251,10 +5254,11 @@ class wsdl extends nusoap_base {
 	 * 
 	 * @param string $soapAction soapAction for operation
 	 * @param string $bindingType type of binding eg: soap, soap12
+	 * @param string $portName WSDL port name
 	 * @return array 
 	 * @access public 
 	 */
-	function getOperationDataForSoapAction($soapAction, $bindingType = 'soap') {
+	function getOperationDataForSoapAction($soapAction, $bindingType = 'soap', $portName = '') {
 		if ($bindingType == 'soap') {
 			$bindingType = 'http://schemas.xmlsoap.org/wsdl/soap/';
 		} elseif ($bindingType == 'soap12') {
@@ -5262,6 +5266,7 @@ class wsdl extends nusoap_base {
 		}
 		// loop thru ports
 		foreach($this->ports as $port => $portData) {
+		  if ($portName == '' || $port == $portName) {
 			// binding type of port matches parameter
 			if ($portData['bindingType'] == $bindingType) {
 				// loop through operations for the binding
@@ -5271,6 +5276,7 @@ class wsdl extends nusoap_base {
 					} 
 				} 
 			}
+		  }
 		} 
 	}
 	
@@ -5705,11 +5711,12 @@ class wsdl extends nusoap_base {
 	 * @param string $direction (input|output)
 	 * @param mixed $parameters parameter value(s)
 	 * @param string $bindingType (soap|soap12)
+	 * @param string $portName the WSDL port name
 	 * @return mixed parameters serialized as XML or false on error (e.g. operation not found)
 	 * @access public
 	 */
-	function serializeRPCParameters($operation, $direction, $parameters, $bindingType = 'soap') {
-		$this->debug("in serializeRPCParameters: operation=$operation, direction=$direction, XMLSchemaVersion=$this->XMLSchemaVersion, bindingType=$bindingType");
+	function serializeRPCParameters($operation, $direction, $parameters, $bindingType = 'soap', $portName = '') {
+		$this->debug("in serializeRPCParameters: operation=$operation, direction=$direction, XMLSchemaVersion=$this->XMLSchemaVersion, bindingType=$bindingType, portName=$portName");
 		$this->appendDebug('parameters=' . $this->varDump($parameters));
 		
 		if ($direction != 'input' && $direction != 'output') {
@@ -5717,9 +5724,9 @@ class wsdl extends nusoap_base {
 			$this->setError('The value of the \$direction argument needs to be either "input" or "output"');
 			return false;
 		} 
-		if (!$opData = $this->getOperationData($operation, $bindingType)) {
-			$this->debug('Unable to retrieve WSDL data for operation: ' . $operation . ' bindingType: ' . $bindingType);
-			$this->setError('Unable to retrieve WSDL data for operation: ' . $operation . ' bindingType: ' . $bindingType);
+		if (!$opData = $this->getOperationData($operation, $bindingType, $portName)) {
+			$this->debug('Unable to retrieve WSDL data for operation: ' . $operation . ' bindingType: ' . $bindingType . ' portName: ' . $portName);
+			$this->setError('Unable to retrieve WSDL data for operation: ' . $operation . ' bindingType: ' . $bindingType . ' portName: ' . $portName);
 			return false;
 		}
 		$this->debug('in serializeRPCParameters: opData:');
@@ -5805,13 +5812,15 @@ class wsdl extends nusoap_base {
 	 * @param string $operation operation name
 	 * @param string $direction (input|output)
 	 * @param mixed $parameters parameter value(s)
+	 * @param string $bindingType (soap|soap12)
+	 * @param string $portName the WSDL port name
 	 * @return mixed parameters serialized as XML or false on error (e.g. operation not found)
 	 * @access public
 	 * @deprecated
 	 */
-	function serializeParameters($operation, $direction, $parameters)
+	function serializeParameters($operation, $direction, $parameters, $bindingType = 'soap', $portName = '')
 	{
-		$this->debug("in serializeParameters: operation=$operation, direction=$direction, XMLSchemaVersion=$this->XMLSchemaVersion"); 
+		$this->debug("in serializeParameters: operation=$operation, direction=$direction, XMLSchemaVersion=$this->XMLSchemaVersion, bindingType=$bindingType, portName=$portname"); 
 		$this->appendDebug('parameters=' . $this->varDump($parameters));
 		
 		if ($direction != 'input' && $direction != 'output') {
@@ -5819,9 +5828,9 @@ class wsdl extends nusoap_base {
 			$this->setError('The value of the \$direction argument needs to be either "input" or "output"');
 			return false;
 		} 
-		if (!$opData = $this->getOperationData($operation)) {
-			$this->debug('Unable to retrieve WSDL data for operation: ' . $operation);
-			$this->setError('Unable to retrieve WSDL data for operation: ' . $operation);
+		if (!$opData = $this->getOperationData($operation, $bindingType, $portName)) {
+			$this->debug('Unable to retrieve WSDL data for operation: ' . $operation . ' bindingType: ' . $bindingType . ' portName: ' . $portName);
+			$this->setError('Unable to retrieve WSDL data for operation: ' . $operation . ' bindingType: ' . $bindingType . ' portName: ' . $portName);
 			return false;
 		}
 		$this->debug('opData:');
@@ -7382,7 +7391,7 @@ class nusoap_client extends nusoap_base  {
 				$payload = $params;
 			} elseif (is_array($params)) {
 				$this->debug("serializing param array for WSDL operation $operation");
-				$payload = $this->wsdl->serializeRPCParameters($operation,'input',$params,$this->bindingType);
+				$payload = $this->wsdl->serializeRPCParameters($operation,'input',$params,$this->bindingType,$this->portName);
 			} else {
 				$this->debug('params must be array or string');
 				$this->setError('params must be array or string');

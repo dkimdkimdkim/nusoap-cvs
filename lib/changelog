@@ -662,3 +662,5 @@
 
 2010-05-26, version 0.9.6
 - nusoap_parser: inject encoding from HTTP into XML declaration if not already specified
+- wsdl: add optional portName parameter to getOperationData, getOperationDataForSoapAction, serializeRPCParameters, serializeParameters
+- nusoap_client: specify portName when calling serializeRPCParameters
