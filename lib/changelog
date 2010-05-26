@@ -659,3 +659,6 @@
 - nusoap_base (timestamp_to_iso8601): use gmdate for UTC
 - nusoap_xmlschema: ensure element ref attribute always includes namespace
 - soap_transport_http: if HTTP status is 403 and Content-Type is text/xml, try processing as SOAP Fault (for Amazon)
+
+2010-05-26, version 0.9.6
+- nusoap_parser: inject encoding from HTTP into XML declaration if not already specified
