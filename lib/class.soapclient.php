@@ -228,8 +228,12 @@ class nusoap_client extends nusoap_base  {
 			// operation not in WSDL
 			$this->appendDebug($this->wsdl->getDebug());
 			$this->wsdl->clearDebug();
-			$this->setError('operation '.$operation.' not present in WSDL.');
-			$this->debug("operation '$operation' not present in WSDL.");
+			$errstr = 'operation '.$operation.' not present in WSDL';
+			if ($this->portName != '') {
+				$errstr .= ' for port ' . $this->portName;
+			}
+			$this->setError($errstr);
+			$this->debug($errstr);
 			return false;
 		} else {
 			// no WSDL

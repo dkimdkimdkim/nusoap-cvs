@@ -1077,8 +1077,18 @@ class wsdl extends nusoap_base {
 		if (isset($typeDef['elements']) && is_array($typeDef['elements'])) {
 			$elements = 0;
 			$matches = 0;
+			$change = false;
+			if ($this->isArraySimpleOrStruct($parameters) == 'arraySimple' && count($parameters) == count($typeDef['elements'])) {
+				$this->debug("in parametersMatchWrapped: (wrapped return value kludge) correct number of elements in simple array, so change array and wrap");
+				$change = true;
+			}
 			foreach ($typeDef['elements'] as $name => $attrs) {
-				if (isset($parameters[$name])) {
+				if ($change) {
+					$this->debug("in parametersMatchWrapped: change parameter $element to name $name");
+					$parameters[$name] = $parameters[$elements];
+					unset($parameters[$elements]);
+					$matches++;
+				} elseif (isset($parameters[$name])) {
 					$this->debug("in parametersMatchWrapped: have parameter named $name");
 					$matches++;
 				} else {
@@ -1140,7 +1150,7 @@ class wsdl extends nusoap_base {
 			$enc_style = $encodingStyle;
 		}
 
-		// set input params
+		// set params
 		$xml = '';
 		if (isset($opData[$direction]['parts']) && sizeof($opData[$direction]['parts']) > 0) {
 			$parts = &$opData[$direction]['parts'];
@@ -1156,11 +1166,21 @@ class wsdl extends nusoap_base {
 				if ($style == 'document' && $use == 'literal' && $part_count == 1 && isset($parts['parameters'])) {
 					$this->debug('check whether the caller has wrapped the parameters');
 					if ($direction == 'output' && $parametersArrayType == 'arraySimple' && $parameter_count == 1) {
-						// TODO: consider checking here for double-wrapping, when
-						// service function wraps, then NuSOAP wraps again
-						$this->debug("change simple array to associative with 'parameters' element");
-						$parameters['parameters'] = $parameters[0];
-						unset($parameters[0]);
+						$this->debug('check whether caller\'s parameters match the wrapped ones');
+						if (is_array($parameters[0]) && count($parameters[0]) == 1 && isset($parameters[0]['parameters'])) {
+							$this->debug('unwrap the parameters for the caller');
+							$parameters = $parameters[0];
+							//$parameter_count = 1;
+						} elseif ($this->parametersMatchWrapped($parts['parameters'], $parameters[0])) {
+							$this->debug('re-wrap the parameters for the caller');
+							$parameters['parameters'] = $parameters[0];
+							unset($parameters[0]);
+							//$parameter_count = 1;
+						} elseif ($this->parametersMatchWrapped($parts['parameters'], $parameters)) {
+							$this->debug('wrap the (kludged?) parameters for the caller');
+							$parameters = array('parameters' => $parameters);
+							//$parameter_count = 1;
+						}
 					}
 					if (($parametersArrayType == 'arrayStruct' || $parameter_count == 0) && !isset($parameters['parameters'])) {
 						$this->debug('check whether caller\'s parameters match the wrapped ones');
