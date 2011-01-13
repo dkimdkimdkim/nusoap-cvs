@@ -1444,11 +1444,9 @@ class nusoap_xmlschema extends nusoap_base  {
 					$this->currentElement = "ref to ".$attrs['ref'];
 					$ename = $this->getLocalPart($attrs['ref']);
 					$ns = $this->getPrefix($attrs['ref']);
-					if ($ns) {
-						$ns = $this->getNamespaceFromPrefix($ns);
-					}
 					if (! $ns) {
 						$ns = $this->schemaTargetNamespace;
+						$this->xdebug("defaulted ref namespace to $ns");
 					}
 					$attrs['ref'] = $ns . ':' . $ename;
 				} else {
@@ -3611,6 +3609,18 @@ class nusoap_server extends nusoap_base {
 	var $result = 'successful';
 
 	/**
+	 * dispatch map by operation element
+	 * @var array
+	 * @access private
+	 */
+	var $dispatchMapByOperationElement = array();
+	/**
+	 * dispatch map by SOAP Action
+	 * @var array
+	 * @access private
+	 */
+	var $dispatchMapBySOAPAction = array();
+	/**
 	 * assoc array of operations => opData; operations are added by the register()
 	 * method or by parsing an external WSDL definition
 	 * @var array
@@ -3996,33 +4006,58 @@ class nusoap_server extends nusoap_base {
 			$this->debug('in invoke_method, no WSDL to validate method');
 		}
 
-		// if a . is present in $this->methodname, we see if there is a class in scope,
-		// which could be referred to. We will also distinguish between two deliminators,
-		// to allow methods to be called a the class or an instance
-		if (strpos($this->methodname, '..') > 0) {
-			$delim = '..';
-		} else if (strpos($this->methodname, '.') > 0) {
-			$delim = '.';
+		// check for an explicit mapping
+		if (isset($this->dispatchMapByOperationElement[$orig_methodname])) {
+			$map = $this->dispatchMapByOperationElement[$orig_methodname];
+		} elseif (isset($this->dispatchMapBySOAPAction[$this->SOAPAction])) {
+			$map = $this->dispatchMapBySOAPAction[$this->SOAPAction];
 		} else {
-			$delim = '';
+			$map = array();
 		}
-		$this->debug("in invoke_method, delim=$delim");
-
-		$class = '';
-		$method = '';
-		if (strlen($delim) > 0 && substr_count($this->methodname, $delim) == 1) {
-			$try_class = substr($this->methodname, 0, strpos($this->methodname, $delim));
-			if (class_exists($try_class)) {
-				// get the class and method name
-				$class = $try_class;
-				$method = substr($this->methodname, strpos($this->methodname, $delim) + strlen($delim));
-				$this->debug("in invoke_method, class=$class method=$method delim=$delim");
+		
+		if (count($map) > 0) {
+			// there is a mapping
+			if ($map['invoke_class'] != '') {
+				$class = $map['invoke_class'];
+				$delim = '..';
+			} elseif ($map['invoke_class_instance'] != '') {
+				$class = $map['invoke_class_instance'];
+				$delim = '.';
 			} else {
-				$this->debug("in invoke_method, class=$try_class not found");
+				$class = '';
+				$delim = '';
 			}
+			$try_class = $class;
+			$method = $map['invoke_function'];
 		} else {
-			$try_class = '';
-			$this->debug("in invoke_method, no class to try");
+			// if a . is present in $this->methodname, we see if there is a class in scope,
+			// which could be referred to. We will also distinguish between two deliminators,
+			// to allow methods to be called a the class or an instance
+			if (strpos($this->methodname, '..') > 0) {
+				$delim = '..';
+			} else if (strpos($this->methodname, '.') > 0) {
+				$delim = '.';
+			} else {
+				$delim = '';
+			}
+			$this->debug("in invoke_method, delim=$delim");
+	
+			$class = '';
+			$method = '';
+			if (strlen($delim) > 0 && substr_count($this->methodname, $delim) == 1) {
+				$try_class = substr($this->methodname, 0, strpos($this->methodname, $delim));
+				if (class_exists($try_class)) {
+					// get the class and method name
+					$class = $try_class;
+					$method = substr($this->methodname, strpos($this->methodname, $delim) + strlen($delim));
+					$this->debug("in invoke_method, class=$class method=$method delim=$delim");
+				} else {
+					$this->debug("in invoke_method, class=$try_class not found");
+				}
+			} else {
+				$try_class = '';
+				$this->debug("in invoke_method, no class to try");
+			}
 		}
 
 		// does method exist?
@@ -4416,6 +4451,75 @@ class nusoap_server extends nusoap_base {
 	*/
 	function add_to_map($methodname,$in,$out){
 			$this->operations[$methodname] = array('name' => $methodname,'in' => $in,'out' => $out);
+	}
+
+	/**
+	* add an operation dispatch mapping
+	*
+	* (either $operation_element OR $soap_action should be specified)
+	* (one or neither of $invoke_class or $invoke_class_instance should be specified)
+	* ($invoke_function must always be specified)
+	*
+	* NOTE: this is separate from the register() method to support interface-first
+	*       development of services; that technique normally uses an external WSDL file,
+	*       so register() is never called.
+	*
+	* @param	string $operation_element	The XML element for the operation
+	* @param	string $soap_action	The SOAP Action for the operation
+	* @param	string $invoke_function	The function or method to invoke
+	* @param	string $invoke_class	The class on which to invoke as a class method
+	* @param	string $invoke_class_instance	The class on which to invoke as an instance method
+	* @return	boolean true if added, false if not
+	* @access   public
+	*/
+	function addDispatchMap($operation_element, $soap_action, $invoke_function, $invoke_class, $invoke_class_instance) {
+		// massage parameters
+		if (!is_string($operation_element))
+			$operation_element = '';
+		if (!is_string($soap_action))
+			$soap_action = '';
+		if (!is_string($invoke_class))
+			$invoke_class = '';
+		if (!is_string($invoke_class_instance))
+			$invoke_class_instance = '';
+		if (!is_string($invoke_function))
+			$invoke_function = '';
+
+		// validate parameters
+		if ($operation_element == '' && $soap_action == '') {
+			$this->debug('addDispatchMap: Neither operation_element nor soap_action specified');
+			return false;
+		}
+		if ($operation_element != '' && $soap_action != '') {
+			$this->debug('addDispatchMap: Both operation_element and soap_action specified');
+			return false;
+		}
+		if ($invoke_class != '' && $invoke_class_instance != '') {
+			$this->debug('addDispatchMap: Both invoke_class and invoke_class_instance specified');
+			return false;
+		}
+		if ($invoke_function == '') {
+			$this->debug('addDispatchMap: No value provided for invoke_function');
+			return false;
+		}
+
+		// create the map
+		$map['operation_element'] = $operation_element;
+		$map['soap_action'] = $soap_action;
+		$map['invoke_class'] = $invoke_class;
+		$map['invoke_class_instance'] = $invoke_class_instance;
+		$map['invoke_function'] = $invoke_function;
+
+		// add to the appropriate map hash
+		if ($operation_element != '') {
+			$this->dispatchMapByOperationElement[$operation_element] = $map;
+			$this->debug("addDispatchMap: Added map for operation_element $operation_element");
+		} else {
+			$this->dispatchMapBySOAPAction[$soap_action] = $map;
+			$this->debug("addDispatchMap: Added map for soap_action $soap_action");
+		}
+		
+		return true;
 	}
 
 	/**
@@ -5683,7 +5787,7 @@ class wsdl extends nusoap_base {
 			}
 			foreach ($typeDef['elements'] as $name => $attrs) {
 				if ($change) {
-					$this->debug("in parametersMatchWrapped: change parameter $element to name $name");
+					$this->debug("in parametersMatchWrapped: change parameter $elements to name $name");
 					$parameters[$name] = $parameters[$elements];
 					unset($parameters[$elements]);
 					$matches++;

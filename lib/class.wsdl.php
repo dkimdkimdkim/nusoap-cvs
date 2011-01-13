@@ -1084,7 +1084,7 @@ class wsdl extends nusoap_base {
 			}
 			foreach ($typeDef['elements'] as $name => $attrs) {
 				if ($change) {
-					$this->debug("in parametersMatchWrapped: change parameter $element to name $name");
+					$this->debug("in parametersMatchWrapped: change parameter $elements to name $name");
 					$parameters[$name] = $parameters[$elements];
 					unset($parameters[$elements]);
 					$matches++;

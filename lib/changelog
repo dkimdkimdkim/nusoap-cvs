@@ -668,3 +668,12 @@
 2010-06-18, version 0.9.6
 - wsdl: restore wrapped return value kludge
 - wsdl: enhance Microsoft-style wrapped parameter serialization for output parameters
+
+2010-06-30, version 0.9.6
+- wsdl: fix debug string to use $elements instead of $elements (thanks karvinen)
+
+2010-??-??, version 0.9.6
+- nusoap_server: add operation dispatch mapping (experimental)
+
+2010-11-11, version 0.9.6
+- nusoap_xmlschema: fix a bug resolving the namespace in the ref attribute of an element

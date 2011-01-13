@@ -378,11 +378,9 @@ class nusoap_xmlschema extends nusoap_base  {
 					$this->currentElement = "ref to ".$attrs['ref'];
 					$ename = $this->getLocalPart($attrs['ref']);
 					$ns = $this->getPrefix($attrs['ref']);
-					if ($ns) {
-						$ns = $this->getNamespaceFromPrefix($ns);
-					}
 					if (! $ns) {
 						$ns = $this->schemaTargetNamespace;
+						$this->xdebug("defaulted ref namespace to $ns");
 					}
 					$attrs['ref'] = $ns . ':' . $ename;
 				} else {
