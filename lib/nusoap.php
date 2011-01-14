@@ -1305,6 +1305,14 @@ class nusoap_xmlschema extends nusoap_base  {
 				//	$this->complexTypes[$this->currentComplexType]['phpType'] = 'struct';
 				//}
 			break;
+//			case 'any':
+//				TODO: add this after hacking getTypeDef and serializeTypeDef
+//				if ($this->currentComplexType) {
+//					$this->xdebug("add any pseudo-element to complexType $this->currentComplexType");
+//					$attrs['type'] = '!any';
+//					$this->complexTypes[$this->currentComplexType]['elements']['any'] = $attrs;
+//				}
+//			break;
 			case 'attribute':	// complexType attribute
             	//$this->xdebug("parsing attribute $attrs[name] $attrs[ref] of value: ".$attrs['http://schemas.xmlsoap.org/wsdl/:arrayType']);
             	$this->xdebug("parsing attribute:");
@@ -2772,7 +2780,9 @@ class soap_transport_http extends nusoap_base {
 								'HTTP/1.1 302',
 								'HTTP/1.0 401',
 								'HTTP/1.1 401',
-								'HTTP/1.0 200 Connection established');
+								'HTTP/1.0 200 Connection established',
+								'HTTP/1.1 200 Connection established',
+								'HTTP/1.1 307');
 		foreach ($skipHeaders as $hd) {
 			$prefix = substr($data, 0, strlen($hd));
 			if ($prefix == $hd) return true;
@@ -4181,6 +4191,9 @@ class nusoap_server extends nusoap_base {
 					//	$this->debug('wrap in element named ' . $name);
 			    	//}
 			    	$opParams = array($this->methodreturn);
+			    } else {
+			    	$this->debug('no output parts, but wrap the method return in a simple array anyway');
+			    	$opParams = array($this->methodreturn);
 			    }
 			    $return_val = $this->wsdl->serializeRPCParameters($this->methodname,'output',$opParams);
 			    $this->appendDebug($this->wsdl->getDebug());
@@ -4262,7 +4275,7 @@ class nusoap_server extends nusoap_base {
 		if ($this->fault) {
 			$payload = $this->fault->serialize();
 			$this->outgoing_headers[] = "HTTP/1.0 500 Internal Server Error";
-			$this->outgoing_headers[] = "Status: 500 Internal Server Error";
+			//$this->outgoing_headers[] = "Status: 500 Internal Server Error";
 		} else {
 			$payload = $this->responseSOAP;
 			// Some combinations of PHP+Web server allow the Status

@@ -709,6 +709,9 @@ class nusoap_server extends nusoap_base {
 					//	$this->debug('wrap in element named ' . $name);
 			    	//}
 			    	$opParams = array($this->methodreturn);
+			    } else {
+			    	$this->debug('no output parts, but wrap the method return in a simple array anyway');
+			    	$opParams = array($this->methodreturn);
 			    }
 			    $return_val = $this->wsdl->serializeRPCParameters($this->methodname,'output',$opParams);
 			    $this->appendDebug($this->wsdl->getDebug());
@@ -790,7 +793,7 @@ class nusoap_server extends nusoap_base {
 		if ($this->fault) {
 			$payload = $this->fault->serialize();
 			$this->outgoing_headers[] = "HTTP/1.0 500 Internal Server Error";
-			$this->outgoing_headers[] = "Status: 500 Internal Server Error";
+			//$this->outgoing_headers[] = "Status: 500 Internal Server Error";
 		} else {
 			$payload = $this->responseSOAP;
 			// Some combinations of PHP+Web server allow the Status

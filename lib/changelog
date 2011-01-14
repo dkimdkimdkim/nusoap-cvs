@@ -677,3 +677,9 @@
 
 2010-11-11, version 0.9.6
 - nusoap_xmlschema: fix a bug resolving the namespace in the ref attribute of an element
+
+2011-01-13, version 0.9.6
+- soap_transport_http: Add HTTP/1.1 200 Connection established to skippable headers (thanks walovaton)
+- soap_transport_http: Add HTTP/1.1 307 to skippable headers (thanks pdbarker)
+- nusoap_server: Handle the case of no output parts (thanks pashkatlt)
+- nusoap_server: Don't specify redundant (and archaic) header "Status: 500 Internal Server Error" (thanks pashkatlt)

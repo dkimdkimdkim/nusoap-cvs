@@ -239,6 +239,14 @@ class nusoap_xmlschema extends nusoap_base  {
 				//	$this->complexTypes[$this->currentComplexType]['phpType'] = 'struct';
 				//}
 			break;
+//			case 'any':
+//				TODO: add this after hacking getTypeDef and serializeTypeDef
+//				if ($this->currentComplexType) {
+//					$this->xdebug("add any pseudo-element to complexType $this->currentComplexType");
+//					$attrs['type'] = '!any';
+//					$this->complexTypes[$this->currentComplexType]['elements']['any'] = $attrs;
+//				}
+//			break;
 			case 'attribute':	// complexType attribute
             	//$this->xdebug("parsing attribute $attrs[name] $attrs[ref] of value: ".$attrs['http://schemas.xmlsoap.org/wsdl/:arrayType']);
             	$this->xdebug("parsing attribute:");
