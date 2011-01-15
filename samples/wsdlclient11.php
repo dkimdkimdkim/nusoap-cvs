@@ -17,14 +17,17 @@ $proxyport = isset($_POST['proxyport']) ? $_POST['proxyport'] : '';
 $proxyusername = isset($_POST['proxyusername']) ? $_POST['proxyusername'] : '';
 $proxypassword = isset($_POST['proxypassword']) ? $_POST['proxypassword'] : '';
 $useCURL = isset($_POST['usecurl']) ? $_POST['usecurl'] : '0';
-$client = new soapclient('http://www.scottnichol.com/samples/hellowsdl3.wsdl', true,
+$client = new nusoap_client('http://www.scottnichol.com/samples/hellowsdl3.wsdl', 'wsdl',
 						$proxyhost, $proxyport, $proxyusername, $proxypassword);
 $err = $client->getError();
 if ($err) {
 	echo '<h2>Constructor error</h2><pre>' . $err . '</pre>';
+	echo '<h2>Debug</h2>';
+	echo '<pre>' . htmlspecialchars($client->getDebug(), ENT_QUOTES) . '</pre>';
+	exit();
 }
 $client->setUseCurl($useCURL);
-$person = array('firstname' => 'Willi', 'age' => 22, 'gender' => 'male');
+$person = array('firstname' => 'Willi', 'age' => 22, 'gender' => 'male', 'any' => '<hobbies>surfing</hobbies>');
 $name = array('name' => $person);
 $result = $client->call('hello', $name);
 if ($client->fault) {
@@ -46,5 +49,5 @@ echo '<pre>' . htmlspecialchars($client->request, ENT_QUOTES) . '</pre>';
 echo '<h2>Response</h2>';
 echo '<pre>' . htmlspecialchars($client->response, ENT_QUOTES) . '</pre>';
 echo '<h2>Debug</h2>';
-echo '<pre>' . htmlspecialchars($client->debug_str, ENT_QUOTES) . '</pre>';
+echo '<pre>' . htmlspecialchars($client->getDebug(), ENT_QUOTES) . '</pre>';
 ?>
