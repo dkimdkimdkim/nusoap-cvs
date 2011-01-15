@@ -27,6 +27,7 @@ if ($err) {
 $client->setUseCurl($useCURL);
 $client->soap_defencoding = 'UTF-8';
 $client->decode_utf8 = false;
+$client->setHeaders(array('Info1' => 'Data #1', 'Info2' => 'Data #2'));	// a test of setHeaders that does not change the behavior
 $utf8string = array('stuff' => "\xc2\xa9\xc2\xae\xc2\xbc\xc2\xbd\xc2\xbe");
 $result = $client->call('echoback', $utf8string);
 if ($client->fault) {
