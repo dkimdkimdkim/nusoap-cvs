@@ -1305,14 +1305,15 @@ class nusoap_xmlschema extends nusoap_base  {
 				//	$this->complexTypes[$this->currentComplexType]['phpType'] = 'struct';
 				//}
 			break;
-//			case 'any':
-//				TODO: add this after hacking getTypeDef and serializeTypeDef
-//				if ($this->currentComplexType) {
-//					$this->xdebug("add any pseudo-element to complexType $this->currentComplexType");
-//					$attrs['type'] = '!any';
-//					$this->complexTypes[$this->currentComplexType]['elements']['any'] = $attrs;
-//				}
-//			break;
+			case 'any':
+				if ($this->currentComplexType) {
+					$this->xdebug("add any pseudo-element to complexType $this->currentComplexType");
+					$attrs['type'] = '!any';
+					$this->complexTypes[$this->currentComplexType]['elements']['any'] = $attrs;
+				} else {
+					$this->xdebug("do nothing with any outside of complexType");
+				}
+			break;
 			case 'attribute':	// complexType attribute
             	//$this->xdebug("parsing attribute $attrs[name] $attrs[ref] of value: ".$attrs['http://schemas.xmlsoap.org/wsdl/:arrayType']);
             	$this->xdebug("parsing attribute:");
@@ -1654,7 +1655,11 @@ class nusoap_xmlschema extends nusoap_base  {
 					if(isset($eParts['ref'])){
 						$contentStr .= "   <$schemaPrefix:element ref=\"$element\"/>\n";
 					} else {
-						$contentStr .= "   <$schemaPrefix:element name=\"$element\" type=\"" . $this->contractQName($eParts['type']) . "\"";
+						if ($element == 'any') {
+							$contentStr .= "   <xsd:any";
+						} else {
+							$contentStr .= "   <$schemaPrefix:element name=\"$element\" type=\"" . $this->contractQName($eParts['type']) . "\"";
+						}
 						foreach ($eParts as $aName => $aValue) {
 							// handle, e.g., abstract, default, form, minOccurs, maxOccurs, nillable
 							if ($aName != 'name' && $aName != 'type') {
@@ -6040,6 +6045,15 @@ class wsdl extends nusoap_base {
 		$this->appendDebug("value=" . $this->varDump($value));
 		if($use == 'encoded' && $encodingStyle) {
 			$encodingStyle = ' SOAP-ENV:encodingStyle="' . $encodingStyle . '"';
+		}
+
+		if ($type == '!any') {
+			if (is_string($value)) {
+				$this->debug("in serializeType: returning any assuming it is literal: $value");
+				return $value;
+			}
+			$this->debug("in serializeType: returning empty string because value for any is not string");
+			return '';
 		}
 
 		// if a soapval has been supplied, let its type override the WSDL

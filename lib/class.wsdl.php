@@ -1326,6 +1326,15 @@ class wsdl extends nusoap_base {
 			$encodingStyle = ' SOAP-ENV:encodingStyle="' . $encodingStyle . '"';
 		}
 
+		if ($type == '!any') {
+			if (is_string($value)) {
+				$this->debug("in serializeType: returning any assuming it is literal: $value");
+				return $value;
+			}
+			$this->debug("in serializeType: returning empty string because value for any is not string");
+			return '';
+		}
+
 		// if a soapval has been supplied, let its type override the WSDL
     	if (is_object($value) && get_class($value) == 'soapval') {
     		if ($value->type_ns) {
