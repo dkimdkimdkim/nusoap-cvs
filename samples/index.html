@@ -17,13 +17,16 @@ function go(url) {
 These links allow you to launch sample clients.
 </p>
 <form name="linkform" method="POST" action="javascript:void();">
+<h3>SOAP Endpoints</h3>
 <a href="javascript:go('client1.php')">Amazon endpoint (Fault expected)</a><br>
 <a href="javascript:go('client2.php')">Amazon endpoint</a> <b>Not working</b><br>
 <a href="javascript:go('client3.php')">Google endpoint (you must have a key)</a> <b>Not working</b><br>
 <a href="javascript:go('mimeclient.php')">MIME Attachment</a><br>
 <a href="javascript:go('sslclient.php')">SSL endpoint</a><br>
-<a href="javascript:go('wsdlclient1.php')">Stock quote WSDL</a><br>
-<a href="javascript:go('wsdlclient2.php')">Amazon WSDL</a> <b>Requires PHP 5.1.2 or later</b> <i>Requires your Amazon AWS Keys</i><br>
+<a href="javascript:go('getfile1client.php')">Get a file #1 (uses base64Binary)</a><br>
+<h3>WSDL Endpoints</h3>
+<a href="javascript:go('wsdlclient1.php')">Stock quote</a> (.NET service; subscription service...free trial available)<br>
+<a href="javascript:go('wsdlclient2.php')">Amazon</a> <b>Requires PHP 5.1.2 or later</b> <i>Requires your Amazon AWS Keys</i><br>
 <a href="javascript:go('wsdlclient3.php?method=function')">Hello WSDL (PHP function)</a><br>
 <a href="javascript:go('wsdlclient3.php?method=instance')">Hello WSDL (PHP instance method)</a><br>
 <a href="javascript:go('wsdlclient3.php?method=class')">Hello WSDL (PHP class method)</a><br>
@@ -31,11 +34,11 @@ These links allow you to launch sample clients.
 <a href="javascript:go('wsdlclient3c.php')">Hello WSDL (rpc/literal version)</a><br>
 <a href="javascript:go('wsdlclient4.php')">Interop WSDL</a><br>
 <a href="javascript:go('wsdlclient5.php')">Price quote WSDL (uses wsdlcache)</a> <b>Not working</b><br>
-<a href="javascript:go('wsdlclient6.php')">Google WSDL (you must have WSDL file local)</a> <b>Not working</b><br>
+<a href="javascript:go('wsdlclient6.php')">Google WSDL (you must have WSDL file local)</a> <a href="http://googlecode.blogspot.com/2009/08/well-earned-retirement-for-soap-search.html"><b>Retired</b></a><br>
 <a href="javascript:go('wsdlclient7.php')">MapPoint WSDL #1 (you must have a username/password)</a> <b>Not working</b><br>
 <a href="javascript:go('wsdlclient8.php')">MapPoint WSDL #2 (you must have a username/password)</a> <b>Not working</b><br>
 <a href="javascript:go('wsdlclient9.php')">MapPoint WSDL #3 (you must have a username/password)</a> <b>Not working</b><br>
-<a href="javascript:go('wsdlclient10.php')">Country list WSDL</a><br>
+<a href="javascript:go('wsdlclient10.php')">Country list WSDL</a> (.NET service)<br>
 <a href="javascript:go('wsdlclient11.php')">Hello WSDL (document/literal version)</a><br>
 <a href="javascript:go('wsdlclient12.php?method=ItemLookup')">Amazon E-Commerce Service (ItemLookup by node)</a> <b>Requires PHP 5.1.2 or later</b> <i>Requires your Amazon AWS Keys</i><br>
 <a href="javascript:go('wsdlclient12.php?method=ItemSearch')">Amazon E-Commerce Service (ItemSearch by node)</a> <b>Requires PHP 5.1.2 or later</b> <i>Requires your Amazon AWS Keys</i><br>
@@ -46,7 +49,7 @@ These links allow you to launch sample clients.
 <a href="javascript:go('wsdlclient13.php')">Maintain a Session</a><br>
 <a href="javascript:go('wsdlclient14.php')">Via Michelin</a> <b>Fault</b><br>
 <a href="javascript:go('wsdlclient15.php')">UTF-8 Character Encoding</a><br>
-<a href="javascript:go('getfile1client.php')">Get a file #1 (uses base64Binary)</a><br>
+<a href="javascript:go('wsdlclient16.php')">Get company logo</a> (.NET service; subscription service...free trial available)<br>
 <a href="javascript:go('getfile2client.php')">Get a file #2 (uses base64Binary; service uses external WSDL file)</a><br>
 <br>
 <table border="0">
