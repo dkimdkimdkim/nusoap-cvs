@@ -6628,7 +6628,7 @@ class wsdl extends nusoap_base {
 			foreach ($in as $n => $t) {
 				$elements[$n] = array('name' => $n, 'type' => $t, 'form' => 'unqualified');
 			}
-			$this->addComplexType($name . 'RequestType', 'complexType', 'struct', 'all', '', $elements);
+			$this->addComplexType($name . 'RequestType', 'complexType', 'struct', 'sequence', '', $elements);
 			$this->addElement(array('name' => $name, 'type' => $name . 'RequestType'));
 			$in = array('parameters' => 'tns:' . $name . '^');
 
@@ -6636,7 +6636,7 @@ class wsdl extends nusoap_base {
 			foreach ($out as $n => $t) {
 				$elements[$n] = array('name' => $n, 'type' => $t, 'form' => 'unqualified');
 			}
-			$this->addComplexType($name . 'ResponseType', 'complexType', 'struct', 'all', '', $elements);
+			$this->addComplexType($name . 'ResponseType', 'complexType', 'struct', 'sequence', '', $elements);
 			$this->addElement(array('name' => $name . 'Response', 'type' => $name . 'ResponseType', 'form' => 'qualified'));
 			$out = array('parameters' => 'tns:' . $name . 'Response' . '^');
 		}

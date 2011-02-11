@@ -687,3 +687,6 @@
 2011-01-15, version 0.9.6
 - nusoap_xmlschema: Parse <any> element within complexType definition
 - wsdl: Serialize !any type as literal string data
+
+2011-02-04, version 0.9.6
+- wsdl: When creating a wrapper type in addOperation, use the sequence compositor rather than all (provides JSR 172 compatibility)
