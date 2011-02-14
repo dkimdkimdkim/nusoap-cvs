@@ -1315,12 +1315,14 @@ class wsdl extends nusoap_base {
 	 * @param string $use use for part (encoded|literal)
 	 * @param string $encodingStyle SOAP encoding style for the value (if different than the enclosing style)
 	 * @param boolean $unqualified a kludge for what should be XML namespace form handling
+	 * @param int $minOccurs the minOccurs attribute for an element
+	 * @param boolean $nillable the nillable attribute for an element
 	 * @return string value serialized as an XML string
 	 * @access private
 	 */
-	function serializeType($name, $type, $value, $use='encoded', $encodingStyle=false, $unqualified=false)
+	function serializeType($name, $type, $value, $use='encoded', $encodingStyle=false, $unqualified=false, $minOccurs=1, $nillable=false)
 	{
-		$this->debug("in serializeType: name=$name, type=$type, use=$use, encodingStyle=$encodingStyle, unqualified=" . ($unqualified ? "unqualified" : "qualified"));
+		$this->debug("in serializeType: name=$name, type=$type, use=$use, encodingStyle=$encodingStyle, unqualified=" . ($unqualified ? "unqualified" : "qualified") . ", minOccurs=$minOccurs, nillable=" . ($nillable ? "true" : "false"));
 		$this->appendDebug("value=" . $this->varDump($value));
 		if($use == 'encoded' && $encodingStyle) {
 			$encodingStyle = ' SOAP-ENV:encodingStyle="' . $encodingStyle . '"';
@@ -1384,10 +1386,14 @@ class wsdl extends nusoap_base {
 				}
 				if (is_null($value)) {
 					if ($use == 'literal') {
-						// TODO: depends on minOccurs
-						$xml = "<$name$elementNS/>";
+						if ($minOccurs == 0) {
+							$xml = '';
+						} elseif ($nillable) {
+							$xml = "<$name$elementNS xsi:nil=\"true\"/>";
+						} else {
+							$xml = "<$name$elementNS/>";
+						}
 					} else {
-						// TODO: depends on nillable, which should be checked before calling this method
 						$xml = "<$name$elementNS xsi:nil=\"true\" xsi:type=\"" . $this->getPrefixFromNamespace($ns) . ":$uqType\"/>";
 					}
 					$this->debug("in serializeType: returning: $xml");
@@ -1504,8 +1510,13 @@ class wsdl extends nusoap_base {
 			}
 			if (is_null($value)) {
 				if ($use == 'literal') {
-					// TODO: depends on minOccurs and nillable
-					$xml = "<$elementName$elementNS/>";
+					if ($minOccurs == 0) {
+						$xml = '';
+					} elseif ($nillable) {
+						$xml = "<$elementName$elementNS xsi:nil=\"true\"/>";
+					} else {
+						$xml = "<$elementName$elementNS/>";
+					}
 				} else {
 					$xml = "<$elementName$elementNS xsi:nil=\"true\" xsi:type=\"" . $this->getPrefixFromNamespace($ns) . ":$uqType\"/>";
 				}
@@ -1556,8 +1567,14 @@ class wsdl extends nusoap_base {
 			}
 			if (is_null($value)) {
 				if ($use == 'literal') {
-					// TODO: depends on minOccurs
 					$xml = "<$name$elementNS/>";
+					if ($minOccurs == 0) {
+						$xml = '';
+					} elseif ($nillable) {
+						$xml = "<$name$elementNS xsi:nil=\"true\"/>";
+					} else {
+						$xml = "<$name$elementNS/>";
+					}
 				} else {
 					$xml = "<$name$elementNS xsi:nil=\"true\" xsi:type=\"" .
 						$this->getPrefixFromNamespace('http://schemas.xmlsoap.org/soap/encoding/') .
@@ -1768,12 +1785,14 @@ class wsdl extends nusoap_base {
 					} else {
 						$unqualified = false;
 					}
+					$minOccurs = (int) (isset($attrs['minOccurs']) ? $attrs['minOccurs'] : '1');
+					$nillable = isset($attrs['nillable']) && ($attrs['nillable'] == 'true');
 					if (isset($attrs['maxOccurs']) && ($attrs['maxOccurs'] == 'unbounded' || $attrs['maxOccurs'] > 1) && isset($v) && is_array($v) && $this->isArraySimpleOrStruct($v) == 'arraySimple') {
 						$vv = $v;
 						foreach ($vv as $k => $v) {
 							if (isset($attrs['type']) || isset($attrs['ref'])) {
 								// serialize schema-defined type
-							    $xml .= $this->serializeType($eName, isset($attrs['type']) ? $attrs['type'] : $attrs['ref'], $v, $use, $encodingStyle, $unqualified);
+							    $xml .= $this->serializeType($eName, isset($attrs['type']) ? $attrs['type'] : $attrs['ref'], $v, $use, $encodingStyle, $unqualified, $minOccurs, $nillable);
 							} else {
 								// serialize generic type (can this ever really happen?)
 							    $this->debug("calling serialize_val() for $v, $eName, false, false, false, false, $use");
@@ -1781,14 +1800,9 @@ class wsdl extends nusoap_base {
 							}
 						}
 					} else {
-						if (is_null($v) && isset($attrs['minOccurs']) && $attrs['minOccurs'] == '0') {
-							// do nothing
-						} elseif (is_null($v) && isset($attrs['nillable']) && $attrs['nillable'] == 'true') {
-							// TODO: serialize a nil correctly, but for now serialize schema-defined type
-						    $xml .= $this->serializeType($eName, isset($attrs['type']) ? $attrs['type'] : $attrs['ref'], $v, $use, $encodingStyle, $unqualified);
-						} elseif (isset($attrs['type']) || isset($attrs['ref'])) {
+						if (isset($attrs['type']) || isset($attrs['ref'])) {
 							// serialize schema-defined type
-						    $xml .= $this->serializeType($eName, isset($attrs['type']) ? $attrs['type'] : $attrs['ref'], $v, $use, $encodingStyle, $unqualified);
+						    $xml .= $this->serializeType($eName, isset($attrs['type']) ? $attrs['type'] : $attrs['ref'], $v, $use, $encodingStyle, $unqualified, $minOccurs, $nillable);
 						} else {
 							// serialize generic type (can this ever really happen?)
 						    $this->debug("calling serialize_val() for $v, $eName, false, false, false, false, $use");
