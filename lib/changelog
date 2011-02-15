@@ -693,3 +693,6 @@
 
 2011-02-14, version 0.9.6
 - wsdl: Support minOccurs and nillable when serializing PHP NULL values in serializeType
+
+2011-02-15, version 0.9.6
+- wsdl: When creating a wrapper type in addOperation, set form="qualified" for all elements being wrapped

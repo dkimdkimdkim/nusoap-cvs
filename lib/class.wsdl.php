@@ -1919,15 +1919,15 @@ class wsdl extends nusoap_base {
 		if ($style == 'document') {
 			$elements = array();
 			foreach ($in as $n => $t) {
-				$elements[$n] = array('name' => $n, 'type' => $t, 'form' => 'unqualified');
+				$elements[$n] = array('name' => $n, 'type' => $t, 'form' => 'qualified');
 			}
 			$this->addComplexType($name . 'RequestType', 'complexType', 'struct', 'sequence', '', $elements);
-			$this->addElement(array('name' => $name, 'type' => $name . 'RequestType'));
+			$this->addElement(array('name' => $name, 'type' => $name . 'RequestType', 'form' => 'qualified'));
 			$in = array('parameters' => 'tns:' . $name . '^');
 
 			$elements = array();
 			foreach ($out as $n => $t) {
-				$elements[$n] = array('name' => $n, 'type' => $t, 'form' => 'unqualified');
+				$elements[$n] = array('name' => $n, 'type' => $t, 'form' => 'qualified');
 			}
 			$this->addComplexType($name . 'ResponseType', 'complexType', 'struct', 'sequence', '', $elements);
 			$this->addElement(array('name' => $name . 'Response', 'type' => $name . 'ResponseType', 'form' => 'qualified'));
