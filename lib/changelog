@@ -696,3 +696,7 @@
 
 2011-02-15, version 0.9.6
 - wsdl: When creating a wrapper type in addOperation, set form="qualified" for all elements being wrapped
+
+2011-02-16, version 0.9.6
+- nusoap_server: Support service-level documentation in configureWSDL
+- wsdl: Support service-level documentation

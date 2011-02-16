@@ -33,6 +33,7 @@ class wsdl extends nusoap_base {
     var $status = '';
     var $documentation = false;
     var $endpoint = ''; 
+    var $serviceDocumentation = '';
     // array of wsdl docs to import
     var $import = array(); 
     // parser vars
@@ -850,6 +851,7 @@ class wsdl extends nusoap_base {
 			<br><br>
 			<div class=title>'.$this->serviceName.'</div>
 			<div class=nav>
+				<p>' . htmlspecialchars($this->serviceDocumentation, ENT_QUOTES) . '</p>
 				<p>View the <a href="'.$PHP_SELF.'?wsdl">WSDL</a> for the service.
 				Click on an operation name to view it&apos;s details.</p>
 				<ul>';
@@ -920,6 +922,10 @@ class wsdl extends nusoap_base {
 				}
 			} 
 		} 
+		// service documentation
+		if ($this->serviceDocumentation) {
+			$xml .= "\n<documentation>\n" . $this->expandEntities($this->serviceDocumentation) . "\n</documentation>";
+		}
 		// types
 		if (count($this->schemas)>=1) {
 			$xml .= "\n<types>\n";
@@ -999,7 +1005,7 @@ class wsdl extends nusoap_base {
 					} 
 					$portType_xml .= '>';
 					if(isset($opParts['documentation']) && $opParts['documentation'] != '') {
-						$portType_xml .= "\n" . '    <documentation>' . htmlspecialchars($opParts['documentation']) . '</documentation>';
+						$portType_xml .= "\n" . '    <documentation>' . $this->expandEntities($opParts['documentation']) . '</documentation>';
 					}
 					$portType_xml .= "\n" . '    <input message="tns:' . $opParts['input']['message'] . '"/>';
 					$portType_xml .= "\n" . '    <output message="tns:' . $opParts['output']['message'] . '"/>';

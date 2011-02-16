@@ -4641,8 +4641,9 @@ class nusoap_server extends nusoap_base {
     * @param string $style optional (rpc|document) WSDL style (also specified by operation)
     * @param string $transport optional SOAP transport
     * @param mixed $schemaTargetNamespace optional 'types' targetNamespace for service schema or false
+    * @param string $serviceDocumentation documentation for the service
     */
-    function configureWSDL($serviceName,$namespace = false,$endpoint = false,$style='rpc', $transport = 'http://schemas.xmlsoap.org/soap/http', $schemaTargetNamespace = false)
+    function configureWSDL($serviceName,$namespace = false,$endpoint = false,$style='rpc', $transport = 'http://schemas.xmlsoap.org/soap/http', $schemaTargetNamespace = false, $serviceDocumentation = '')
     {
     	global $HTTP_SERVER_VARS;
 
@@ -4682,6 +4683,10 @@ class nusoap_server extends nusoap_base {
             $endpoint = "$SCHEME://$SERVER_NAME$SERVER_PORT$SCRIPT_NAME";
         }
         
+		if (false == $transport) {
+			$transport = 'http://schemas.xmlsoap.org/soap/http';
+		}
+
         if(false == $schemaTargetNamespace) {
             $schemaTargetNamespace = $namespace;
         }
@@ -4689,6 +4694,7 @@ class nusoap_server extends nusoap_base {
 		$this->wsdl = new wsdl;
 		$this->wsdl->serviceName = $serviceName;
         $this->wsdl->endpoint = $endpoint;
+        $this->wsdl->serviceDocumentation = $serviceDocumentation;
 		$this->wsdl->namespaces['tns'] = $namespace;
 		$this->wsdl->namespaces['soap'] = 'http://schemas.xmlsoap.org/wsdl/soap/';
 		$this->wsdl->namespaces['wsdl'] = 'http://schemas.xmlsoap.org/wsdl/';
@@ -4754,6 +4760,7 @@ class wsdl extends nusoap_base {
     var $status = '';
     var $documentation = false;
     var $endpoint = ''; 
+    var $serviceDocumentation = '';
     // array of wsdl docs to import
     var $import = array(); 
     // parser vars
@@ -5571,6 +5578,7 @@ class wsdl extends nusoap_base {
 			<br><br>
 			<div class=title>'.$this->serviceName.'</div>
 			<div class=nav>
+				<p>' . htmlspecialchars($this->serviceDocumentation, ENT_QUOTES) . '</p>
 				<p>View the <a href="'.$PHP_SELF.'?wsdl">WSDL</a> for the service.
 				Click on an operation name to view it&apos;s details.</p>
 				<ul>';
@@ -5641,6 +5649,10 @@ class wsdl extends nusoap_base {
 				}
 			} 
 		} 
+		// service documentation
+		if ($this->serviceDocumentation) {
+			$xml .= "\n<documentation>\n" . $this->expandEntities($this->serviceDocumentation) . "\n</documentation>";
+		}
 		// types
 		if (count($this->schemas)>=1) {
 			$xml .= "\n<types>\n";
@@ -5720,7 +5732,7 @@ class wsdl extends nusoap_base {
 					} 
 					$portType_xml .= '>';
 					if(isset($opParts['documentation']) && $opParts['documentation'] != '') {
-						$portType_xml .= "\n" . '    <documentation>' . htmlspecialchars($opParts['documentation']) . '</documentation>';
+						$portType_xml .= "\n" . '    <documentation>' . $this->expandEntities($opParts['documentation']) . '</documentation>';
 					}
 					$portType_xml .= "\n" . '    <input message="tns:' . $opParts['input']['message'] . '"/>';
 					$portType_xml .= "\n" . '    <output message="tns:' . $opParts['output']['message'] . '"/>';

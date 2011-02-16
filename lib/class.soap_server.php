@@ -1154,8 +1154,9 @@ class nusoap_server extends nusoap_base {
     * @param string $style optional (rpc|document) WSDL style (also specified by operation)
     * @param string $transport optional SOAP transport
     * @param mixed $schemaTargetNamespace optional 'types' targetNamespace for service schema or false
+    * @param string $serviceDocumentation documentation for the service
     */
-    function configureWSDL($serviceName,$namespace = false,$endpoint = false,$style='rpc', $transport = 'http://schemas.xmlsoap.org/soap/http', $schemaTargetNamespace = false)
+    function configureWSDL($serviceName,$namespace = false,$endpoint = false,$style='rpc', $transport = 'http://schemas.xmlsoap.org/soap/http', $schemaTargetNamespace = false, $serviceDocumentation = '')
     {
     	global $HTTP_SERVER_VARS;
 
@@ -1195,6 +1196,10 @@ class nusoap_server extends nusoap_base {
             $endpoint = "$SCHEME://$SERVER_NAME$SERVER_PORT$SCRIPT_NAME";
         }
         
+		if (false == $transport) {
+			$transport = 'http://schemas.xmlsoap.org/soap/http';
+		}
+
         if(false == $schemaTargetNamespace) {
             $schemaTargetNamespace = $namespace;
         }
@@ -1202,6 +1207,7 @@ class nusoap_server extends nusoap_base {
 		$this->wsdl = new wsdl;
 		$this->wsdl->serviceName = $serviceName;
         $this->wsdl->endpoint = $endpoint;
+        $this->wsdl->serviceDocumentation = $serviceDocumentation;
 		$this->wsdl->namespaces['tns'] = $namespace;
 		$this->wsdl->namespaces['soap'] = 'http://schemas.xmlsoap.org/wsdl/soap/';
 		$this->wsdl->namespaces['wsdl'] = 'http://schemas.xmlsoap.org/wsdl/';
