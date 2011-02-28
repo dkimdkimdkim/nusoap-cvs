@@ -700,3 +700,6 @@
 2011-02-16, version 0.9.6
 - nusoap_server: Support service-level documentation in configureWSDL
 - wsdl: Support service-level documentation
+
+2011-02-28, version 0.9.6
+- nusoap_base: Set initial global debug level to 0 rather than 9

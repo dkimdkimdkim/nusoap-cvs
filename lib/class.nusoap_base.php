@@ -71,7 +71,7 @@ require_once('class.soap_server.php');*/
 
 // class variable emulation
 // cf. http://www.webkreator.com/php/techniques/php-static-class-variables.html
-$GLOBALS['_transient']['static']['nusoap_base']['globalDebugLevel'] = 9;
+$GLOBALS['_transient']['static']['nusoap_base']['globalDebugLevel'] = 0;
 
 /**
 *
@@ -450,7 +450,7 @@ class nusoap_base {
 		if (is_null($val)) {
     		$this->debug("serialize_val: serialize null");
 			if ($use == 'literal') {
-				// TODO: depends on minOccurs
+				// TODO: depends on minOccurs, nillable
 				$xml = "<$name$xmlns$atts/>";
 				$this->debug("serialize_val returning $xml");
 	        	return $xml;
